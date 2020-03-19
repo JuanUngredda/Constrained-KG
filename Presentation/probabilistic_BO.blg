@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: probabilistic_BO.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: acmart.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+You've used 1 entry,
+            5733 wiz_defined-function locations,
+            1299 strings with 14621 characters,
+and the built_in function-call counts, 855 in all, are:
+= -- 74
+> -- 20
+< -- 0
++ -- 5
+- -- 8
+* -- 52
+:= -- 104
+add.period$ -- 6
+call.type$ -- 1
+change.case$ -- 5
+chr.to.int$ -- 1
+cite$ -- 1
+duplicate$ -- 78
+empty$ -- 55
+format.name$ -- 8
+if$ -- 162
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 2
+newline$ -- 49
+num.names$ -- 8
+pop$ -- 27
+preamble$ -- 1
+purify$ -- 14
+quote$ -- 0
+skip$ -- 27
+stack$ -- 0
+substring$ -- 55
+swap$ -- 8
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 15
+warning$ -- 0
+while$ -- 8
+width$ -- 0
+write$ -- 58

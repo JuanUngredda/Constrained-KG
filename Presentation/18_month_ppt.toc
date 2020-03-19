@@ -1,0 +1,16 @@
+\beamer@endinputifotherversion {3.36pt}
+\select@language {english}
+\beamer@sectionintoc {1}{Research overview}{3}{0}{1}
+\beamer@sectionintoc {2}{Log Gaussian Cox Process Networks}{5}{0}{2}
+\beamer@subsectionintoc {2}{1}{Related work}{5}{0}{2}
+\beamer@subsectionintoc {2}{2}{The LGCPN model}{8}{0}{2}
+\beamer@subsectionintoc {2}{3}{Scalable Variational Inference}{11}{0}{2}
+\beamer@subsectionintoc {2}{4}{Experiments}{15}{0}{2}
+\beamer@subsectionintoc {2}{5}{Future directions}{18}{0}{2}
+\beamer@sectionintoc {3}{Long term PhD directions}{20}{0}{3}
+\beamer@sectionintoc {4}{References}{22}{0}{4}
+\beamer@sectionintoc {5}{Background materials}{26}{1}{5}
+\beamer@subsectionintoc {5}{1}{Derivations of the KL-divergence terms}{27}{1}{5}
+\beamer@subsectionintoc {5}{2}{Continuous LGCPN formulation}{33}{1}{5}
+\beamer@subsectionintoc {5}{3}{KL- ELBO}{38}{1}{5}
+\beamer@subsectionintoc {5}{4}{Derivation of the predicted intensities}{40}{1}{5}

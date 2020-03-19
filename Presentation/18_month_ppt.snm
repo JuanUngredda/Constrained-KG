@@ -1,0 +1,16 @@
+\beamer@slide {eq:lik_lgcp}{5}
+\beamer@slide {eq:prior_f}{8}
+\beamer@slide {eq:likelihood}{9}
+\beamer@slide {plate}{10}
+\beamer@slide {eq:klterm}{12}
+\beamer@slide {eq:ellterm}{12}
+\beamer@slide {synthetic_plot}{15}
+\beamer@slide {tab:all_synthetic_performance}{15}
+\beamer@slide {btb_plot}{16}
+\beamer@slide {tab:performance_BTB_missing}{16}
+\beamer@slide {Crime_data}{17}
+\beamer@slide {tab:performance_crime_missing_RMSE}{17}
+\beamer@slide {crime_predictions}{17}
+\beamer@slide {eq:prod_int}{35}
+\beamer@slide {eq:prod_first_exp}{41}
+\beamer@slide {eq:prod_int}{42}

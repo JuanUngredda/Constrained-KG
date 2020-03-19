@@ -1,0 +1,179 @@
+\documentclass{beamer}
+
+
+\usepackage{tabu}
+\usepackage[english]{babel}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[english]{babel}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{mwe}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage{textcomp}
+\usetikzlibrary{fit, positioning, shapes,arrows}
+\usepackage{multirow}
+\usepackage{multicol} % Required for multiple columns
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{appendixnumberbeamer}
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+\usepackage{graphicx}
+
+\usepackage{hyperref}       % hyperlinkssample-bibliography-biblatex
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{algorithm}
+\usepackage{bm}
+
+
+\tikzset{three sided/.style={
+        draw=none,
+        append after command={
+            [shorten <= -0.5\pgflinewidth]
+            ([shift={(-1.5\pgflinewidth,-0.5\pgflinewidth)}]\tikzlastnode.north east)
+        edge([shift={( 0.5\pgflinewidth,-0.5\pgflinewidth)}]\tikzlastnode.north west) 
+            ([shift={( 0.5\pgflinewidth,-0.5\pgflinewidth)}]\tikzlastnode.north west)
+        edge([shift={( 0.5\pgflinewidth,+0.5\pgflinewidth)}]\tikzlastnode.south west)            
+            ([shift={( 0.5\pgflinewidth,+0.5\pgflinewidth)}]\tikzlastnode.south west)
+        edge([shift={(-1.0\pgflinewidth,+0.5\pgflinewidth)}]\tikzlastnode.south east)
+        }
+    }
+}
+
+\makeatletter
+\DeclareRobustCommand{\rchi}{{\mathpalette\irchi\relax}}
+\newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}} 
+
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.5}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\makeatother
+
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2016}
+
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\setbeamerfont{caption}{series=\normalfont,size=\fontsize{6}{6}} 
+\usepackage{breakcites}
+\usepackage[tableposition=top]{caption}
+
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{lipsum}
+
+
+\apptocmd{\frame}{}{\justifying}{} % Allow optional arguments after frame.
+
+\colorlet{Mycolor1}{green!10!orange!90!}
+\definecolor{foreground}{RGB}{255,255,255}
+\definecolor{background}{RGB}{30,30,30}
+\definecolor{title}{RGB}{107,174,214}
+\definecolor{gray}{RGB}{155,155,155}
+\definecolor{subtitle}{RGB}{102,255,204}
+\definecolor{hilight}{RGB}{102,255,204}
+\definecolor{vhilight}{RGB}{255,111,207}
+\definecolor{footline}{RGB}{255,255,255}
+
+\setbeamercolor{titlelike}{fg=title}
+\setbeamercolor{subtitle}{fg=subtitle}
+\setbeamercolor{institute}{fg=gray}
+\setbeamercolor{normal text}{fg=foreground,bg=background}
+
+\usepackage{lipsum}
+
+\defbeamertemplate{headline}{page number}{%
+	\vskip1pt%
+	\setbeamertemplate{footline}[page number]%
+	\usebeamertemplate{footline}%
+}
+\setbeamertemplate{headline}[page number]
+\setbeamercolor{page number in head/foot}{fg=white}
+
+
+
+\usepackage[absolute,overlay]{textpos}
+
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+\usepackage{acronym}
+
+\input{macros}
+\input{notation}
+
+\title[]{Constrained Bayesian Optimisation with Knowledge Gradient}
+\author[Juan Ungredda]{\small Juan Ungredda}
+\institute[]{University of Warwick}
+\date{}
+
+
+\begin{document}
+
+
+\begin{frame}
+  \titlepage
+  \flushright\includegraphics[ height=0.8cm]{logo_epsrc.jpeg}
+  \includegraphics[ height=0.8cm]{logo_warwick.jpeg}
+\end{frame}
+
+
+\section{Background}
+
+\begin{frame}{Constrained KG}
+Non-constrained KG:
+$$KG(x) = \mathbb{E}[\max_{x'}\{\mu^{n+1}(x')\}|x^{n+1}=x]$$
+
+Constrained KG with Probability of Feasibility (pf):
+\begin{align*}
+\begin{split}
+c-KG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x')\}|x^{n+1}=x]
+\end{split}
+\end{align*}
+
+Constrained KG corrected*:
+\begin{align*}
+\begin{split}
+c-KG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x') + (1-pf^{n+1}(x'))M\}|x^{n+1}=x]
+\end{split}
+\end{align*}
+
+where $M\in \mathbb{R}$ is the penalisation for sampling points in an infeasible region. It's commonly assumed to be zero.
+
+\end{frame}
+
+\begin{frame}{Constrained KG}
+Benefits
+\begin{itemize}
+	\item Takes into account that constraints change for each possible $x^{n+1}$ considered.
+	\item Assuming $M=0$ may give "benefit" to infeasible regions. A more general approach avoids that problem.
+\end{itemize}
+Limitations
+\begin{itemize}
+	\item Computationally expensive compared to constrained Expected Improvement. However, it's possible to make an efficient implementation by using gradients.
+	\item $M$ may be need to chosen by the decision maker.
+\end{itemize}
+
+
+\end{frame}
+
+\end{document}

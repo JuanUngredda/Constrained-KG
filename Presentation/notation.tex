@@ -1,0 +1,95 @@
+% Matrices and vectors 
+\newcommand{\mat}[1]{\mathbf{#1}}
+\renewcommand{\vec}[1]{ \mathbf{#1} } % math bold
+\newcommand{\vecS}[1]{\boldsymbol{ #1 }  } % this for boldsymbols
+\newcommand{\vecentry}[2]{{\mathrm #1_{#2}}}
+\newcommand{\matentry}[3]{{\mathrm #1_{#2,#3}}}
+\newcommand{\matcol}[2]{\mat{#1}_{\cdot,#2}}
+\newcommand{\matrow}[2]{\mat{#1}_{#2,\cdot}}
+
+% GP things
+\newcommand{\gp}{\mathcal{GP}}
+\newcommand{\kernel}{\kappa}
+\newcommand{\meanfunc}[1]{m(#1)}
+\newcommand{\covfunc}[3]{\kernel(#1,#2; #3)}
+\newcommand{\hyperparam}{\vectheta}
+
+% Specific variables
+\newcommand{\dataset}{\mathcal{D}}
+\newcommand{\x}{\vec{x}}
+\newcommand{\xn}{\x_n}
+\newcommand{\xstar}{\x_\star}
+\newcommand{\xprime}{\x^{\prime}}
+\newcommand{\vectheta}{\vecS{\theta}}
+\newcommand{\y}{\vec{y}}
+\newcommand{\ystar}{\y_\star}
+\newcommand{\yn}{\vec{y}_n}
+\newcommand{\f}{\mat{F}}
+\newcommand{\fstar}{\f_\star}
+%\newcommand{\u}{\vec{u}}
+\newcommand{\fq}{\f_{\bullet q}}
+\newcommand{\fn}{\f_{n \bullet}}
+\newcommand{\samplefn}[1]{\fn^{(#1)}}
+\newcommand{\W}{\mat{W}}
+\renewcommand{\wp}{\W_{p \bullet}}
+\newcommand{\varw}{\sigma^2} % variance of W for independent prior
+\newcommand{\wq}{\W_{\bullet q}}
+\newcommand{\samplewp}[1]{\wp^{(#1)}}
+\newcommand{\Y}{\mat{Y}}
+\newcommand{\lambdan}{\vec{\lambda}_{n \bullet}}
+\renewcommand{\u}{\mat{U}}
+\newcommand{\uq}{\u_{\bullet q}}
+\newcommand{\z}{\vec{z}}
+\newcommand{\Z}{\mat{Z}}
+\newcommand{\Zq}{\Z_q}
+\newcommand{\zprime}{\z^{\prime}}
+\newcommand{\meanfu}{\tilde{\vecS{\mu}}}  % conditonal prior mean
+\newcommand{\covfu}{\widetilde{\vecS{\mat{K}}}}  % conditonal prior covariance
+\newcommand{\meanfuq}{\tilde{\vecS{\mu}}_q}  % conditonal prior mean
+\newcommand{\covfuq}{\widetilde{\vecS{\mat{K}}}_q}  % conditonal prior covariance
+\newcommand{\likeparam}{\phi}
+
+% Covariance matricces
+\newcommand{\Kq}{\mat{K}_{xx}^q}
+\newcommand{\covwq}{\vecS{\mat{K}}_{w}^q}
+\newcommand{\Kzzq}{\mat{K}_{zz}^q}
+\newcommand{\Kxzq}{\mat{K}_{xz}^q}
+\newcommand{\Kzxq}{\mat{K}_{zx}^q}
+\newcommand{\Kzzqinv}{(\mat{K}_{zz}^q)^{-1}}
+
+
+% Distributions
+\newcommand{\poisson}{\text{Poisson}}
+\newcommand{\normal}{\mathcal{N}}
+
+% statistics / algebra / computation
+\newcommand{\kl}[2]{\mathrm{KL}(#1 \lVert #2)}
+\newcommand{\expectation}[2]{ \mathbb{E}_{#1}{\left[#2\right]} }
+\renewcommand{\det}[1]{\left\lvert#1\right\rvert}
+\newcommand{\trace}{\mbox{ \rm tr }}
+\newcommand{\bigO}{\mathcal{O}}
+
+% variational stuff
+\newcommand{\varparam}{\vecS{\nu}}
+\newcommand{\varmeanuq}{\vec{m}_q}
+\newcommand{\varmeanfqn}{\mu_q}
+\newcommand{\varmeanfq}{\pmb{\mu}_q}
+\newcommand{\varcovuq}{\mat{S}_q}
+\newcommand{\varmeanwq}{\vecS{\omega}_q}
+\newcommand{\varmeanwpq}{\omega_{pq}}
+\newcommand{\varcovwq}{\vecS{\Omega}_q}
+\newcommand{\varcovwpq}{\Omega_{pq}}
+\newcommand{\varcovfq}{\Sigma^q}
+\newcommand{\varvarwq}{\tilde{\sigma}^2_q}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\elbo}{\calL_{\text{elbo}}}
+\newcommand{\ellterm}{\calL_{\text{ell}}}
+\newcommand{\klterm}{\calL_{\text{kl}}}
+\newcommand{\enterm}{\calL_{\text{ent}}}
+\newcommand{\crossterm}{\calL_{\text{cross}}}
+\newcommand{\elltermhat}{\widehat{\calL}_{\text{ell}}}  
+\newcommand{\qfn}{q(\fn) }
+\newcommand{\qwp}{q(\wp)}
+
+
+

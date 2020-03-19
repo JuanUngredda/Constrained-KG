@@ -1,0 +1,15 @@
+\BOOKMARK [2][]{Outline0.1}{Research overview}{}% 1
+\BOOKMARK [2][]{Outline0.2}{Log Gaussian Cox Process Networks}{}% 2
+\BOOKMARK [3][]{Outline0.2.1.5}{Related work}{Outline0.2}% 3
+\BOOKMARK [3][]{Outline0.2.2.8}{The LGCPN model}{Outline0.2}% 4
+\BOOKMARK [3][]{Outline0.2.3.11}{Scalable Variational Inference}{Outline0.2}% 5
+\BOOKMARK [3][]{Outline0.2.4.15}{Experiments}{Outline0.2}% 6
+\BOOKMARK [3][]{Outline0.2.5.18}{Future directions}{Outline0.2}% 7
+\BOOKMARK [2][]{Outline0.3}{Long term PhD directions}{}% 8
+\BOOKMARK [2][]{Outline0.4}{References}{}% 9
+\BOOKMARK [1][]{Outline1}{Appendix}{}% 10
+\BOOKMARK [2][]{Outline1.5}{Background materials}{Outline1}% 11
+\BOOKMARK [3][]{Outline1.5.1.27}{Derivations of the KL-divergence terms}{Outline1.5}% 12
+\BOOKMARK [3][]{Outline1.5.2.33}{Continuous LGCPN formulation}{Outline1.5}% 13
+\BOOKMARK [3][]{Outline1.5.3.38}{KL- ELBO}{Outline1.5}% 14
+\BOOKMARK [3][]{Outline1.5.4.40}{Derivation of the predicted intensities}{Outline1.5}% 15

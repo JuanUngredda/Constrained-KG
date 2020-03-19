@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: 18_month_ppt.aux
+The style file: plainnat.bst
+Database file #1: references.bib
+Warning--there's a number but no volume in blei2017variational
+Warning--empty journal in 2009variational
+You've used 8 entries,
+            2773 wiz_defined-function locations,
+            663 strings with 6830 characters,
+and the built_in function-call counts, 3797 in all, are:
+= -- 329
+> -- 238
+< -- 3
++ -- 80
+- -- 72
+* -- 316
+:= -- 590
+add.period$ -- 24
+call.type$ -- 8
+change.case$ -- 48
+chr.to.int$ -- 8
+cite$ -- 18
+duplicate$ -- 175
+empty$ -- 299
+format.name$ -- 82
+if$ -- 784
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 8
+newline$ -- 48
+num.names$ -- 32
+pop$ -- 94
+preamble$ -- 1
+purify$ -- 40
+quote$ -- 0
+skip$ -- 135
+stack$ -- 0
+substring$ -- 114
+swap$ -- 17
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 88
+warning$ -- 2
+while$ -- 33
+width$ -- 0
+write$ -- 108
+(There were 2 warnings)

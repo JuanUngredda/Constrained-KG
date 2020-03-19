@@ -1,0 +1,27 @@
+\frametitle{Algorithm: Knowledge Gradient for Input Uncertainty}
+[Pearce and Branke, (2017)]
+
+\begin{columns}
+	\begin{column}{0.6\textwidth}
+		\begin{itemize}
+			\item From current $\max_{\mathbf{x} \in X}\{\widehat{F}^n(\mathbf{x})\}$
+			\vspace{5mm}
+			\item Given a sample $(\mathbf{x},\mathbf{a})^{n+1}$
+			\vspace{5mm}
+			\item Update posterior $\mu^{n}(x,a)$
+			\vspace{5mm}
+			\item Update to $\max_{\mathbf{x} \in X}\{\widehat{F}^{n+1}(\mathbf{x})\}$
+		\end{itemize}
+	\end{column}
+
+	\begin{column}{0.5\textwidth}  %%<--- here
+		\begin{figure}
+			\centering
+			\begin{tabular}{c}
+				\includegraphics[width=5.5cm]{FILLING.png}\\
+				$\widehat{F}(x) = \int_{A} \textcolor{green}{\mu^{n} (x,a)} \mathbb{P}[a|D]da$\\
+			\end{tabular}
+		\end{figure}
+	\end{column}
+\end{columns}
+
