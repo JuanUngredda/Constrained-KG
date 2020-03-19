@@ -3,7 +3,7 @@ import sys
 import subprocess as sp
 import os
 import argparse
-
+from .acquisition.mistery_experiment import function_caller
 # This is a bare script that receives args, prints something, wastes some time,
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -42,7 +42,7 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    from .acquisition.mistery_experiment import function_caller
+
     function_caller(args.k)
 
     # save something to hard drive in /res/ subfolder
