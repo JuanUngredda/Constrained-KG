@@ -1,7 +1,7 @@
 import numpy as np
 import GPyOpt
 from GPyOpt.objective_examples.experiments2d import mistery, dropwave
-import GPy
+import GPy as GPy
 from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
@@ -85,7 +85,6 @@ def function_caller(rep):
     # func2 = dropwave()
     mistery_f =mistery(sd=1e-6)
 
-    print("mistery optimum", mistery_f.f(np.array([[2.7450, 2.3523]])))
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
     f = MultiObjective([mistery_f.f])
@@ -139,5 +138,4 @@ def function_caller(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-function_caller(rep=1)
 
