@@ -83,12 +83,13 @@ def function_caller(rep):
 
 
     # func2 = dropwave()
-    mistery_f =mistery(sd=1e-6)
+    mistery_f =mistery(sd=0.05)
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
     f = MultiObjective([mistery_f.f])
     c = MultiObjective([mistery_f.c])
+
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -99,13 +100,17 @@ def function_caller(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
-    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
+
+    kernel = GPy.kern.RBF(input_dim=2, variance=1., lengthscale=1.)
+    kernel.lengthscale.constrain_bounded(0, 5)
+
+    model_f = multi_outputGP(output_dim = n_f, kernel=[kernel]*n_f)
+    model_c = multi_outputGP(output_dim = n_c, kernel=[kernel]*n_c)
 
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='Nelder_Mead', space=space)
     #
     # # --- Initial design
     #initial design
@@ -119,7 +124,7 @@ def function_caller(rep):
 
     max_iter  = 45
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
     print("Code Ended")
 
     data = {}
@@ -127,7 +132,7 @@ def function_caller(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "Mistery"
+    subfolder = "Mistery_noise_0.1"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -139,3 +144,4 @@ def function_caller(rep):
     print("X",X,"Y",Y, "C", C)
 
 
+function_caller(rep=2)

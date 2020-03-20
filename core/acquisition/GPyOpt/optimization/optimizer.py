@@ -89,6 +89,8 @@ class OptLbfgs(Optimizer):
 
             res = scipy.optimize.fmin_l_bfgs_b(f_df, x0=x0, bounds=self.bounds, maxiter=self.maxiter, factr=1e7)
 
+
+
         ### --- We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
         if res[2]['task'] == b'ABNORMAL_TERMINATION_IN_LNSRCH':
             result_x  = np.atleast_2d(x0)
@@ -99,6 +101,51 @@ class OptLbfgs(Optimizer):
             
         #print(res[2])
         #print("Optimize result_x, result_fx",result_x, result_fx)
+        return result_x, result_fx
+
+class Nelder_Mead(Optimizer):
+    '''
+    Wrapper for l-bfgs-b to use the true or the approximate gradients.
+    '''
+
+    def __init__(self, bounds, maxiter=50):
+        super(Nelder_Mead, self).__init__(bounds)
+        self.maxiter = maxiter
+
+    def optimize(self, x0, f=None, df=None, f_df=None):
+        """
+        :param x0: initial point for a local optimizer.
+        :param f: function to optimize.
+        :param df: gradient of the function to optimize.
+        :param f_df: returns both the function to optimize and its gradient.
+        """
+        import scipy.optimize
+        if f_df is None and df is not None:
+            f_df = lambda x: float(f(x)), df(x)
+
+        if f_df is None and df is None:
+
+            res = scipy.optimize.minimize(f, x0=x0, bounds=self.bounds,options={ 'maxiter':self.maxiter})  # factr=1e4
+        else:
+
+            print("Use an optimiser with gradient information")
+
+        x0 = np.atleast_2d(x0)
+        result_x = np.atleast_2d(res["x"])
+
+        for k in range(x0.shape[1]):
+            if result_x[0, k] < self.bounds[k][0]:
+                result_x[0, k] = self.bounds[k][0]
+            elif result_x[0, k] > self.bounds[k][1]:
+                result_x[0, k] = self.bounds[k][1]
+        ### --- We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
+        if res['message'] == b'ABNORMAL_TERMINATION_IN_LNSRCH':
+            result_x = np.atleast_2d(x0)
+            result_fx = np.atleast_2d(f(x0))
+        else:
+            result_x = np.atleast_2d(res["x"])
+            result_fx = np.atleast_2d(res["fun"])
+
         return result_x, result_fx
 
 
@@ -298,6 +345,10 @@ def choose_optimizer(optimizer_name, bounds):
 
         elif optimizer_name == 'CMA':
             optimizer = OptCma(bounds)
+
+        elif optimizer_name == 'Nelder_Mead':
+            optimizer = Nelder_Mead(bounds)
+
         else:
             raise InvalidVariableNameError('Invalid optimizer selected.')
 

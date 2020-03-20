@@ -343,7 +343,7 @@ class mistery(function2d):
         self.sd = sd
         self.name = 'Mistery'
 
-    def f(self, x, offset=40):
+    def f(self, x, offset=0):
         # print("x",x)
         n = x.shape[0]
         x1 = x[:, 0]
@@ -359,7 +359,7 @@ class mistery(function2d):
         else:
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return -fval.reshape(n,1) + noise.reshape(-1, 1) + offset
+        return -(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)
 
     def c(self, x):
         # print("c",x)

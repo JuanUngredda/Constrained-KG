@@ -190,8 +190,11 @@ class BO(object):
 
             if verbosity:
                 ####plots
-                design_plot = initial_design('random', self.space, 150)
+                design_plot = initial_design('random', self.space, 200)
                 ac_f = self.expected_improvement(design_plot)
+                kg_f = -self.acquisition._compute_acq(design_plot)
+
+                print("kg_f", np.min(kg_f), "x", design_plot[np.argmin(kg_f)])
                 Y, _ = self.objective.evaluate(design_plot)
                 C, _ = self.constraint.evaluate(design_plot)
                 mu_f = self.model.predict(design_plot)[0]
@@ -199,23 +202,26 @@ class BO(object):
                 bool_C = [i.reshape(-1)<0 for i in C]
                 func_val = Y * bool_C[0].reshape(-1,1)
 
-                fig, axs = plt.subplots(2, 2)
+                fig, axs = plt.subplots(3, 2)
                 axs[0, 0].set_title('True Function')
                 axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
                 axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
                 axs[0, 0].scatter(self.suggested_sample[:, 0], self.suggested_sample[:, 1], marker = "x", color="red",
                                   label="suggested")
 
-                axs[0, 1].set_title('approximation Acqu Function')
+                axs[0, 1].set_title('approximation EI Function')
                 axs[0, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
 
 
                 axs[1,0].set_title("convergence")
-                axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array([1.1743+40])- np.array(self.Opportunity_Cost).reshape(-1))
+                axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array(self.Opportunity_Cost).reshape(-1))
                 axs[1,0].set_yscale("log")
 
                 axs[1,1].set_title("mu")
                 axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1))
+
+                axs[2, 1].set_title('approximation KG Function')
+                axs[2, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(kg_f).reshape(-1))
 
 
                 plt.show()
@@ -253,11 +259,11 @@ class BO(object):
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
             suggested_sample =  self.space.zip_inputs(out[0])
+            suggested_samples_noisy = np.array([suggested_sample[0] for i in range(10000)])
 
-            # print("self.suggested_sample",suggested_sample)
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
-            Y, _ = self.objective.evaluate(suggested_sample)
-            # print("Y",Y)
+            Y, _ = self.objective.evaluate(suggested_samples_noisy)
+
             C, _ = self.constraint.evaluate(suggested_sample)
 
             C = np.concatenate(C, axis=1)

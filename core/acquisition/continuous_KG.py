@@ -23,7 +23,7 @@ class KG(AcquisitionBase):
     def __init__(self, model, space, model_c=None, optimizer=None, cost_withGradients=None, utility=None):
         self.optimizer = optimizer
         self.utility = utility
-        self.MCMC = False
+        self.MCMC = True
         super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
@@ -58,25 +58,27 @@ class KG(AcquisitionBase):
         """
         marginal_acqX = np.zeros((X.shape[0],1))
         if self.MCMC:
-            n_h = 10 # Number of GP hyperparameters samples.
+            n_h = 1 # Number of GP hyperparameters samples.
             gp_hyperparameters_samples_obj = self.model.get_hyperparameters_samples(n_h)
+            print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
             gp_hyperparameters_samples_const = self.model_c.get_hyperparameters_samples(n_h)
         else:
             n_h = 1
             gp_hyperparameters_samples_obj  = self.model.get_model_parameters()
-
+            print("gp_hyperparameters_samples_obj",gp_hyperparameters_samples_obj)
             gp_hyperparameters_samples_const  = [self.model_c.get_model_parameters()]
 
-        n_z= 5 # Number of samples of Z.
+        n_z= 2 # Number of samples of Z.
         Z_samples_obj = np.random.normal(size=n_z)
         Z_samples_const = np.random.normal(size=n_z)
 
         for h in range(n_h):
 
-            self.model.set_hyperparameters(gp_hyperparameters_samples_obj[h])
-            self.model_c.set_hyperparameters(gp_hyperparameters_samples_const[h])
+            self.model.set_hyperparameters(np.array(gp_hyperparameters_samples_obj[h]).reshape(-1))
+            self.model_c.set_hyperparameters(np.array(gp_hyperparameters_samples_const[h]).reshape(-1))
             # print("after for loop self.model_c.get_model_parameters()[0]",self.model_c.get_model_parameters())
             varX_obj = self.model.posterior_variance(X)
+
             varX_c = self.model_c.posterior_variance(X)
 
 
@@ -103,10 +105,13 @@ class KG(AcquisitionBase):
                         X_inner = np.atleast_2d(X_inner)
 
                         mean_obj = self.posterior_mu_x_new(self.model, X_inner, x, Z_obj, aux_obj)
+                        # print("mean_obj", mean_obj)
                         mean_const = self.posterior_mu_x_new(self.model_c, X_inner, x, Z_const, aux_c)
                         kernel_const = self.posterior_kernel_x_new(self.model_c, X_inner, x, aux_c,likelihood=True)
                         Fz = self.probability_feasibility_multi_gp(x, self.model_c, mean=mean_const, cov=kernel_const, grad=False, l=0)
+                        # print("Fz",Fz)
                         func_val = mean_obj*Fz
+                        # print("func_val",func_val)
                         return -func_val
                     # inner function of maKG acquisition function with its gradient.
 
@@ -174,12 +179,13 @@ class KG(AcquisitionBase):
                     # plt.show()
 
                     inner_opt_val =self.optimizer.optimize_inner_func(f =inner_func, f_df=None)[1]
+                    #print("inner_opt_val",inner_opt_val)
                     marginal_acqX[i, 0] -= inner_opt_val
 
                     # design_plot = initial_design('random', self.space, 1000)
                     # func_val = inner_func(design_plot)
-                    # # print("inner_func",func_val)
-                    # print("func_val",np.min(func_val), "marginal_acqX[i,0]",inner_opt_val)
+                    # #print("inner_func",func_val)
+                    # print("func_val min",np.min(func_val), "marginal_acqX[i,0]",inner_opt_val)
                     # fig, axs = plt.subplots(2, 2)
                     # axs[0, 0].set_title('True Function')
                     # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
@@ -219,10 +225,6 @@ class KG(AcquisitionBase):
         func_val = []
         for j in range(muX_inner.shape[0]):
             a = muX_inner[j]
-            # print("aux",aux)
-            # print("cov",cov)
-            # print("aux[j]",aux[j])
-            # print("cov[j]",cov[j])
             b = np.sqrt(aux[j] * np.square(cov[j]))
             func_val.append(np.reshape(a + b * Z, (len(X_inner), 1)))
         return func_val

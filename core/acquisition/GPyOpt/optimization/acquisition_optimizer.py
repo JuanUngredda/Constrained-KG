@@ -66,7 +66,7 @@ class AcquisitionOptimizer(object):
         ## --- Selecting the anchor points and removing duplicates
         if self.type_anchor_points_logic == max_objective_anchor_points_logic:
             # print("max objectives")
-            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples=200)
+            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples=30)
         elif self.type_anchor_points_logic == thompson_sampling_anchor_points_logic:
             # print("thompson sampling")
             anchor_points_generator = ThompsonSamplingAnchorPointsGenerator(self.space, sobol_design_type, self.model)
@@ -75,26 +75,28 @@ class AcquisitionOptimizer(object):
         if re_use == True:
             anchor_points = self.old_anchor_points
         else:
-            anchor_points = anchor_points_generator.get(num_anchor=1,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+            anchor_points = anchor_points_generator.get(num_anchor=10,duplicate_manager=duplicate_manager, context_manager=self.context_manager, verbose=True)
             self.old_anchor_points = anchor_points
 
 
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
-
+        print("anchor_points",anchor_points)
+        print("value_anchor points", f(anchor_points))
 
         # print("f",f(anchor_points[0]))
+        import time
+        time_start = time.time()
+        optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=None, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
+        time_stop = time.time()
+        print("time optimizer anchor points", time_stop - time_start)
+        print("anchor_points", anchor_points)
+        print("optimized_points", optimized_points)
+        x_min, fx_min = min(optimized_points, key=lambda t:t[1])
 
-        #optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=None, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
-        #time_stop = time.time()
-        # print("time optimizer anchor points", time_stop - time_start)
-        # print("anchor_points", anchor_points)
-        # print("optimized_points", optimized_points)
-        # x_min, fx_min = min(optimized_points, key=lambda t:t[1])
-
-        # print("x_min",x_min,"fx_min",fx_min)
+        print("x_min",x_min,"fx_min",fx_min)
         #x_min, fx_min = min([apply_optimizer(self.optimizer, a, f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points], key=lambda t:t[1])                   
-        return anchor_points,0 #x_min, fx_min
+        return x_min, fx_min
     
     
     def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None):
@@ -115,7 +117,7 @@ class AcquisitionOptimizer(object):
 
         ## --- Selecting the anchor points and removing duplicates
         if self.type_anchor_points_logic == max_objective_anchor_points_logic:
-            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples= 30)
+            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples= 16)
         elif self.type_anchor_points_logic == thompson_sampling_anchor_points_logic:
             anchor_points_generator = ThompsonSamplingAnchorPointsGenerator(self.space, sobol_design_type, self.model)
            
@@ -126,6 +128,8 @@ class AcquisitionOptimizer(object):
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
         # print("anchor_points",anchor_points, "shape", anchor_points.shape)
 
+        # print("anchor_points inner func",anchor_points)
+        # print("value_anchor points inner func", f(anchor_points))
 
         optimized_points = [apply_optimizer(self.inner_optimizer, a.flatten(), f=f, df=None, f_df=None, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
 
