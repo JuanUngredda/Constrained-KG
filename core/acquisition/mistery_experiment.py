@@ -139,6 +139,5 @@ def function_caller(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-function_caller(rep=1)
 
 
