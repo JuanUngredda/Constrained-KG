@@ -105,7 +105,7 @@ def function_caller(rep):
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='Nelder_Mead', space=space)
     #
     # # --- Initial design
     #initial design
@@ -117,7 +117,7 @@ def function_caller(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-    max_iter  = 45
+    max_iter  = 1
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -129,13 +129,16 @@ def function_caller(rep):
     folder = "RESULTS"
     subfolder = "Mistery"
     cwd = os.getcwd()
-    print("cwd", cwd)
+
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
+    print("path", path)
     if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
         os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
     gen_file.to_csv(path_or_buf=path)
 
     print("X",X,"Y",Y, "C", C)
+
+function_caller(rep=1)
 
 

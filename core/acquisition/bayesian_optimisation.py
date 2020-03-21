@@ -180,6 +180,7 @@ class BO(object):
 
 
             self._update_model()
+            print("optimize_final_evaluation")
             self.optimize_final_evaluation()
 
             print("maKG optimizer")
@@ -190,8 +191,19 @@ class BO(object):
 
             if verbosity:
                 ####plots
-                design_plot = initial_design('random', self.space, 150)
+                print("generating plots")
+                design_plot = initial_design('random', self.space, 100)
+
+
+                # precision = []
+                # for i in range(20):
+                #     kg_f = -self.acquisition._compute_acq(design_plot)
+                #     precision.append(np.array(kg_f).reshape(-1))
+
+                # print("mean precision", np.mean(precision, axis=0), "std precision",  np.std(precision, axis=0), "max precision", np.max(precision, axis=0), "min precision",np.min(precision, axis=0))
                 ac_f = self.expected_improvement(design_plot)
+
+
                 Y, _ = self.objective.evaluate(design_plot)
                 C, _ = self.constraint.evaluate(design_plot)
                 mu_f = self.model.predict(design_plot)[0]
@@ -199,7 +211,8 @@ class BO(object):
                 bool_C = [i.reshape(-1)<0 for i in C]
                 func_val = Y * bool_C[0].reshape(-1,1)
 
-                fig, axs = plt.subplots(2, 2)
+                kg_f = -self.acquisition._compute_acq(design_plot)
+                fig, axs = plt.subplots(3, 2)
                 axs[0, 0].set_title('True Function')
                 axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
                 axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
@@ -217,6 +230,8 @@ class BO(object):
                 axs[1,1].set_title("mu")
                 axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1))
 
+                axs[2, 1].set_title('approximation kg Function')
+                axs[2, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(kg_f).reshape(-1))
 
                 plt.show()
 
@@ -296,7 +311,7 @@ class BO(object):
         # otherwise use np.max(Y_sample).
         # See also section 2.4 in [...]
         mu_sample_opt = np.max(self.Y) - offset
-        print("mu_sample_opt", mu_sample_opt)
+        #print("mu_sample_opt", mu_sample_opt)
         with np.errstate(divide='warn'):
             imp = mu - mu_sample_opt
             Z = imp / sigma

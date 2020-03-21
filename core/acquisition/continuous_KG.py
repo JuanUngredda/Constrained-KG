@@ -65,11 +65,13 @@ class KG(AcquisitionBase):
             n_h = 1
             gp_hyperparameters_samples_obj  = self.model.get_model_parameters()
 
-            gp_hyperparameters_samples_const  = [self.model_c.get_model_parameters()]
+            gp_hyperparameters_samples_const  = self.model_c.get_model_parameters()
+        # print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
+        n_z= 10 # Number of samples of Z.
 
-        n_z= 5 # Number of samples of Z.
         Z_samples_obj = np.random.normal(size=n_z)
         Z_samples_const = np.random.normal(size=n_z)
+
 
         for h in range(n_h):
 
@@ -94,9 +96,12 @@ class KG(AcquisitionBase):
                 aux_c = np.reciprocal(varX_c[:,i])
 
                 # print("x",x)
+
+                statistics_precision = []
                 for z in range(n_z):
                     Z_obj = Z_samples_obj[z]
                     Z_const = Z_samples_const[z]
+
 
                     # inner function of maKG acquisition function.
                     def inner_func(X_inner):
@@ -174,6 +179,7 @@ class KG(AcquisitionBase):
                     # plt.show()
 
                     inner_opt_val =self.optimizer.optimize_inner_func(f =inner_func, f_df=None)[1]
+                    statistics_precision.append(inner_opt_val)
                     marginal_acqX[i, 0] -= inner_opt_val
 
                     # design_plot = initial_design('random', self.space, 1000)
@@ -187,7 +193,7 @@ class KG(AcquisitionBase):
                     # plt.show()
 
                 #print("x", x, "marginal_acqX[i,0]",marginal_acqX[i,0]/(n_z*n_h))
-
+            # print("x", x, "mean precision",np.mean(statistics_precision),"std precision", np.std(statistics_precision), "MSE", 1.95*np.std(statistics_precision)/np.sqrt(n_z))
         marginal_acqX = marginal_acqX/(n_z*n_h)
         return marginal_acqX
 

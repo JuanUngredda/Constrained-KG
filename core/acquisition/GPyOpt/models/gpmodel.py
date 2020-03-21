@@ -62,16 +62,18 @@ class GPModel(BOModel):
 
         # --- define model
         noise_var = Y.var()*0.01 if self.noise_var is None else self.noise_var
+
         self.model = GPy.models.GPRegression(X, Y, kernel=kern, noise_var=noise_var)
 
         # --- Define prior on the hyper-parameters for the kernel (for integrated acquisitions)
         self.model.kern.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
-        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
+        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(1,5))
 
         # --- Restrict variance if exact evaluations of the objective
         if self.exact_feval:
             self.model.Gaussian_noise.constrain_fixed(1e-6, warning=False)
         else:
+            #self.model.Gaussian_noise.constrain_bounded(1,1.5)
             self.model.Gaussian_noise.constrain_positive(warning=False)
             
 
@@ -91,7 +93,7 @@ class GPModel(BOModel):
         #     self.model.set_XY(X_all, Y_all)
 
         # update the model generating hmc samples
-        self.model.optimize(max_iters = 200)
+        self.model.optimize_restarts(num_restarts=5, max_iters = 20, verbose=False)
         self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
         self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)
         ss = self.hmc.sample(num_samples=self.n_burnin + self.n_samples* self.subsample_interval, hmc_iters=self.leapfrog_steps)
