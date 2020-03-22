@@ -3,7 +3,7 @@ import sys
 import subprocess as sp
 import os
 import argparse
-from mistery_experiment_bnch import function_caller
+from mistery_experiment import function_caller
 
 # This is a bare script that receives args, prints something, wastes some time,
 # and saves something. Use this as a blank template to run experiments.
