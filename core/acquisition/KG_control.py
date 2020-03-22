@@ -3,7 +3,9 @@ import sys
 import subprocess as sp
 import os
 import argparse
-from mistery_experiment_bnch import function_caller
+from mistery_experiment import function_caller_mistery
+from new_branin_experiment import function_caller_new_brannin
+from test_fun_2_experiment import function_caller_test_func_2
 
 # This is a bare script that receives args, prints something, wastes some time,
 # and saves something. Use this as a blank template to run experiments.
@@ -43,8 +45,10 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
+    funcions = [function_caller_mistery, function_caller_new_brannin, function_caller_test_func_2]
 
-    function_caller(args.k)
+    for func in funcions:
+        func(args.k)
 
     # save something to hard drive in /res/ subfolder
     with open(this_job_savefile, 'w') as f:

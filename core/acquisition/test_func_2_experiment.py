@@ -7,23 +7,23 @@ from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
 from continuous_KG import KG
-from bayesian_optimisation_benchmark import BO
+from bayesian_optimisation import BO
 import pandas as pd
 import os
 
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller_mistery_bnch(rep):
+def function_caller_test_func_2(rep):
     np.random.seed(rep)
 
     # func2 = dropwave()
-    mistery_f =mistery(sd=1e-6)
+    test_function_2_f = test_function_2(sd=1e-6)
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
-    f = MultiObjective([mistery_f.f])
-    c = MultiObjective([mistery_f.c])
+    f = MultiObjective([test_function_2_f.f])
+    c = MultiObjective([test_function_2_f.c1, test_function_2_f.c2, test_function_2_f.c3])
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -31,16 +31,16 @@ def function_caller_mistery_bnch(rep):
     #c2 = MultiObjective([test_c2])
     # --- Space
     #define space of variables
-    space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+    space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,1)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,1)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
-    n_c = 1
+    n_c = 3
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_c)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f)
     #
     # # --- Initial design
     #initial design
@@ -62,7 +62,7 @@ def function_caller_mistery_bnch(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "Mistery_bnch"
+    subfolder = "test_function_2"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -73,6 +73,6 @@ def function_caller_mistery_bnch(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-#function_caller(rep=2)
+function_caller(rep=2)
 
 

@@ -190,14 +190,16 @@ class BO(object):
 
             if verbosity:
                 ####plots
-                design_plot = initial_design('random', self.space, 150)
+                design_plot = initial_design('random', self.space, 1000)
                 ac_f = self.expected_improvement(design_plot)
                 Y, _ = self.objective.evaluate(design_plot)
                 C, _ = self.constraint.evaluate(design_plot)
+                pf = self.probability_feasibility_multi_gp(design_plot, self.model_c).reshape(-1, 1)
                 mu_f = self.model.predict(design_plot)[0]
 
-                bool_C = [i.reshape(-1)<0 for i in C]
-                func_val = Y * bool_C[0].reshape(-1,1)
+
+                bool_C = np.product(np.concatenate(C,axis=1)<0,axis=1)
+                func_val = Y * bool_C.reshape(-1,1)
 
                 fig, axs = plt.subplots(2, 2)
                 axs[0, 0].set_title('True Function')
@@ -211,11 +213,11 @@ class BO(object):
 
 
                 axs[1,0].set_title("convergence")
-                axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array([1.1743+40])- np.array(self.Opportunity_Cost).reshape(-1))
+                axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array(self.Opportunity_Cost).reshape(-1))
                 axs[1,0].set_yscale("log")
 
                 axs[1,1].set_title("mu")
-                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1))
+                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
 
 
                 plt.show()
@@ -223,6 +225,10 @@ class BO(object):
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
+
+            bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+            func_val = self.Y * bool_C.reshape(-1, 1)
+            self.Opportunity_Cost.append(np.max(func_val))
 
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero
@@ -245,11 +251,7 @@ class BO(object):
         out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
         suggested_sample =  self.space.zip_inputs(out[0])
 
-        print("self.suggested_sample",suggested_sample)
-        # --- Evaluate *f* in X, augment Y and update cost function (if needed)
-        Y, _ = self.objective.evaluate(suggested_sample)
-        Y_aux = np.concatenate((self.Y[0].reshape(-1),Y[0].reshape(-1)))
-        self.Opportunity_Cost.append(np.max(Y_aux))
+        print("suggested_sample",suggested_sample)
         return suggested_sample
 
 
@@ -275,15 +277,19 @@ class BO(object):
         # Needed for noise-based model,
         # otherwise use np.max(Y_sample).
         # See also section 2.4 in [...]
-        mu_sample_opt = np.max(self.Y) - offset
-        print("mu_sample_opt", mu_sample_opt)
+        bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        func_val = self.Y * bool_C.reshape(-1, 1)
+
+        mu_sample_opt = np.max(func_val) - offset
+
         with np.errstate(divide='warn'):
             imp = mu - mu_sample_opt
             Z = imp / sigma
             ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
             ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-        return -(ei *pf )
+
+        return -(ei.reshape(-1) *pf.reshape(-1) )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)

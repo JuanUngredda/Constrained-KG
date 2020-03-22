@@ -206,10 +206,11 @@ class BO(object):
 
                 Y, _ = self.objective.evaluate(design_plot)
                 C, _ = self.constraint.evaluate(design_plot)
+                pf = self.probability_feasibility_multi_gp(design_plot, self.model_c).reshape(-1, 1)
                 mu_f = self.model.predict(design_plot)[0]
 
-                bool_C = [i.reshape(-1)<0 for i in C]
-                func_val = Y * bool_C[0].reshape(-1,1)
+                bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+                func_val = Y * bool_C.reshape(-1, 1)
 
                 kg_f = -self.acquisition._compute_acq(design_plot)
                 fig, axs = plt.subplots(3, 2)
@@ -228,7 +229,7 @@ class BO(object):
                 axs[1,0].set_yscale("log")
 
                 axs[1,1].set_title("mu")
-                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1))
+                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
 
                 axs[2, 1].set_title('approximation kg Function')
                 axs[2, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(kg_f).reshape(-1))
@@ -267,23 +268,21 @@ class BO(object):
 
             start = time.time()
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=5000)
+            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=1000)
             suggested_sample =  self.space.zip_inputs(out[0])
             stop = time.time()
-            print("time EI", stop -start)
+            print("time EI", stop - start)
             # print("self.suggested_sample",suggested_sample)
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             Y, _ = self.objective.evaluate(suggested_sample)
             # print("Y",Y)
             C, _ = self.constraint.evaluate(suggested_sample)
 
-            C = np.concatenate(C, axis=1)
-
-            bool_C = [i.reshape(-1) < 0 for i in self.C]
-            func_val = self.Y * bool_C[0].reshape(-1, 1)
+            bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+            func_val = Y * bool_C.reshape(-1, 1)
             # print("C",C)
             # print("C[-1, :]",C[-1, :])
-            feasable_point = np.product( C[-1, :] < 0)
+            feasable_point = bool_C
             # print("(self.Y[0],Y[0])",(func_val,Y[0]))
             Y_aux = np.concatenate((func_val.reshape(-1),Y[0].reshape(-1)))
         self.Opportunity_Cost.append(np.max(Y_aux))
@@ -312,7 +311,9 @@ class BO(object):
         # Needed for noise-based model,
         # otherwise use np.max(Y_sample).
         # See also section 2.4 in [...]
-        mu_sample_opt = np.max(self.Y) - offset
+        bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        func_val = self.Y * bool_C.reshape(-1, 1)
+        mu_sample_opt = np.max(func_val) - offset
         #print("mu_sample_opt", mu_sample_opt)
         with np.errstate(divide='warn'):
             imp = mu - mu_sample_opt

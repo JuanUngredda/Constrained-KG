@@ -14,7 +14,7 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller(rep):
+def function_caller_mistery(rep):
     np.random.seed(rep)
 
     class GP_test():
@@ -139,6 +139,7 @@ def function_caller(rep):
     gen_file.to_csv(path_or_buf=path)
 
     print("X",X,"Y",Y, "C", C)
+
 
 
 

@@ -335,7 +335,7 @@ class test_function_2(function2d):
         self.sd = sd
         self.name = 'test_function_2'
 
-    def f(self, x, offset=-40):
+    def f(self, x, offset=0):
         # print("x",x)
         n = x.shape[0]
         x1 = x[:, 0]
@@ -358,7 +358,7 @@ class test_function_2(function2d):
         term1 = (x1 - 3)**2.0
         term2 = (x2 + 2)**2.0
         term3 = -12
-        fval = (term1 + term2)*np.exp(x2**7)+term3
+        fval = (term1 + term2)*np.exp(-x2**7)+term3
         # print("fval",-fval.reshape(-1, 1))
         return fval.reshape(n,1)
 
@@ -448,7 +448,7 @@ class new_brannin(function2d):
         self.sd = sd
         self.name = 'new_brannin'
 
-    def f(self, x, offset=-40):
+    def f(self, x, offset=0):
         # print("x",x)
         n = x.shape[0]
         x1 = x[:, 0]
@@ -468,7 +468,7 @@ class new_brannin(function2d):
         n = x.shape[0]
         x1 = x[:, 0]
         x2 = x[:, 1]
-        term1 = (x2 - (5.1/(4 * np.pi**2.0))*x1**2.0 + (5.0/np,pi)*x1 - 6)**2.0
+        term1 = (x2 - (5.1/(4 * np.pi**2.0))*x1**2.0 + (5.0/np.pi)*x1 - 6)**2.0
         term2 = 10 * (1 - (1.0/(8*np.pi)))*np.cos(x1)
         term3 = 5
         fval = term1 + term2 + term3
