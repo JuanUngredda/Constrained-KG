@@ -323,6 +323,65 @@ class goldstein(function2d):
                 noise = np.random.normal(0,self.sd,n).reshape(n,1)
             return fval.reshape(n,1) + noise
 
+class test_function_2(function2d):
+    def __init__(self, bounds=None, sd=None):
+        self.input_dim = 2
+        if bounds is None:
+            self.bounds = [(0, 1), (0, 1)]
+        else:
+            self.bounds = bounds
+        self.min = [(0.2018, 0.833)]
+        self.fmin = 0.748
+        self.sd = sd
+        self.name = 'test_function_2'
+
+    def f(self, x, offset=-40):
+        # print("x",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term2 = -(x1 - 1)**2.0
+        term3 = -(x2  - 0.5 )** 2.0
+        fval = term2 + term3
+        if self.sd == 0:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
+        return -(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)
+
+    def c1(self, x):
+        # print("c",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x1 - 3)**2.0
+        term2 = (x2 + 2)**2.0
+        term3 = -12
+        fval = (term1 + term2)*np.exp(x2**7)+term3
+        # print("fval",-fval.reshape(-1, 1))
+        return fval.reshape(n,1)
+
+    def c2(self, x):
+        # print("c",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        fval = 10*x1 + x2 -7
+        # print("fval",-fval.reshape(-1, 1))
+        return fval.reshape(n,1)
+
+    def c3(self, x):
+        # print("c",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x1 - 0.5)**2.0
+        term2 = (x2 - 0.5)**2.0
+        term3 = -0.2
+        fval = term1 + term2 + term3
+        # print("fval",-fval.reshape(-1, 1))
+        return fval.reshape(n,1)
 
 class mistery(function2d):
     '''
@@ -349,7 +408,7 @@ class mistery(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         term1 = 2
-        term2 = 0.01*(x2-x1**2.0)**2.0
+        term2 = 0.01*(x2 - x1**2.0)**2.0
         term3 = (1 -  x1 )** 2
         term4 = 2*(2-x2)**2
         term5 = 7*np.sin(0.5*x1)*np.sin(0.7*x1*x2)
@@ -367,12 +426,55 @@ class mistery(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         fval = -np.sin(x1 - x2 -np.pi/8.0)
+        # print("fval",-fval.reshape(-1, 1))
+        return -fval.reshape(n,1)
+
+class new_brannin(function2d):
+    '''
+    Six hump camel function
+
+    :param bounds: the box constraints to define the domain in which the function is optimized.
+    :param sd: standard deviation, to generate noisy evaluations of the function.
+    '''
+
+    def __init__(self, bounds=None, sd=None):
+        self.input_dim = 2
+        if bounds is None:
+            self.bounds = [(-5, 10), (0, 15)]
+        else:
+            self.bounds = bounds
+        self.min = [(3.26, 0.05)]
+        self.fmin = 268.781
+        self.sd = sd
+        self.name = 'new_brannin'
+
+    def f(self, x, offset=-40):
+        # print("x",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = -(x1 - 10)**2
+        term2 = -(x2 - 15)**2.0
+        fval = term1 + term2
         if self.sd == 0:
             noise = np.zeros(n).reshape(n, 1)
         else:
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
+        return -(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)
+
+    def c(self, x):
+        # print("c",x)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x2 - (5.1/(4 * np.pi**2.0))*x1**2.0 + (5.0/np,pi)*x1 - 6)**2.0
+        term2 = 10 * (1 - (1.0/(8*np.pi)))*np.cos(x1)
+        term3 = 5
+        fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
-        return -fval.reshape(n,1) + noise.reshape(-1, 1)
+        return fval.reshape(n,1)
+
 
 class sixhumpcamel(function2d):
     '''

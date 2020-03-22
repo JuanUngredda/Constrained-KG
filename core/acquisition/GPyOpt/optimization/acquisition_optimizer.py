@@ -45,7 +45,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False, num_samples=100):
         """
         Optimizes the input function.
 
@@ -66,7 +66,7 @@ class AcquisitionOptimizer(object):
         ## --- Selecting the anchor points and removing duplicates
         if self.type_anchor_points_logic == max_objective_anchor_points_logic:
             # print("max objectives")
-            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples=100)
+            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples=num_samples)
         elif self.type_anchor_points_logic == thompson_sampling_anchor_points_logic:
             # print("thompson sampling")
             anchor_points_generator = ThompsonSamplingAnchorPointsGenerator(self.space, sobol_design_type, self.model)
@@ -75,7 +75,7 @@ class AcquisitionOptimizer(object):
         if re_use == True:
             anchor_points = self.old_anchor_points
         else:
-            anchor_points = anchor_points_generator.get(num_anchor=1,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+            anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
 
 

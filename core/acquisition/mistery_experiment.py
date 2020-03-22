@@ -105,7 +105,7 @@ def function_caller(rep):
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='Nelder_Mead', space=space)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='Nelder_Mead', space=space, model = model_f)
     #
     # # --- Initial design
     #initial design
@@ -119,7 +119,8 @@ def function_caller(rep):
 
     max_iter  = 45
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+
     print("Code Ended")
 
     data = {}
@@ -138,6 +139,7 @@ def function_caller(rep):
     gen_file.to_csv(path_or_buf=path)
 
     print("X",X,"Y",Y, "C", C)
+
 
 
 

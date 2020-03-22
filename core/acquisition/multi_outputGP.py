@@ -106,9 +106,13 @@ class multi_outputGP(object):
         """
         Returns posterior mean at the points that have been already evaluated.
         """
-        self.X = self.output[0].model.X
+
 
         return self.posterior_mean(self.output[0].model.X)
+
+    def get_X_values(self):
+        self.X = self.output[0].model.X
+        return self.X
     
     
     def posterior_variance(self,  X):

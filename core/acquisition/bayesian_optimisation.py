@@ -265,10 +265,12 @@ class BO(object):
             # plt.show()
 
 
+            start = time.time()
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
+            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=5000)
             suggested_sample =  self.space.zip_inputs(out[0])
-
+            stop = time.time()
+            print("time EI", stop -start)
             # print("self.suggested_sample",suggested_sample)
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             Y, _ = self.objective.evaluate(suggested_sample)
