@@ -257,7 +257,10 @@ class BO(object):
     def optimize_final_evaluation(self):
 
         feasable_point = False
-        while (feasable_point==False):
+        maxiter = 5
+        counter = 0
+        while (feasable_point==False) and counter<maxiter:
+
             # design_plot = initial_design('random', self.space, 1000)
             #
             # fig, axs = plt.subplots(2, 2)
@@ -285,6 +288,7 @@ class BO(object):
             feasable_point = bool_C
             # print("(self.Y[0],Y[0])",(func_val,Y[0]))
             Y_aux = np.concatenate((func_val.reshape(-1),Y[0].reshape(-1)))
+            counter += 1
         self.Opportunity_Cost.append(np.max(Y_aux))
 
 
