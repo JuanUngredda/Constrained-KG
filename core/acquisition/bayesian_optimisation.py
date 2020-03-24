@@ -235,7 +235,7 @@ class BO(object):
                 axs[2, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(kg_f).reshape(-1))
 
                 plt.show()
-
+            print("self.Opportunity_Cost",self.Opportunity_Cost)
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
@@ -257,7 +257,7 @@ class BO(object):
     def optimize_final_evaluation(self):
 
         feasable_point = False
-        maxiter = 5
+        maxiter = 1
         counter = 0
         while (feasable_point==False) and counter<maxiter:
 
@@ -283,12 +283,14 @@ class BO(object):
 
             bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
             func_val = Y * bool_C.reshape(-1, 1)
-            # print("C",C)
+          
             # print("C[-1, :]",C[-1, :])
             feasable_point = bool_C
-            # print("(self.Y[0],Y[0])",(func_val,Y[0]))
-            Y_aux = np.concatenate((func_val.reshape(-1),Y[0].reshape(-1)))
+
+            Y_aux = np.concatenate((func_val.reshape(-1),np.array(self.Y).reshape(-1)))
+
             counter += 1
+
         self.Opportunity_Cost.append(np.max(Y_aux))
 
 
