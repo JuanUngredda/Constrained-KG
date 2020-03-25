@@ -284,7 +284,7 @@ class BO(object):
             bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
             func_val = Y * bool_C.reshape(-1, 1)
             feasable_Y_data = np.array(self.Y).reshape(-1) * np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
-            print("feasable_Y_data",feasable_Y_data)
+          
             # print("C[-1, :]",C[-1, :])
             feasable_point = bool_C
 
