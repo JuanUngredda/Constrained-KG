@@ -52,7 +52,7 @@ def function_caller_new_brannin(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-    max_iter  = 45
+    max_iter  = 30
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
