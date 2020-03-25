@@ -70,8 +70,8 @@ class KG(AcquisitionBase):
                 gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
         # print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
         # print("gp_hyperparameters_samples_const", gp_hyperparameters_samples_const)
-        n_z= 10 # Number of samples of Z.
-
+        n_z= 2 # Number of samples of Z.
+        np.random.seed(1)
         Z_samples_obj = np.random.normal(size=n_z)
         Z_samples_const = np.random.normal(size=n_z)
 

@@ -57,8 +57,15 @@ def function_caller_new_brannin(rep):
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
 
+    C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
     data = {}
-    data["Opportunity_cost"] = np.array(Opportunity_cost).reshape(-1)
+    print("C",C)
+    print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
+    print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
+    print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
+    data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
+    data["Y"] = np.array(Y).reshape(-1)
+    data["C_bool"] = np.array(C_bool).reshape(-1)
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"

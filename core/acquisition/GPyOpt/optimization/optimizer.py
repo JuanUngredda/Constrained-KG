@@ -108,7 +108,7 @@ class Nelder_Mead(Optimizer):
     Wrapper for l-bfgs-b to use the true or the approximate gradients.
     '''
 
-    def __init__(self, bounds, maxiter=50):
+    def __init__(self, bounds, maxiter=20):
         super(Nelder_Mead, self).__init__(bounds)
         self.maxiter = maxiter
 

@@ -52,13 +52,20 @@ def function_caller_test_func_2(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-    max_iter  = 45
+    max_iter  = 30
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
 
+    C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
     data = {}
-    data["Opportunity_cost"] = np.array(Opportunity_cost).reshape(-1)
+    print("C",C)
+    print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
+    print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
+    print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
+    data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
+    data["Y"] = np.array(Y).reshape(-1)
+    data["C_bool"] = np.array(C_bool).reshape(-1)
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
@@ -73,6 +80,6 @@ def function_caller_test_func_2(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-#function_caller(rep=2)
+#function_caller_test_func_2(rep=2)
 
 
