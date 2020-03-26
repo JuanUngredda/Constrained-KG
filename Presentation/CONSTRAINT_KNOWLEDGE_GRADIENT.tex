@@ -173,7 +173,49 @@ Limitations
 	\item $M$ may be need to chosen by the decision maker.
 \end{itemize}
 
+\end{frame}
 
+\begin{frame}{Results}
+benchmark Method:
+\begin{itemize}
+	\item Constrained Expected Improvement. i.e. Expected Improvement times Probability of feasibility. 
+\end{itemize}
+Test Functions:
+\begin{itemize}
+	\item New Branin, test function 2, and Mistery function. Non-noisy and constrained test functions.
+\end{itemize}
+
+Important Remark:
+\begin{itemize}
+	\item In the last evaluation of our approach, the function is sampled according to Expected Improvement times the probability of feasibility.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Plots}
+\begin{figure}
+	
+	\centering
+	\begin{tabular}{ccc}
+		Mistery&
+		New Branin&
+		Test function 2\\
+		
+		\includegraphics[height=1.6cm, trim={450 300 450 300},clip]{Mistery.png}&
+		\includegraphics[height=1.6cm, trim={450 240 450 360},clip]{New_Branin.png}&
+		\includegraphics[height=1.6cm, trim={450 230 450 370},clip]{test_function_2.png}\\
+		\includegraphics[width=0.32\linewidth]{mistery_OC.pdf}&
+		\includegraphics[width=0.32\linewidth]{New_Branin_OC.pdf}&
+		\includegraphics[width=0.32\linewidth]{test_function_2_OC.pdf}\\
+	\end{tabular}	
+\end{figure}
+\end{frame}
+
+\begin{frame}{Current Work}
+\begin{itemize}
+	\item Include Gradient Information.
+	\item Include noisy test functions.
+	\item Set dynamically the M penalization.
+\end{itemize}
 \end{frame}
 
 \end{document}

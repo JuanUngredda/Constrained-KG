@@ -20,10 +20,11 @@ class KG(AcquisitionBase):
 
     analytical_gradient_prediction = False
 
-    def __init__(self, model, space, model_c=None, optimizer=None, cost_withGradients=None, utility=None):
+    def __init__(self, model, space, model_c=None, nz = 10, optimizer=None, cost_withGradients=None, utility=None):
         self.optimizer = optimizer
         self.utility = utility
         self.MCMC = False
+        self.nz = nz
         super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
@@ -70,8 +71,8 @@ class KG(AcquisitionBase):
                 gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
         # print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
         # print("gp_hyperparameters_samples_const", gp_hyperparameters_samples_const)
-        n_z= 2 # Number of samples of Z.
-        np.random.seed(1)
+        n_z= self.nz # Number of samples of Z.
+
         Z_samples_obj = np.random.normal(size=n_z)
         Z_samples_const = np.random.normal(size=n_z)
 
