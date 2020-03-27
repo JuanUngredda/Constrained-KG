@@ -118,7 +118,7 @@ def function_caller_mistery(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 1
+        max_iter  = 25
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
 
