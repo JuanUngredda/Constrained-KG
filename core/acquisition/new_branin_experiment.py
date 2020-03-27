@@ -71,7 +71,7 @@ def function_caller_new_brannin(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "new_branin_"+str(nz)
+    subfolder = "new_branin"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
