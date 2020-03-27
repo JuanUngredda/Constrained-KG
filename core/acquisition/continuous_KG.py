@@ -20,7 +20,7 @@ class KG(AcquisitionBase):
 
     analytical_gradient_prediction = False
 
-    def __init__(self, model, space, model_c=None, nz = 10, optimizer=None, cost_withGradients=None, utility=None):
+    def __init__(self, model, space, model_c=None, nz = 5, optimizer=None, cost_withGradients=None, utility=None):
         self.optimizer = optimizer
         self.utility = utility
         self.MCMC = False

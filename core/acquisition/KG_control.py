@@ -45,7 +45,7 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    funcions = [function_caller_mistery]
+    funcions = [function_caller_new_brannin]
 
     for func in funcions:
         func(args.k)

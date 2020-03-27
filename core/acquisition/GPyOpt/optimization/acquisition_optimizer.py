@@ -45,7 +45,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False, num_samples=60):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False, num_samples=100):
         """
         Optimizes the input function.
 
