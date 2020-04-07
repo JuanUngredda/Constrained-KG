@@ -4,6 +4,7 @@ import numpy as np
 from GPyOpt.experiment_design import initial_design
 from GPyOpt.acquisitions.base import AcquisitionBase
 from GPyOpt.core.task.cost import constant_cost_withGradients
+from aux_modules.gradient_modules import gradients
 import scipy
 import time
 import matplotlib.pyplot as plt
@@ -124,13 +125,16 @@ class KG(AcquisitionBase):
                         X_inner = np.atleast_2d(X_inner)
 
                         muX_inner = self.model.posterior_mean(X_inner)
+
+                        grad_mu_x_new = gradients.compute_gradient_mu_xnew(model, x = X_inner, x_new=x)
+
                         dmu_dX_inner  = self.model.posterior_mean_gradient(X_inner)
                         cov = self.model.posterior_covariance_between_points_partially_precomputed( X_inner,x)[:,:,0]
 
                         print("X_inner", X_inner)
-                        dcov_dX_inner = self.model.posterior_covariance_gradient_partially_precomputed(X_inner,x)
+                        #dcov_dX_inner = self.model.posterior_covariance_gradient_partially_precomputed(X_inner,x)
                         a = muX_inner
-                        da_dX_inner = dmu_dX_inner
+                        #da_dX_inner = dmu_dX_inner
                         b = np.sqrt(aux_obj * np.square(cov)) #np.sqrt(np.matmul(aux,np.square(cov)))
                         for k in range(X_inner.shape[1]):
                             dcov_dX_inner[:,:,k] = np.multiply(cov,dcov_dX_inner[:,:,k])
