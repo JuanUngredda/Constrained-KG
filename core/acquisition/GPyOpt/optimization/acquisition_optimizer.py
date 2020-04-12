@@ -45,7 +45,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False, num_samples=100):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False, num_samples=2):
         """
         Optimizes the input function.
 
@@ -59,6 +59,7 @@ class AcquisitionOptimizer(object):
         self.f = f
         self.df = df
         self.f_df = f_df
+
 
         ## --- Update the optimizer, in case context has beee passed.
         self.optimizer = choose_optimizer(self.optimizer_name, self.context_manager.noncontext_bounds)
@@ -75,7 +76,7 @@ class AcquisitionOptimizer(object):
         if re_use == True:
             anchor_points = self.old_anchor_points
         else:
-            anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+            anchor_points = anchor_points_generator.get(num_anchor=2,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
 
 
@@ -87,7 +88,7 @@ class AcquisitionOptimizer(object):
         # print("f",f(anchor_points[0]))
         import time
         time_start = time.time()
-        optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=None, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
+        optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
         time_stop = time.time()
         # print("time optimizer anchor points", time_stop - time_start)
         # print("anchor_points", anchor_points)
@@ -117,13 +118,13 @@ class AcquisitionOptimizer(object):
 
         ## --- Selecting the anchor points and removing duplicates
         if self.type_anchor_points_logic == max_objective_anchor_points_logic:
-            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples= 100)
+            anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, random_design_type, f, num_samples= 20)
         elif self.type_anchor_points_logic == thompson_sampling_anchor_points_logic:
             anchor_points_generator = ThompsonSamplingAnchorPointsGenerator(self.space, sobol_design_type, self.model)
            
         ## -- Select the anchor points (with context)
 
-        anchor_points = anchor_points_generator.get(num_anchor=1,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+        anchor_points = anchor_points_generator.get(num_anchor=6,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
         
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
         # print("anchor_points",anchor_points, "shape", anchor_points.shape)
@@ -131,11 +132,30 @@ class AcquisitionOptimizer(object):
         # print("anchor_points inner func",anchor_points)
         # print("value_anchor points inner func", f(anchor_points))
 
-        optimized_points = [apply_optimizer(self.inner_optimizer, a.flatten(), f=f, df=None, f_df=None, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
+        # print("anchor_points",anchor_points)
 
+        optimized_points = [apply_optimizer(self.inner_optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
 
+        # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
+        # print("optimized_points", optimized_points)
+
+        #plot_optimized_points = np.array(optimized_points).reshape(-1)
+        # plot_optimized_points = plot_optimized_points
+
+        # x_plot = np.random.random((1000,2))*5
+        # f_vals = np.array([f(i) for i in x_plot]).reshape(-1)
+        # f_anchor = np.array([f(i) for i in anchor_points]).reshape(-1)
+        # # f_opt = np.array([f(i) for i in plot_optimized_points]).reshape(-1)
+        # print("min max", np.min(f_vals ), np.max(f_vals ))
+        # plt.scatter(np.array(x_plot[:,0]).reshape(-1), (x_plot[:,1]).reshape(-1), c=np.array(f_vals).reshape(-1))
+        # plt.scatter(anchor_points[:,0], anchor_points[:,1], color="magenta")
+        # plt.scatter(opt_x[:,0],opt_x[:,1], color="magenta", marker="x")
+        # # plt.scatter(plot_optimized_points.reshape(-1), f_opt, color="red")
         x_min, fx_min = min(optimized_points, key=lambda t:t[1])
-        #print("x_min, fx_min",x_min, fx_min)
+        # plt.scatter(x_min[:,0], x_min[:,1], color="red")
+        # plt.show()
+
+        # print("x_min, fx_min",x_min, fx_min)
         return x_min, fx_min
 
 
