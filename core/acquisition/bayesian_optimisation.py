@@ -305,7 +305,16 @@ class BO(object):
         # axs[2, 1].set_title('approximation kg Function')
         # axs[2, 1].scatter(design_plot, np.array(kg_f).reshape(-1))
         # axs[2, 1].legend()
-        plt.show()
+        import os
+        folder = "IMAGES"
+        subfolder = "new_branin"
+        cwd = os.getcwd()
+        print("cwd", cwd)
+        time_taken = time.time()
+        path = cwd + "/" + folder + "/" + subfolder + '/im_' +str(time_taken) +str(self.X.shape[0]) + '.pdf'
+        if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
+            os.makedirs(cwd + "/" + folder + "/" + subfolder)
+        plt.savefig(path)
     def optimize_final_evaluation(self):
 
         feasable_point = False

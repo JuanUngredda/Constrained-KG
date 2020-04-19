@@ -44,7 +44,7 @@ class KG(AcquisitionBase):
         
         :param X: set of points at which the acquisition function is evaluated. Should be a 2d array.
         """
-
+        # print("_compute_acq")
         X =np.atleast_2d(X)
 
         # self.update_current_best()
@@ -109,6 +109,7 @@ class KG(AcquisitionBase):
     def _compute_acq_withGradients(self, X):
         """
         """
+        # print("_compute_acq_withGradients")
 
 
         X =np.atleast_2d(X)
@@ -124,7 +125,7 @@ class KG(AcquisitionBase):
         # KG[KG < 0.0] = 0.0
         # print("self.current_max_value", self.current_max_value)
         # print("KG", KG)
-        #print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
+        # print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
 
         return np.array(acqX).reshape(-1), np.array(dacq_dX).reshape(-1)
 
