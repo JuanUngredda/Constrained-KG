@@ -85,7 +85,6 @@ def function_caller_mistery(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-function_caller_mistery(rep=1)
 
 
 
