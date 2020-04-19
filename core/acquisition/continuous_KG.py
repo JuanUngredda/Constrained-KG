@@ -47,22 +47,22 @@ class KG(AcquisitionBase):
         # print("_compute_acq")
         X =np.atleast_2d(X)
 
-        # self.update_current_best()
+        self.update_current_best()
           # Number of samples of Z.
-
+        np.random.seed(X.shape[0])
         self.Z_samples_obj = np.random.normal(size=self.nz)
         self.Z_samples_const = np.random.normal(size=self.nz)
         # print("self.Z_samples_obj",self.Z_samples_obj,"self.Z_samples_const",self.Z_samples_const)
         marginal_acqX = self._marginal_acq(X)
         acqX = np.reshape(marginal_acqX, (X.shape[0],1))
 
-        # KG =  acqX - self.current_max_value
-        # KG[KG < 0.0] = 0.0
+        KG =  acqX - self.current_max_value
+        KG[KG < 0.0] = 0.0
         # print("self.current_max_value",  self.current_max_value)
         # print("KG", KG)
         # print("acqX",acqX)
         # print("acqX",acqX)
-        return acqX
+        return KG
 
     def update_current_best(self):
         n_observations = self.model.get_X_values().shape[0]
@@ -113,7 +113,7 @@ class KG(AcquisitionBase):
 
 
         X =np.atleast_2d(X)
-        # self.update_current_best()
+        self.update_current_best()
         # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
 
         marginal_acqX, marginal_dacq_dX = self._marginal_acq_with_gradient(X)
@@ -121,13 +121,14 @@ class KG(AcquisitionBase):
         acqX = np.reshape(marginal_acqX,(X.shape[0], 1))
         dacq_dX = np.reshape(marginal_dacq_dX , X.shape)
         # print("self.Z_samples_obj", self.Z_samples_obj, "self.Z_samples_const", self.Z_samples_const)
-        # KG = acqX -self.current_max_value
-        # KG[KG < 0.0] = 0.0
+        KG = acqX -self.current_max_value
+        KG[KG < 0.0] = 0.0
+        # print("acqX",acqX, "self.current_max_value",self.current_max_value,"KG",KG,"dacq_dX",dacq_dX)
         # print("self.current_max_value", self.current_max_value)
         # print("KG", KG)
         # print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
 
-        return np.array(acqX).reshape(-1), np.array(dacq_dX).reshape(-1)
+        return np.array(KG).reshape(-1), np.array(dacq_dX).reshape(-1)
 
     def _marginal_acq(self, X):
         # print("_marginal_acq")

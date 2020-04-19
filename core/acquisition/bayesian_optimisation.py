@@ -199,7 +199,7 @@ class BO(object):
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero
             self.num_acquisitions += 1
-
+            print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
 
         return self.X, self.Y, self.C , self.Opportunity_Cost
         # --- Print the desired result in files
@@ -262,7 +262,7 @@ class BO(object):
     def verbosity_plot_2D(self):
         ####plots
         print("generating plots")
-        design_plot = initial_design('random', self.space, 500)
+        design_plot = initial_design('random', self.space, 100)
 
         # precision = []
         # for i in range(20):
@@ -280,7 +280,7 @@ class BO(object):
         bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
         func_val = Y * bool_C.reshape(-1, 1)
 
-        kg_f = -self.acquisition._compute_acq(design_plot)
+        # kg_f = -self.acquisition._compute_acq(design_plot)
         fig, axs = plt.subplots(2, 2)
         axs[0, 0].set_title('True Function')
         axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
@@ -294,9 +294,9 @@ class BO(object):
         axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
         axs[0, 1].legend()
 
-        axs[1, 0].set_title("KG")
-        axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
-        axs[1, 0].legend()
+        # axs[1, 0].set_title("KG")
+        # axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
+        # axs[1, 0].legend()
 
         axs[1, 1].set_title("mu pf")
         axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
@@ -305,16 +305,17 @@ class BO(object):
         # axs[2, 1].set_title('approximation kg Function')
         # axs[2, 1].scatter(design_plot, np.array(kg_f).reshape(-1))
         # axs[2, 1].legend()
-        import os
-        folder = "IMAGES"
-        subfolder = "new_branin"
-        cwd = os.getcwd()
-        print("cwd", cwd)
-        time_taken = time.time()
-        path = cwd + "/" + folder + "/" + subfolder + '/im_' +str(time_taken) +str(self.X.shape[0]) + '.pdf'
-        if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
-            os.makedirs(cwd + "/" + folder + "/" + subfolder)
-        plt.savefig(path)
+        # import os
+        # folder = "IMAGES"
+        # subfolder = "new_branin"
+        # cwd = os.getcwd()
+        # print("cwd", cwd)
+        # time_taken = time.time()
+        # path = cwd + "/" + folder + "/" + subfolder + '/im_' +str(time_taken) +str(self.X.shape[0]) + '.pdf'
+        # if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
+        #     os.makedirs(cwd + "/" + folder + "/" + subfolder)
+        # plt.savefig(path)
+        plt.show()
     def optimize_final_evaluation(self):
 
         feasable_point = False
@@ -376,7 +377,7 @@ class BO(object):
         '''
         mu, sigma = self.model.predict(X)
 
-        sigma = np.sqrt(sigma).reshape(-1, 1)
+        # sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
         # Needed for noise-based model,
         # otherwise use np.max(Y_sample).
@@ -385,13 +386,13 @@ class BO(object):
         func_val = self.Y * bool_C.reshape(-1, 1)
         mu_sample_opt = np.max(func_val) - offset
         #print("mu_sample_opt", mu_sample_opt)
-        with np.errstate(divide='warn'):
-            imp = mu - mu_sample_opt
-            Z = imp / sigma
-            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-            ei[sigma == 0.0] = 0.0
+        # with np.errstate(divide='warn'):
+        #     imp = mu - mu_sample_opt
+        #     Z = imp / sigma
+        #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+        #     ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-        return -(ei *pf )
+        return -(mu *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)
