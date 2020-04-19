@@ -280,7 +280,7 @@ class BO(object):
         bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
         func_val = Y * bool_C.reshape(-1, 1)
 
-        # kg_f = -self.acquisition._compute_acq(design_plot)
+        kg_f = -self.acquisition._compute_acq(design_plot)
         fig, axs = plt.subplots(2, 2)
         axs[0, 0].set_title('True Function')
         axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
@@ -294,9 +294,9 @@ class BO(object):
         axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
         axs[0, 1].legend()
 
-        # axs[1, 0].set_title("KG")
-        # axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
-        # axs[1, 0].legend()
+        axs[1, 0].set_title("KG")
+        axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
+        axs[1, 0].legend()
 
         axs[1, 1].set_title("mu pf")
         axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
