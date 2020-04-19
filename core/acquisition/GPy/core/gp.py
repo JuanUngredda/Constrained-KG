@@ -480,8 +480,7 @@ class GP(Model):
         kern = self.kern
         #x = np.atleast_2d(x)
         self.partial_precomp_dcov = np.matmul(kern.K(x,self._predictive_variable),self.posterior.woodbury_inv)
-    
-    
+
     def posterior_covariance_between_points(self, X1, X2):
         """
         Computes the posterior covariance between points.
@@ -505,6 +504,7 @@ class GP(Model):
 
         Kx1 = kern.K(self.X, X1)
         K12 = kern.K(X1, X2)
+
         return K12 - np.matmul(Kx1.T,self.partial_precomp_cov)
         
     
@@ -533,8 +533,8 @@ class GP(Model):
         tmp = np.empty((X.shape[0],self._predictive_variable.shape[0],X.shape[1]))
         for i in range(self._predictive_variable.shape[0]):
             tmp[:,i,:] = kern.gradients_X(1,X,np.atleast_2d(self._predictive_variable[i]))
-
-        return kern.gradients_X(1, X, x2)  - np.squeeze(np.matmul(self.partial_precomp_dcov,tmp))
+        grad_kern = kern.gradients_X(1, X, x2)
+        return grad_kern - np.squeeze(np.matmul(self.partial_precomp_dcov,tmp)).reshape(grad_kern.shape)
     
 
     def predictive_gradients(self, Xnew, kern=None):

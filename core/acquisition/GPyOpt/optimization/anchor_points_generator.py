@@ -3,6 +3,7 @@
 
 import numpy as np
 from ..experiment_design import initial_design
+from scipy.stats import norm
 from ..core.errors import FullyExploredOptimizationDomainError
 from ..core.task.space import Design_space
 
@@ -100,7 +101,7 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     def get_anchor_point_scores(self, X):
 
         return np.array(self.objective(X)).flatten()
-    
+
 
 class RandomAnchorPointsGenerator(AnchorPointsGenerator):
 

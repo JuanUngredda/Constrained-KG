@@ -113,7 +113,13 @@ class multi_outputGP(object):
     def get_X_values(self):
         self.X = self.output[0].model.X
         return self.X
-    
+
+    def get_Y_values(self):
+        Y = []
+        for j in range(self.output_dim):
+            Y.append(self.output[j].model.Y)
+        self.Y = Y
+        return self.Y
     
     def posterior_variance(self,  X):
         """
@@ -229,7 +235,9 @@ class multi_outputGP(object):
         :param x2:  input observation.
         """
         dK_dX = np.empty((self.output_dim,X.shape[0],X.shape[1]))
+
         for j in range(0,self.output_dim):
+
             dK_dX[j,:,:] = self.output[j].posterior_covariance_gradient_partially_precomputed(X, x2)
         return dK_dX
     

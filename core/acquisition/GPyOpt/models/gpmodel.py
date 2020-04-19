@@ -71,7 +71,7 @@ class GPModel(BOModel):
 
         # --- Restrict variance if exact evaluations of the objective
         if self.exact_feval:
-            self.model.Gaussian_noise.constrain_fixed(1e-6, warning=False)
+            self.model.Gaussian_noise.constrain_fixed(1e-3, warning=False)
         else:
             #self.model.Gaussian_noise.constrain_bounded(1,1.5)
             self.model.Gaussian_noise.constrain_positive(warning=False)

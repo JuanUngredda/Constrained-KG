@@ -190,51 +190,7 @@ class BO(object):
             print("time optimisation point X", finish - start)
 
             if verbosity:
-                ####plots
-                print("generating plots")
-                design_plot = initial_design('random', self.space, 100)
-
-
-                # precision = []
-                # for i in range(20):
-                #     kg_f = -self.acquisition._compute_acq(design_plot)
-                #     precision.append(np.array(kg_f).reshape(-1))
-
-                # print("mean precision", np.mean(precision, axis=0), "std precision",  np.std(precision, axis=0), "max precision", np.max(precision, axis=0), "min precision",np.min(precision, axis=0))
-                ac_f = self.expected_improvement(design_plot)
-
-
-                Y, _ = self.objective.evaluate(design_plot)
-                C, _ = self.constraint.evaluate(design_plot)
-                pf = self.probability_feasibility_multi_gp(design_plot, self.model_c).reshape(-1, 1)
-                mu_f = self.model.predict(design_plot)[0]
-
-                bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-                func_val = Y * bool_C.reshape(-1, 1)
-
-                kg_f = -self.acquisition._compute_acq(design_plot)
-                fig, axs = plt.subplots(3, 2)
-                axs[0, 0].set_title('True Function')
-                axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
-                axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
-                axs[0, 0].scatter(self.suggested_sample[:, 0], self.suggested_sample[:, 1], marker = "x", color="red",
-                                  label="suggested")
-
-                axs[0, 1].set_title('approximation Acqu Function')
-                axs[0, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
-
-
-                axs[1,0].set_title("convergence")
-                axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array([1.1743+40])- np.array(self.Opportunity_Cost).reshape(-1))
-                axs[1,0].set_yscale("log")
-
-                axs[1,1].set_title("mu")
-                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
-
-                axs[2, 1].set_title('approximation kg Function')
-                axs[2, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(kg_f).reshape(-1))
-
-                plt.show()
+                self.verbosity_plot_2D()
             print("self.Opportunity_Cost",self.Opportunity_Cost)
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
@@ -253,7 +209,103 @@ class BO(object):
         #file = open('test_file.txt','w')
         #np.savetxt('test_file.txt',value_so_far)
 
+    def verbosity_plot_1D(self):
+        ####plots
+        print("generating plots")
+        design_plot = np.linspace(0,5,100)[:,None]
 
+        # precision = []
+        # for i in range(20):
+        #     kg_f = -self.acquisition._compute_acq(design_plot)
+        #     precision.append(np.array(kg_f).reshape(-1))
+
+        # print("mean precision", np.mean(precision, axis=0), "std precision",  np.std(precision, axis=0), "max precision", np.max(precision, axis=0), "min precision",np.min(precision, axis=0))
+        ac_f = self.expected_improvement(design_plot)
+
+        Y, _ = self.objective.evaluate(design_plot)
+        C, _ = self.constraint.evaluate(design_plot)
+        pf = self.probability_feasibility_multi_gp(design_plot, self.model_c).reshape(-1, 1)
+        mu_f = self.model.predict(design_plot)[0]
+
+        bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+        func_val = Y * bool_C.reshape(-1, 1)
+
+        kg_f = -self.acquisition._compute_acq(design_plot)
+        design_plot = design_plot.reshape(-1)
+        fig, axs = plt.subplots(3, 2)
+        axs[0, 0].set_title('True Function')
+        axs[0, 0].plot(design_plot, np.array(func_val).reshape(-1))
+        axs[0, 0].scatter(self.X, self.Y, color="red", label="sampled")
+        suggested_sample_value , _= self.objective.evaluate(self.suggested_sample)
+        axs[0, 0].scatter(self.suggested_sample, suggested_sample_value, marker="x", color="red",
+                          label="suggested")
+
+        axs[0, 0].legend()
+
+        axs[0, 1].set_title('approximation Acqu Function')
+        axs[0, 1].plot(design_plot, np.array(ac_f).reshape(-1))
+        axs[0, 1].legend()
+
+        axs[1, 0].set_title("mu and pf separetely ")
+        axs[1, 0].plot(design_plot, np.array(mu_f).reshape(-1) , label="mu")
+        axs[1, 0].plot(design_plot,  np.array(pf).reshape(-1), label="pf")
+        axs[1, 0].legend()
+
+        axs[1, 1].set_title("mu pf")
+        axs[1, 1].plot(design_plot, np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
+        axs[1, 1].legend()
+
+        axs[2, 1].set_title('approximation kg Function')
+        axs[2, 1].plot(design_plot, np.array(kg_f).reshape(-1))
+        axs[2, 1].legend()
+        plt.show()
+    def verbosity_plot_2D(self):
+        ####plots
+        print("generating plots")
+        design_plot = initial_design('random', self.space, 500)
+
+        # precision = []
+        # for i in range(20):
+        #     kg_f = -self.acquisition._compute_acq(design_plot)
+        #     precision.append(np.array(kg_f).reshape(-1))
+
+        # print("mean precision", np.mean(precision, axis=0), "std precision",  np.std(precision, axis=0), "max precision", np.max(precision, axis=0), "min precision",np.min(precision, axis=0))
+        ac_f = self.expected_improvement(design_plot)
+
+        Y, _ = self.objective.evaluate(design_plot)
+        C, _ = self.constraint.evaluate(design_plot)
+        pf = self.probability_feasibility_multi_gp(design_plot, self.model_c).reshape(-1, 1)
+        mu_f = self.model.predict(design_plot)[0]
+
+        bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+        func_val = Y * bool_C.reshape(-1, 1)
+
+        # kg_f = -self.acquisition._compute_acq(design_plot)
+        fig, axs = plt.subplots(2, 2)
+        axs[0, 0].set_title('True Function')
+        axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
+        axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
+        #suggested_sample_value = self.objective.evaluate(self.suggested_sample)
+        axs[0, 0].scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], marker="x", color="red",
+                          label="suggested")
+        axs[0, 0].legend()
+
+        axs[0, 1].set_title('approximation Acqu Function')
+        axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
+        axs[0, 1].legend()
+
+        # axs[1, 0].set_title("KG")
+        # axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
+        # axs[1, 0].legend()
+
+        axs[1, 1].set_title("mu pf")
+        axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
+        axs[1, 1].legend()
+
+        # axs[2, 1].set_title('approximation kg Function')
+        # axs[2, 1].scatter(design_plot, np.array(kg_f).reshape(-1))
+        # axs[2, 1].legend()
+        plt.show()
     def optimize_final_evaluation(self):
 
         feasable_point = False
@@ -262,18 +314,20 @@ class BO(object):
         while (feasable_point==False) and counter<maxiter:
 
             # design_plot = initial_design('random', self.space, 1000)
-            #
+            # ac_f = self.expected_improvement(design_plot)
             # fig, axs = plt.subplots(2, 2)
             # axs[0, 0].set_title('True Function')
             # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
-            # plt.show()
+
 
 
             start = time.time()
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=1000)
+            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=50)
             suggested_sample =  self.space.zip_inputs(out[0])
             stop = time.time()
+            # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
+            # plt.show()
             print("time EI", stop - start)
             # print("self.suggested_sample",suggested_sample)
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)

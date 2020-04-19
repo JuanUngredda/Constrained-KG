@@ -40,15 +40,15 @@ def function_caller_mistery(rep):
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', inner_optimizer='lbfgs', space=space, model = model_f)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', inner_optimizer='lbfgs', space=space, model = model_f, model_c=model_c)
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 2)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
 
     for nz in [2,5,10,15]:
-        nz=1
+        nz=5
         acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
@@ -56,7 +56,7 @@ def function_caller_mistery(rep):
 
         max_iter  = 25
         # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
 
         print("Code Ended")
 

@@ -18,7 +18,7 @@ def function_caller_new_brannin(rep):
     np.random.seed(rep)
 
     # func2 = dropwave()
-    new_brannin_f = new_brannin(sd=1e-6)
+    new_brannin_f = new_brannin(sd=1e-4)
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -37,10 +37,9 @@ def function_caller_new_brannin(rep):
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
-
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f, model_c=model_c)
     #
     # # --- Initial design
     #initial design
@@ -54,7 +53,7 @@ def function_caller_new_brannin(rep):
 
     max_iter  = 40
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
     print("Code Ended")
 
     C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
@@ -82,6 +81,6 @@ def function_caller_new_brannin(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-#function_caller_new_brannin(rep=32)
+#function_caller_new_brannin(rep=1)
 
 

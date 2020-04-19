@@ -43,4 +43,28 @@ class forrester(function1d):
 			noise = np.random.normal(0,self.sd,n).reshape(n,1)
 		return fval.reshape(n,1) + noise
 
+class Problem01(function1d):
+	def __init__(self,sd=None):
+		self.input_dim = 1
+		if sd==None: self.sd = 0
+		else: self.sd=sd
+
+		self.bounds = [(0,5)]
+
+	def f(self,X):
+		X = X.reshape((len(X),1))
+		n = X.shape[0]
+		fval = np.sin(X) + np.sin((10.0/3.0)*X) + np.log(X+0.001) -0.84 * X + 3
+		if self.sd ==0:
+			noise = np.zeros(n).reshape(n,1)
+		else:
+			noise = np.random.normal(0,self.sd,n).reshape(n,1)
+		return fval.reshape(n,1) + noise
+
+	def c(self, X):
+		X = X.reshape((len(X),1))
+		n = X.shape[0]
+		fval = np.sin(X*5)*3
+		return fval.reshape(n,1)
+
 

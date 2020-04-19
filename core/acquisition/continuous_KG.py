@@ -6,6 +6,7 @@ from GPyOpt.acquisitions.base import AcquisitionBase
 from GPyOpt.core.task.cost import constant_cost_withGradients
 from GPyOpt.experiment_design import initial_design
 from aux_modules.gradient_modules import gradients
+from scipy.stats import norm
 import scipy
 import time
 import matplotlib.pyplot as plt
@@ -27,6 +28,8 @@ class KG(AcquisitionBase):
         self.utility = utility
         self.MCMC = False
         self.nz = nz
+        self.counter = 0
+        self.current_max_value = np.inf
         super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
@@ -42,28 +45,88 @@ class KG(AcquisitionBase):
         :param X: set of points at which the acquisition function is evaluated. Should be a 2d array.
         """
 
-
         X =np.atleast_2d(X)
 
+        # self.update_current_best()
+          # Number of samples of Z.
+
+        self.Z_samples_obj = np.random.normal(size=self.nz)
+        self.Z_samples_const = np.random.normal(size=self.nz)
+        # print("self.Z_samples_obj",self.Z_samples_obj,"self.Z_samples_const",self.Z_samples_const)
         marginal_acqX = self._marginal_acq(X)
         acqX = np.reshape(marginal_acqX, (X.shape[0],1))
 
+        # KG =  acqX - self.current_max_value
+        # KG[KG < 0.0] = 0.0
+        # print("self.current_max_value",  self.current_max_value)
+        # print("KG", KG)
+        # print("acqX",acqX)
+        # print("acqX",acqX)
         return acqX
+
+    def update_current_best(self):
+        n_observations = self.model.get_X_values().shape[0]
+        if n_observations > self.counter:
+            print("updating current best..........")
+            self.counter = n_observations
+            self.current_max_value = self._compute_current_max()
+        assert self.current_max_value.reshape(-1) is not np.inf; "error ocurred updating current best"
+
+    def _compute_current_max(self):
+        def current_func(X_inner):
+            mu = self.model.posterior_mean(X_inner)[0]
+            mu = mu.reshape(-1, 1)
+            pf = self.probability_feasibility_multi_gp(X_inner, self.model_c).reshape(-1, 1)
+            return -(mu * pf)
+        inner_opt_x, inner_opt_val = self.optimizer.optimize(f=current_func, f_df=None, num_samples=100)
+
+        return -inner_opt_val
+
+    def probability_feasibility_multi_gp(self, x, model, l=0):
+        # print("model",model.output)
+        x = np.atleast_2d(x)
+        Fz = []
+        for m in range(model.output_dim):
+            Fz.append(self.probability_feasibility(x, model.output[m], l))
+        Fz = np.product(Fz, axis=0)
+        return Fz
+
+    def probability_feasibility(self, x, model, l=0):
+
+        model = model.model
+
+        mean, cov = model.predict(x, full_cov=True)
+        var = np.diag(cov).reshape(-1, 1)
+        std = np.sqrt(var).reshape(-1, 1)
+
+        mean = mean.reshape(-1, 1)
+
+        norm_dist = norm(mean, std)
+        Fz = norm_dist.cdf(l)
+
+        return Fz.reshape(-1, 1)
 
     def _compute_acq_withGradients(self, X):
         """
         """
 
-        full_support = True # If true, the full support of the utility function distribution will be used when computing the acquisition function value.
-        X =np.atleast_2d(X)
 
+        X =np.atleast_2d(X)
+        # self.update_current_best()
         # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
 
         marginal_acqX, marginal_dacq_dX = self._marginal_acq_with_gradient(X)
 
         acqX = np.reshape(marginal_acqX,(X.shape[0], 1))
         dacq_dX = np.reshape(marginal_dacq_dX , X.shape)
-        return acqX, dacq_dX
+        # print("self.Z_samples_obj", self.Z_samples_obj, "self.Z_samples_const", self.Z_samples_const)
+        # KG = acqX -self.current_max_value
+        # KG[KG < 0.0] = 0.0
+        # print("self.current_max_value", self.current_max_value)
+        # print("KG", KG)
+        #print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
+
+        return np.array(acqX).reshape(-1), np.array(dacq_dX).reshape(-1)
 
     def _marginal_acq(self, X):
         # print("_marginal_acq")
@@ -87,10 +150,12 @@ class KG(AcquisitionBase):
         # print("gp_hyperparameters_samples_const", gp_hyperparameters_samples_const)
         n_z= self.nz # Number of samples of Z.
 
-        np.random.seed(1)
-        Z_samples_obj = np.random.normal(size=n_z)
-        Z_samples_const = np.random.normal(size=n_z)
+        Z_samples_obj = self.Z_samples_obj
+        Z_samples_const = self.Z_samples_const
 
+        # print("nz", n_z)
+        # print("Z_samples_obj",Z_samples_obj)
+        # print("Z_samples_const",Z_samples_const)
 
         for h in range(n_h):
 
@@ -124,46 +189,40 @@ class KG(AcquisitionBase):
 
                     # inner function of maKG acquisition function.
                     def inner_func(X_inner):
+
                         X_inner = np.atleast_2d(X_inner)
-                        #self.test_samples =  initial_design('random', self.space, 1000) #np.random.random((1000,1))*(95-92) + 92
-                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj)#, test_samples = self.test_samples)
-                        #print("objective function")
-                        #grad_obj.test_mode()
+
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner)#, test_samples = self.test_samples)
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
 
-                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c )#, test_samples = initial_design('random', self.space, 1000))
-                        # grad_c.test_mode()
+
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner)#, test_samples = initial_design('random', self.space, 1000))
                         Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
+
                         func_val = np.array(mu_xnew * Fz)
-                        #print("func_val",func_val)
+
                         return -func_val
                     # inner function of maKG acquisition function with its gradient.
 
                     def inner_func_with_gradient(X_inner):
                         # print("inner_func_with_gradient")
+
+
                         X_inner = np.atleast_2d(X_inner)
-
-                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj)
-                        # print("objective function")
-                        #grad_obj.test_mode()
-
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
                         grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x = X_inner)
 
-                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c)
-                        # print("constraints")
-                        #grad_c.test_mode()
 
-                        Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
-                        grad_Fz = grad_c.compute_grad_probability_feasibility_multi_gp(x = X_inner, l=0)
-
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner, precompute_grad =True)
+                        Fz , grad_Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0, gradient_flag=True)
                         func_val = np.array(mu_xnew *Fz)
+
 
                         func_grad_val = grad_c.product_gradient_rule(func = np.array([func_val.reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
                         return -func_val, -func_grad_val
 
                     inner_opt_x, inner_opt_val =self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient)
-
                     statistics_precision.append(inner_opt_val)
                     marginal_acqX[i, 0] -= inner_opt_val
 
@@ -230,9 +289,7 @@ class KG(AcquisitionBase):
         plt.show()
 
     def _marginal_acq_with_gradient(self, X):
-        print("_marginal_acq_with_gradient")
-        """
-        """
+
         """
         """
         marginal_acqX = np.zeros((X.shape[0],1))
@@ -248,15 +305,15 @@ class KG(AcquisitionBase):
             gp_hyperparameters_samples_const  = self.model_c.get_model_parameters()
             if len(gp_hyperparameters_samples_const)>1:
                 gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
-        # print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
-        # print("gp_hyperparameters_samples_const", gp_hyperparameters_samples_const)
-        n_z= self.nz # Number of samples of Z.
 
-        np.random.seed(1)
-        Z_samples_obj = np.random.normal(size=n_z)
-        Z_samples_const = np.random.normal(size=n_z)
+       # Number of samples of Z.
+        n_z = self.nz
+        Z_samples_obj = self.Z_samples_obj
+        Z_samples_const = self.Z_samples_const
 
-
+        # print("nz", n_z)
+        # print("Z_samples_obj", Z_samples_obj)
+        # print("Z_samples_const", Z_samples_const)
         for h in range(n_h):
 
             self.model.set_hyperparameters(gp_hyperparameters_samples_obj[h])
@@ -297,63 +354,52 @@ class KG(AcquisitionBase):
                     # inner function of maKG acquisition function.
                     def inner_func(X_inner):
                         X_inner = np.atleast_2d(X_inner)
-                        #self.test_samples =  initial_design('random', self.space, 1000) #np.random.random((1000,1))*(95-92) + 92
-                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj)#, test_samples = self.test_samples)
-                        #print("objective function")
-                        #grad_obj.test_mode()
+
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner)
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
 
-                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c )#, test_samples = initial_design('random', self.space, 1000))
-                        # grad_c.test_mode()
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c , X_inner=X_inner)
                         Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
                         func_val = np.array(mu_xnew * Fz)
-                        #print("func_val",func_val)
+
                         return -func_val
                     # inner function of maKG acquisition function with its gradient.
                     def inner_func_with_gradient(X_inner):
                         # print("inner_func_with_gradient")
                         X_inner = np.atleast_2d(X_inner)
 
-                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj)
-                        # print("objective function")
-                        #grad_obj.test_mode()
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
 
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
                         grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x = X_inner)
 
-                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c)
-                        # print("constraints")
-                        #grad_c.test_mode()
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner, precompute_grad = True)
 
-                        Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
-                        grad_Fz = grad_c.compute_grad_probability_feasibility_multi_gp(x = X_inner, l=0)
-
+                        Fz, grad_Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0,
+                                                                                      gradient_flag=True)
                         func_val =  np.array(mu_xnew *Fz)
-
                         func_grad_val =  grad_c.product_gradient_rule(func = np.array([func_val.reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
 
-
                         return -func_val, -func_grad_val
+
 
                     x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient)
 
                     marginal_acqX[i,0] -= opt_val
                     x_opt = np.atleast_2d(x_opt)
 
-                    grad_KG_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:] , test_samples= initial_design('random', self.space, 100) )
-                    # grad_KG_obj.test_mode()
-                    mu_xopt = grad_KG_obj.compute_value_mu_xnew(x=x_opt)
-                    grad_mu_xopt = grad_KG_obj.compute_grad_mu_xopt(x_opt)
+                    grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:])# , test_samples= initial_design('random', self.space, 1000) )
 
-                    grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =x_opt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])
-                    Fz_xopt = grad_c.compute_probability_feasibility_multi_gp(x = x_opt)
-                    grad_Fz_xopt = grad_c.compute_grad_probability_feasibility_multi_gp_xopt(xopt = x_opt)
+                    mu_xopt = grad_obj.compute_value_mu_xopt(x=x_opt)
+                    grad_mu_xopt = grad_obj.compute_grad_mu_xopt(x_opt)
 
-                    dacq_dX = grad_c.product_gradient_rule(func=np.array([np.array(mu_xopt).reshape(-1), Fz_xopt.reshape(-1)]),
-                                                                 grad=np.array(
-                                                                     [grad_mu_xopt.reshape(-1), grad_Fz_xopt.reshape(-1)]))
+                    grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =x_opt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])#, test_samples= initial_design('random', self.space, 1000))
+                    Fz_xopt , grad_Fz_xopt = grad_c.compute_probability_feasibility_multi_gp_xopt(xopt = x_opt, gradient_flag=True)
 
-                    marginal_dacq_dX[i, :, 0] = dacq_dX
+                    dacq_dX = np.array(mu_xopt).reshape(-1)*np.array(grad_Fz_xopt).reshape(-1) +  np.array(Fz_xopt).reshape(-1) * np.array(grad_mu_xopt).reshape(-1)
+
+
+                    marginal_dacq_dX[i, :, 0] += dacq_dX
 
         marginal_acqX = marginal_acqX/(n_h*n_z)
         marginal_dacq_dX = marginal_dacq_dX/(n_h*n_z)

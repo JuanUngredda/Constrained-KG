@@ -259,7 +259,7 @@ def apply_optimizer(optimizer, x0, f=None, df=None, f_df=None, duplicate_manager
     # print("x0",x0,"f",f(x0))
     suggested_x, suggested_fx = optimizer.optimize(x0, f, df, f_df)
     #suggested_fx = f(suggested_x)
-    # print("suggested_x, suggested_f",suggested_x, suggested_fx)
+
 
     return suggested_x, suggested_fx
 
