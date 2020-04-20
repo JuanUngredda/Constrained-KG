@@ -44,7 +44,7 @@ def function_caller_mistery(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 15)
 
 
     for nz in [2,5,10,15]:
@@ -86,7 +86,7 @@ def function_caller_mistery(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_mistery(rep=1)
+
 
 
 

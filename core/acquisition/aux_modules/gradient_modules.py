@@ -17,7 +17,7 @@ class gradients(object):
         self.dvar_dX = dvar_dX
         if X_inner is not None:
             self.cov = self.model.posterior_covariance_between_points_partially_precomputed(X_inner, self.xnew)[:, :, 0]
-            if  precompute_grad:
+            if precompute_grad:
                 self.dcov = self.model.posterior_covariance_gradient_partially_precomputed(X_inner, self.xnew)
 
 
@@ -34,7 +34,8 @@ class gradients(object):
 
     def compute_value_mu_xnew(self, x):
         muX_inner = self.model.posterior_mean(x)
-        cov = self.cov # self.model.posterior_covariance_between_points_partially_precomputed(x, self.x_new)[:, :, 0]
+        cov =  self.cov #self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0]
+
         #print("compute_value_mu_xnew", cov, self.cov)
         func_val = []
         for j in range(muX_inner.shape[0]):
@@ -46,9 +47,9 @@ class gradients(object):
     def compute_gradient_mu_xnew(self,x ):
 
         dmu_dX_inner = self.model.posterior_mean_gradient(x)
-        dcov_dX_inner =  self.dcov #self.model.posterior_covariance_gradient_partially_precomputed(x, self.x_new)
-        cov = self.cov#self.model.posterior_covariance_between_points_partially_precomputed(x, self.x_new)[:, :, 0]
-        # print("compute_gradient_mu_xnew", cov, self.cov)
+        dcov_dX_inner =  self.dcov*1 # self.model.posterior_covariance_gradient_partially_precomputed(x, self.xnew)
+        cov = self.cov # self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0]
+
         # print("compute_gradient_mu_xnew", cov, self.cov, dcov_dX_inner, self.dcov)
         b = np.sqrt(self.aux * np.square(cov))
         for k in range(x.shape[1]):
@@ -404,12 +405,12 @@ class gradients(object):
         f_8 = [self.trial_compute_b_xopt ,self.trial_compute_grad_b_xopt]
         f_9 = [self.trial_compute_probability_feasibility_multi_gp_xopt, self.trial_compute_grad_probability_feasibility_multi_gp_xopt]
         f_10 = [self.trial_compute_KG_xopt, self.trial_compute_grad_KG_xopt]
-        f = [ f_9]
+        f = [ f_1]
         #self.future_mean_covariance()
         for index in range(len(f)):
             #self.gradient_cov_check()
-            #self.gradient_sanity_check_2D(f[index][0], f[index][1])
-            self.gradient_sanity_check_1D( f[index][0], f[index][1])
+            self.gradient_sanity_check_2D(f[index][0], f[index][1])
+            #self.gradient_sanity_check_1D( f[index][0], f[index][1])
 
 
     def future_mean_covariance(self):

@@ -94,7 +94,7 @@ class AcquisitionBase(object):
         else:
             # print("sanity check")
             #self.gradient_sanity_check_1D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
-            #self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
+            # self._gradient_sanity_check_2D_TEST2(f_df=self.acquisition_function_withGradients)
             # print("end sanity check")
             import time
             # start = time.time()
@@ -105,6 +105,34 @@ class AcquisitionBase(object):
 #            self.check_output(f = self.acquisition_function, out = out)
 
         return out
+
+    def _gradient_sanity_check_2D_TEST2(self, f_df, delta=1e-4):
+        X = np.random.random((250,2))*(np.array([[10,15]])-np.array([[-5,0]])) + np.array([[-5,0]])
+
+        numerical_grad = []
+        analytical_grad = []
+        func_val = []
+
+        for x in X:
+            for i in range(10):
+                x = x.reshape(1, -1)
+                acq, grad_acq = f_df(x)
+                func_val.append(np.array(acq).reshape(-1))
+                analytical_grad.append(np.array(grad_acq).reshape(-1))
+
+        func_val = np.array(func_val)
+        analytical_grad = np.array(analytical_grad)
+        analytical_grad_magnitude = np.sqrt(np.sum(analytical_grad**2,axis=1))
+        # PLOTS
+        fig, (ax1, ax2) = plt.subplots(2)
+
+        ax1.scatter(X[:,0], X[:,1], c=np.array(func_val).reshape(-1), label="actual function")
+        ax1.legend()
+        ax2.scatter(X[:,0], X[:,1], c=np.array(analytical_grad_magnitude).reshape(-1), label="analytical magnitude")
+        ax2.legend()
+        plt.title("gradients test")
+        plt.show()
+
 
     def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-4):
         initial_design = np.random.random((80,2))*5 # self.test_samples
