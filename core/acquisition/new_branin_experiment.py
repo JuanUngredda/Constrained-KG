@@ -43,9 +43,9 @@ def function_caller_new_brannin(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 2)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-    nz = 1
+    nz = 40
     acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
