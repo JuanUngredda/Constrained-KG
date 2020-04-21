@@ -51,9 +51,11 @@ class KG(AcquisitionBase):
 
         # self.update_current_best()
           # Number of samples of Z.
-        np.random.seed(X.shape[0])
+        np.random.seed(int(time.time()))
+
         self.Z_samples_obj = np.random.normal(size=self.nz)
         self.Z_samples_const = np.random.normal(size=self.nz)
+        # print("self.Z_samples_obj",self.Z_samples_obj)
         # print("self.Z_samples_obj",self.Z_samples_obj,"self.Z_samples_const",self.Z_samples_const)
         marginal_acqX = self._marginal_acq(X)
         acqX = np.reshape(marginal_acqX, (X.shape[0],1))
@@ -119,6 +121,7 @@ class KG(AcquisitionBase):
         # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
 
         if self.Z_samples_obj is None:
+
             np.random.seed(X.shape[0])
             self.Z_samples_obj = np.random.normal(size=self.nz)
             self.Z_samples_const = np.random.normal(size=self.nz)
@@ -135,7 +138,6 @@ class KG(AcquisitionBase):
         # print("KG", KG)
         #print("self.Z_samples_obj ",self.Z_samples_obj ,"self.Z_samples_const",self.Z_samples_const)
         print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
-
         return np.array(KG).reshape(-1), np.array(dacq_dX).reshape(-1)
 
     def _marginal_acq(self, X):
@@ -225,10 +227,15 @@ class KG(AcquisitionBase):
                         Fz , grad_Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0, gradient_flag=True)
                         func_val = np.array(mu_xnew *Fz)
 
-                        func_grad_val = grad_c.product_gradient_rule(func = np.array([func_val.reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
+                        func_grad_val = np.array(mu_xnew).reshape(-1)*grad_Fz.reshape(-1) +  Fz.reshape(-1)*grad_mu_xnew.reshape(-1)#  grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
                         return -func_val, -func_grad_val
 
-                    inner_opt_x, inner_opt_val =self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient)
+
+                    # self.test_samples= initial_design('random', self.space, 100)
+                    # f = [inner_func, inner_func_with_gradient]
+                    # self.gradient_sanity_check_2D(f=f[0], grad_f=f[1])
+
+                    inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient) #self.optimizer.optimize_inner_func(f =inner_func, f_df=None)#
                     statistics_precision.append(inner_opt_val)
                     marginal_acqX[i, 0] -= inner_opt_val
 
@@ -369,42 +376,33 @@ class KG(AcquisitionBase):
                         Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
 
                         func_val = np.array(mu_xnew * Fz)
-
                         return -func_val
                     # inner function of maKG acquisition function with its gradient.
 
                     def inner_func_with_gradient(X_inner):
                         # print("inner_func_with_gradient")
 
-
                         X_inner = np.atleast_2d(X_inner)
                         grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
+
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
                         grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x = X_inner)
-
 
                         grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner, precompute_grad =True)
                         Fz , grad_Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0, gradient_flag=True)
                         func_val = np.array(mu_xnew *Fz)
-
-                        # grad_c.test_mode()
-
-                        func_grad_val = grad_c.product_gradient_rule(func = np.array([func_val.reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
-                        # print("-func_val, -func_grad_val",-func_val, -func_grad_val)
+                        func_grad_val = np.array(mu_xnew).reshape(-1)*grad_Fz.reshape(-1) +  Fz.reshape(-1)*grad_mu_xnew.reshape(-1)#  grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
                         return -func_val, -func_grad_val
 
-                    # self.test_samples= initial_design('random', self.space, 2)
-                    # f = [inner_func, inner_func_with_gradient]
-                    # self.gradient_sanity_check_2D(f=f[0], grad_f=f[1])
 
-                    x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient)
+                    x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient) # self.optimizer.optimize_inner_func(f =inner_func, f_df=None)#inner_func_with_gradient
 
                     marginal_acqX[i,0] -= opt_val
                     x_opt = np.atleast_2d(x_opt)
 
                     grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:])# , test_samples= initial_design('random', self.space, 1000) )
 
-                    mu_xopt = grad_obj.compute_value_mu_xopt(x=x_opt)
+                    mu_xopt = grad_obj.compute_value_mu_xopt(x_opt)
                     grad_mu_xopt = grad_obj.compute_grad_mu_xopt(x_opt)
 
                     grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =x_opt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])#, test_samples= initial_design('random', self.space, 1000))
@@ -418,6 +416,7 @@ class KG(AcquisitionBase):
         marginal_acqX = marginal_acqX/(n_h*n_z)
         marginal_dacq_dX = marginal_dacq_dX/(n_h*n_z)
         return marginal_acqX, marginal_dacq_dX
+
 
     def gradient_sanity_check_2D(self, f, grad_f, delta=1e-4):
         init_design = initial_design('random', self.space, 100)
@@ -436,16 +435,22 @@ class KG(AcquisitionBase):
             x = x.reshape(1, -1)
             f_val = np.array(f(x)).reshape(-1)
             f_delta = []
+            start=time.time()
             for i in range(dim):
                 one_side = np.array(f(x + delta_matrix[i] * delta)).reshape(-1)
                 two_side = np.array(f(x - delta_matrix[i] * delta)).reshape(-1)
                 f_delta.append(one_side - two_side)
-
+            stop = time.time()
+            print("num_time", stop-start)
             func_val.append(f_val)
             f_delta = np.array(f_delta).reshape(-1)
             numerical_grad.append(np.array(f_delta / (2 * delta)).reshape(-1))
-            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", grad_f(x).reshape(-1))
+            start = time.time()
             analytical_grad.append(grad_f(x).reshape(-1))
+            stop = time.time()
+            print("anal time", stop-start)
+            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", grad_f(x).reshape(-1))
+
 
         func_val = np.array(func_val)
         numerical_grad = np.array(numerical_grad)
@@ -471,4 +476,277 @@ class KG(AcquisitionBase):
         plt.show()
 
 
+################################################
+
+    def _compute_mu(self, X):
+        """
+        """
+        # print("_compute_acq_withGradients")
+
+
+        X =np.atleast_2d(X)
+        # self.update_current_best()
+        # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
+
+        if self.Z_samples_obj is None:
+
+            np.random.seed(X.shape[0])
+            self.Z_samples_obj = np.random.normal(size=self.nz)
+            self.Z_samples_const = np.random.normal(size=self.nz)
+        print("self.Z_samples_obj", self.Z_samples_obj)
+        marginal_acqX= self._marginal_mu(X)
+
+        # print("self.Z_samples_obj", self.Z_samples_obj, "self.Z_samples_const", self.Z_samples_const)
+        KG = marginal_acqX #-self.current_max_value
+
+        print("self.Z_samples_obj", self.Z_samples_obj)
+        return np.array(KG).reshape(-1)
+
+    def _marginal_mu(self, X):
+
+        """
+        """
+        marginal_acqX = np.zeros((X.shape[0],1))
+        marginal_dacq_dX = np.zeros((X.shape[0], X.shape[1], 1))
+        if self.MCMC:
+            n_h = 10 # Number of GP hyperparameters samples.
+            gp_hyperparameters_samples_obj = self.model.get_hyperparameters_samples(n_h)
+            gp_hyperparameters_samples_const = self.model_c.get_hyperparameters_samples(n_h)
+        else:
+            n_h = 1
+            gp_hyperparameters_samples_obj  = self.model.get_model_parameters()
+
+            gp_hyperparameters_samples_const  = self.model_c.get_model_parameters()
+            if len(gp_hyperparameters_samples_const)>1:
+                gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
+
+       # Number of samples of Z.
+        n_z = self.nz
+        Z_samples_obj = self.Z_samples_obj
+        Z_samples_const = self.Z_samples_const
+
+        # print("nz", n_z)
+        # print("Z_samples_obj", Z_samples_obj)
+        # print("Z_samples_const", Z_samples_const)
+        for h in range(n_h):
+
+            self.model.set_hyperparameters(gp_hyperparameters_samples_obj[h])
+            self.model_c.set_hyperparameters(gp_hyperparameters_samples_const[h])
+            # print("after for loop self.model_c.get_model_parameters()[0]",self.model_c.get_model_parameters())
+
+            varX_obj = self.model.posterior_variance(X)
+            dvar_obj_dX = self.model.posterior_variance_gradient(X)
+
+            varX_c = self.model_c.posterior_variance(X)
+            dvar_c_dX = self.model_c.posterior_variance_gradient(X)
+
+
+            for i in range(0,len(X)):
+                x = np.atleast_2d(X[i])
+
+                self.model.partial_precomputation_for_covariance(x)
+                self.model.partial_precomputation_for_covariance_gradient(x)
+
+                self.model_c.partial_precomputation_for_covariance(x)
+                self.model_c.partial_precomputation_for_covariance_gradient(x)
+
+                # Precompute aux1 and aux2 for computational efficiency.
+                aux_obj = np.reciprocal(varX_obj[:, i])
+                aux2_obj = np.square(np.reciprocal(varX_obj[:, i]))
+
+                aux_c = np.reciprocal(varX_c[:, i])
+                aux2_c = np.square(np.reciprocal(varX_c[:, i]))
+
+                # print("x",x)
+
+                statistics_precision = []
+                for z in range(n_z):
+                    Z_obj = Z_samples_obj[z]
+                    Z_const = Z_samples_const[z]
+
+
+                    # inner function of maKG acquisition function.
+                    def inner_func(X_inner):
+
+                        X_inner = np.atleast_2d(X_inner)
+
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner)#, test_samples = self.test_samples)
+                        mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner)#, test_samples = initial_design('random', self.space, 1000))
+                        Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
+
+                        func_val = np.array(mu_xnew * Fz)
+                        return -func_val
+                    # inner function of maKG acquisition function with its gradient.
+
+                    def inner_func_with_gradient(X_inner):
+                        # print("inner_func_with_gradient")
+
+                        X_inner = np.atleast_2d(X_inner)
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
+
+                        mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+                        grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x = X_inner)
+
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner, precompute_grad =True)
+                        Fz , grad_Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0, gradient_flag=True)
+                        func_val = np.array(mu_xnew *Fz)
+                        func_grad_val = np.array(mu_xnew).reshape(-1)*grad_Fz.reshape(-1) +  Fz.reshape(-1)*grad_mu_xnew.reshape(-1)#  grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
+                        return -func_val, -func_grad_val
+
+
+                    x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient) # self.optimizer.optimize_inner_func(f =inner_func, f_df=None)#inner_func_with_gradient
+
+                    print("x_opt, opt_val", x_opt, opt_val)
+                    x_opt = np.atleast_2d(x_opt)
+
+                    grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:] , test_samples= initial_design('random', self.space, 1000) )
+
+                    mu_xopt = grad_obj.compute_value_mu_xopt(x_opt)
+                    #grad_obj.test_mode()
+
+                    marginal_acqX = mu_xopt
+
+
+        marginal_dacq_dX = marginal_dacq_dX/(n_h*n_z)
+        return  marginal_acqX # marginal_dacq_dX
+
+    def _compute_mu_withGradients(self, X):
+        """
+        """
+        # print("_compute_acq_withGradients")
+
+
+        X =np.atleast_2d(X)
+        # self.update_current_best()
+        # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
+
+        if self.Z_samples_obj is None:
+
+            np.random.seed(X.shape[0])
+            self.Z_samples_obj = np.random.normal(size=self.nz)
+            self.Z_samples_const = np.random.normal(size=self.nz)
+        print("self.Z_samples_obj",self.Z_samples_obj)
+        marginal_acqX= self._marginal_mu_with_gradient(X)
+
+        # print("self.Z_samples_obj", self.Z_samples_obj, "self.Z_samples_const", self.Z_samples_const)
+        KG = marginal_acqX #-self.current_max_value
+        #KG[KG < 0.0] = 0.0
+        # print("acqX",acqX, "self.current_max_value",self.current_max_value,"KG",KG,"dacq_dX",dacq_dX)
+        # print("self.current_max_value", self.current_max_value)
+        # print("KG", KG)
+        #print("self.Z_samples_obj ",self.Z_samples_obj ,"self.Z_samples_const",self.Z_samples_const)
+
+
+        return np.array(KG).reshape(-1)
+
+    def _marginal_mu_with_gradient(self, X):
+
+        """
+        """
+        marginal_acqX = np.zeros((X.shape[0],1))
+        marginal_dacq_dX = np.zeros((X.shape[0], X.shape[1], 1))
+        if self.MCMC:
+            n_h = 10 # Number of GP hyperparameters samples.
+            gp_hyperparameters_samples_obj = self.model.get_hyperparameters_samples(n_h)
+            gp_hyperparameters_samples_const = self.model_c.get_hyperparameters_samples(n_h)
+        else:
+            n_h = 1
+            gp_hyperparameters_samples_obj  = self.model.get_model_parameters()
+
+            gp_hyperparameters_samples_const  = self.model_c.get_model_parameters()
+            if len(gp_hyperparameters_samples_const)>1:
+                gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
+
+       # Number of samples of Z.
+        n_z = self.nz
+        Z_samples_obj = self.Z_samples_obj
+        Z_samples_const = self.Z_samples_const
+
+        # print("nz", n_z)
+        # print("Z_samples_obj", Z_samples_obj)
+        # print("Z_samples_const", Z_samples_const)
+        for h in range(n_h):
+
+            self.model.set_hyperparameters(gp_hyperparameters_samples_obj[h])
+            self.model_c.set_hyperparameters(gp_hyperparameters_samples_const[h])
+            # print("after for loop self.model_c.get_model_parameters()[0]",self.model_c.get_model_parameters())
+
+            varX_obj = self.model.posterior_variance(X)
+            dvar_obj_dX = self.model.posterior_variance_gradient(X)
+
+            varX_c = self.model_c.posterior_variance(X)
+            dvar_c_dX = self.model_c.posterior_variance_gradient(X)
+
+
+            for i in range(0,len(X)):
+                x = np.atleast_2d(X[i])
+
+                self.model.partial_precomputation_for_covariance(x)
+                self.model.partial_precomputation_for_covariance_gradient(x)
+
+                self.model_c.partial_precomputation_for_covariance(x)
+                self.model_c.partial_precomputation_for_covariance_gradient(x)
+
+                # Precompute aux1 and aux2 for computational efficiency.
+                aux_obj = np.reciprocal(varX_obj[:, i])
+                aux2_obj = np.square(np.reciprocal(varX_obj[:, i]))
+
+                aux_c = np.reciprocal(varX_c[:, i])
+                aux2_c = np.square(np.reciprocal(varX_c[:, i]))
+
+                # print("x",x)
+
+                statistics_precision = []
+                for z in range(n_z):
+                    Z_obj = Z_samples_obj[z]
+                    Z_const = Z_samples_const[z]
+
+
+                    # inner function of maKG acquisition function.
+                    def inner_func(X_inner):
+
+                        X_inner = np.atleast_2d(X_inner)
+
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner)#, test_samples = self.test_samples)
+                        mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner)#, test_samples = initial_design('random', self.space, 1000))
+                        Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0)
+
+                        func_val = np.array(mu_xnew * Fz)
+                        return -func_val
+                    # inner function of maKG acquisition function with its gradient.
+
+                    def inner_func_with_gradient(X_inner):
+                        # print("inner_func_with_gradient")
+
+                        X_inner = np.atleast_2d(X_inner)
+                        grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
+
+                        mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+                        grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x = X_inner)
+
+                        grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c, X_inner=X_inner, precompute_grad =True)
+                        Fz , grad_Fz =  grad_c.compute_probability_feasibility_multi_gp(x = X_inner, l=0, gradient_flag=True)
+                        func_val = np.array(mu_xnew *Fz)
+                        func_grad_val = np.array(mu_xnew).reshape(-1)*grad_Fz.reshape(-1) +  Fz.reshape(-1)*grad_mu_xnew.reshape(-1)#  grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
+                        return -func_val, -func_grad_val#
+
+
+                    x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient) # self.optimizer.optimize_inner_func(f =inner_func, f_df=None)#inner_func_with_gradient
+
+                    print("x_opt, opt_val",x_opt, opt_val)
+                    marginal_acqX[i,0] -= opt_val
+                    x_opt = np.atleast_2d(x_opt)
+
+                    grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:])# , test_samples= initial_design('random', self.space, 1000) )
+
+                    dacq_dX = grad_obj.compute_grad_mu_xopt(x_opt)
+
+                    marginal_dacq_dX = dacq_dX
+
+        marginal_acqX = marginal_acqX/(n_h*n_z)
+        return  marginal_dacq_dX
 

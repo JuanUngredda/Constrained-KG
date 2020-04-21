@@ -44,46 +44,45 @@ def function_caller_mistery(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 15)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
 
-    for nz in [2,5,10,15]:
-        nz=5
-        acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
-        evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
+    nz=5
+    acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
+    evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 25
-        # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    max_iter  = 45
+    # print("Finished Initialization")
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
 
-        print("Code Ended")
+    print("Code Ended")
 
-        C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-        data = {}
-        # print("C", C)
-        # print("np.array(Opportunity_cost).reshape(-1)", np.array(Opportunity_cost).reshape(-1))
-        # print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
-        # print("np.array(C_bool).reshape(-1)", np.array(C_bool).reshape(-1))
-        data["X1"] = np.array(X[:,0]).reshape(-1)
-        data["X2"] = np.array(X[:,1]).reshape(-1)
-        data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
-        data["Y"] = np.array(Y).reshape(-1)
-        data["C_bool"] = np.array(C_bool).reshape(-1)
-        gen_file = pd.DataFrame.from_dict(data)
-        folder = "RESULTS"
-        subfolder = "Mistery_"+str(nz)
-        cwd = os.getcwd()
+    C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+    data = {}
+    # print("C", C)
+    # print("np.array(Opportunity_cost).reshape(-1)", np.array(Opportunity_cost).reshape(-1))
+    # print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
+    # print("np.array(C_bool).reshape(-1)", np.array(C_bool).reshape(-1))
+    data["X1"] = np.array(X[:,0]).reshape(-1)
+    data["X2"] = np.array(X[:,1]).reshape(-1)
+    data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
+    data["Y"] = np.array(Y).reshape(-1)
+    data["C_bool"] = np.array(C_bool).reshape(-1)
+    gen_file = pd.DataFrame.from_dict(data)
+    folder = "RESULTS"
+    subfolder = "Mistery_gradients"
+    cwd = os.getcwd()
 
-        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-        print("path", path)
-        if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
-            os.makedirs(cwd + "/" + folder +"/"+ subfolder)
+    path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
+    print("path", path)
+    if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
+        os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
-        gen_file.to_csv(path_or_buf=path)
+    gen_file.to_csv(path_or_buf=path)
 
-        print("X",X,"Y",Y, "C", C)
+    print("X",X,"Y",Y, "C", C)
 
 
 

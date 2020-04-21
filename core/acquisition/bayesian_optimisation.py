@@ -263,7 +263,7 @@ class BO(object):
     def verbosity_plot_2D(self):
         ####plots
         print("generating plots")
-        design_plot = initial_design('random', self.space, 100)
+        design_plot = initial_design('random', self.space, 1000)
 
         # precision = []
         # for i in range(20):
@@ -376,7 +376,7 @@ class BO(object):
         '''
         mu, sigma = self.model.predict(X)
 
-        sigma = np.sqrt(sigma).reshape(-1, 1)
+        # sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
         # Needed for noise-based model,
         # otherwise use np.max(Y_sample).
@@ -385,13 +385,13 @@ class BO(object):
         func_val = self.Y * bool_C.reshape(-1, 1)
         mu_sample_opt = np.max(func_val) - offset
         #print("mu_sample_opt", mu_sample_opt)
-        with np.errstate(divide='warn'):
-            imp = mu - mu_sample_opt
-            Z = imp / sigma
-            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-            ei[sigma == 0.0] = 0.0
+        # with np.errstate(divide='warn'):
+        #     imp = mu - mu_sample_opt
+        #     Z = imp / sigma
+        #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+        #     ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-        return -(ei *pf )
+        return -(mu *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)

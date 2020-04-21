@@ -34,6 +34,7 @@ class AcquisitionOptimizer(object):
         self.inner_optimizer_name     = inner_optimizer
         self.kwargs             = kwargs
         self.inner_anchor_points = None
+        self.outer_anchor_points = None
         ### -- save extra options than can be passed to the optimizer
         if 'model' in self.kwargs:
             self.model = self.kwargs['model']
@@ -93,11 +94,15 @@ class AcquisitionOptimizer(object):
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
 
+        # if self.outer_anchor_points is not None:
+        #     # print("self.inner_anchor_points, anchor_points", self.inner_anchor_points, anchor_points)
+        #     anchor_points = np.concatenate((self.outer_anchor_points, anchor_points))
 
         print("optimising anchor points....")
         optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
+        # self.outer_anchor_points = x_min
 
         print("anchor_points", anchor_points)
         print("optimized_points", optimized_points)
@@ -122,7 +127,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=300):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=400):
         """
         Optimizes the input function.
 
@@ -168,8 +173,8 @@ class AcquisitionOptimizer(object):
         self.inner_anchor_points = x_min
 
         # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
-        # # print("optimized_points", optimized_points)
-        #
+        # print("optimized_points", optimized_points)
+
         # bounds =self.space.get_bounds()
         # x_plot = np.random.random((1000,2))*(np.array([bounds[0][1], bounds[1][1]]) - np.array([bounds[0][0], bounds[1][0]])) +  np.array([bounds[0][0], bounds[1][0]])
         #
