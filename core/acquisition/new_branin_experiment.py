@@ -45,7 +45,7 @@ def function_caller_new_brannin(rep):
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-    nz = 4
+    nz = 3
     acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz, true_func= new_brannin_f)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
@@ -53,7 +53,7 @@ def function_caller_new_brannin(rep):
 
     max_iter  = 45
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
 
     C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
