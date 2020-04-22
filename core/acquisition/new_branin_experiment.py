@@ -18,7 +18,7 @@ def function_caller_new_brannin(rep):
     np.random.seed(rep)
 
     # func2 = dropwave()
-    new_brannin_f = new_brannin(sd=1e-4)
+    new_brannin_f = new_brannin(sd=1e-6)
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -45,15 +45,15 @@ def function_caller_new_brannin(rep):
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-    nz = 5
-    acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
+    nz = 4
+    acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz, true_func= new_brannin_f)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
     max_iter  = 45
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
     print("Code Ended")
 
     C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)

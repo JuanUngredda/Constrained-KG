@@ -46,8 +46,8 @@ def function_caller_test_func_2(rep):
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-
-    acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt)
+    nz = 1
+    acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
@@ -80,6 +80,6 @@ def function_caller_test_func_2(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-#function_caller_test_func_2(rep=2)
+function_caller_test_func_2(rep=2)
 
 

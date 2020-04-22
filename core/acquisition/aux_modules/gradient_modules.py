@@ -336,13 +336,11 @@ class gradients(object):
 
         return func_val
 
-
     def compute_grad_mu_xopt(self, xopt):
 
         cov_opt = self.model.posterior_covariance_between_points(xopt, self.xnew)[:, 0, 0]
         dcov_opt_dx = self.model.posterior_covariance_gradient(self.xnew, xopt)[:, 0, :]
         b = np.sqrt(np.dot(self.aux, np.square(cov_opt)))
-
         term1 = np.multiply(self.varX * cov_opt, dcov_opt_dx.T)
         term2 = np.multiply(np.square(cov_opt), self.dvar_dX.T)
         term3 = (2 * term1 - term2).T

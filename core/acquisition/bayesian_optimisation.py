@@ -319,43 +319,36 @@ class BO(object):
         plt.show()
     def optimize_final_evaluation(self):
 
-        feasable_point = False
-        maxiter = 1
-        counter = 0
-        while (feasable_point==False) and counter<maxiter:
-
-            # design_plot = initial_design('random', self.space, 1000)
-            # ac_f = self.expected_improvement(design_plot)
-            # fig, axs = plt.subplots(2, 2)
-            # axs[0, 0].set_title('True Function')
-            # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
 
 
+        # design_plot = initial_design('random', self.space, 1000)
+        # ac_f = self.expected_improvement(design_plot)
+        # fig, axs = plt.subplots(2, 2)
+        # axs[0, 0].set_title('True Function')
+        # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
 
-            start = time.time()
-            self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=400, verbose=False)
-            suggested_sample =  self.space.zip_inputs(out[0])
-            stop = time.time()
-            # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
-            # plt.show()
-            print("time EI", stop - start)
-            # print("self.suggested_sample",suggested_sample)
-            # --- Evaluate *f* in X, augment Y and update cost function (if needed)
-            Y, _ = self.objective.evaluate(suggested_sample)
-            # print("Y",Y)
-            C, _ = self.constraint.evaluate(suggested_sample)
+        start = time.time()
+        self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
+        out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=400, verbose=False)
+        suggested_sample =  self.space.zip_inputs(out[0])
+        stop = time.time()
+        # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
+        # plt.show()
+        print("time EI", stop - start)
+        # print("self.suggested_sample",suggested_sample)
+        # --- Evaluate *f* in X, augment Y and update cost function (if needed)
+        Y, _ = self.objective.evaluate(suggested_sample)
+        # print("Y",Y)
+        C, _ = self.constraint.evaluate(suggested_sample)
 
-            bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-            func_val = Y * bool_C.reshape(-1, 1)
-            feasable_Y_data = np.array(self.Y).reshape(-1) * np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+        func_val = Y * bool_C.reshape(-1, 1)
+        feasable_Y_data = np.array(self.Y).reshape(-1) * np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        print("suggested_sample",suggested_sample, "feasable_Y_data",func_val)
+        # print("C[-1, :]",C[-1, :])
+        feasable_point = bool_C
 
-            # print("C[-1, :]",C[-1, :])
-            feasable_point = bool_C
-
-            Y_aux = np.concatenate((func_val.reshape(-1),np.array(feasable_Y_data).reshape(-1)))
-
-            counter += 1
+        Y_aux = np.concatenate((func_val.reshape(-1),np.array(feasable_Y_data).reshape(-1)))
 
         self.Opportunity_Cost.append(np.max(Y_aux))
 
@@ -384,13 +377,16 @@ class BO(object):
         bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
         func_val = self.Y * bool_C.reshape(-1, 1)
         mu_sample_opt = np.max(func_val) - offset
-        #print("mu_sample_opt", mu_sample_opt)
+
         # with np.errstate(divide='warn'):
         #     imp = mu - mu_sample_opt
         #     Z = imp / sigma
         #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
         #     ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
+
+        pf[pf<0.50] = 0
+
         return -(mu *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):

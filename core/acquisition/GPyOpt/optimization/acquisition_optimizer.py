@@ -82,15 +82,15 @@ class AcquisitionOptimizer(object):
         if re_use == True:
             anchor_points = self.old_anchor_points
         else:
-            anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+            anchor_points = anchor_points_generator.get(num_anchor=3,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
-        print("getting that sweet spot that you like")
-        if sweet_spot:
-            EI_suggested_sample = self.optimize_final_evaluation()
-            EI_suggested_sample = EI_suggested_sample.reshape(-1)
-            EI_suggested_sample = EI_suggested_sample.reshape(1,-1)
-            print("EI_suggested_samples", EI_suggested_sample, "anchor_points", anchor_points)
-            anchor_points = np.concatenate((EI_suggested_sample, anchor_points))
+        # print("getting that sweet spot that you like")
+        # if sweet_spot:
+        #     EI_suggested_sample = self.optimize_final_evaluation()
+        #     EI_suggested_sample = EI_suggested_sample.reshape(-1)
+        #     EI_suggested_sample = EI_suggested_sample.reshape(1,-1)
+        #     print("EI_suggested_samples", EI_suggested_sample, "anchor_points", anchor_points)
+        #     anchor_points = np.concatenate((EI_suggested_sample, anchor_points))
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
 
@@ -127,7 +127,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=400):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=100):
         """
         Optimizes the input function.
 
