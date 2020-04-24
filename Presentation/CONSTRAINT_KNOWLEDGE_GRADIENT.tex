@@ -210,9 +210,76 @@ Important Remark:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Current Work}
+\begin{frame}{Gradient Information}
+
 \begin{itemize}
-	\item Include Gradient Information.
+	\item Numerical methods to optimise KG rely on $\nabla$KG. Quantity can be obtained either by Finite Difference or Analytically. 
+\end{itemize}
+
+\begin{align*}
+\begin{split}
+\nabla cKG(x) &= \nabla \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x')\}|x^{n+1}=x]
+\end{split}
+\end{align*}
+
+Once solved, the inner optimisation problem, 
+
+\begin{align*}
+\begin{split}
+\nabla cKG(x) &= \mathbb{E}[\nabla \{pf^{n+1}(x^{*};x^{n+1})\mu^{n+1}(x^{*};x^{n+1})\}|x^{n+1}=x]
+\end{split}
+\end{align*}
+
+Potential issue with Finite Differences:
+\begin{itemize}
+	\item Since the expectations is calculated only over a few values slight deviations of $x^{*}$ affect greatly the outer gradient estimation. 
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Results with Analytical Gradients}
+
+\end{frame}
+
+\begin{frame}{Multi-Objective Constrained Optimisation}
+
+\begin{itemize}
+	\item Multi-Objective formulation using linear scalarisation.
+\end{itemize}
+
+$$
+KG(x';\theta) = \mathbb{E}_{y}[\max_{x'}\theta\mu^{n+1}(x')|x^{n+1}=x',\theta]
+$$
+where the policy is,
+$$
+maKG(x') = \mathbb{E}_{\theta}[KG(x';\theta)]
+$$
+
+\begin{itemize}
+	\item Multi-Objective constrained formulation
+\end{itemize}
+
+$$
+KG(x';\theta) = \mathbb{E}_{y}[\max_{x'}\theta\mu^{n+1}(x')pf^{n+1}(x')|x^{n+1}=x',\theta]
+$$
+where the policy is,
+$$
+maKG(x') = \mathbb{E}_{\theta}[KG(x';\theta)]
+$$
+
+
+\end{frame}
+
+\begin{frame}{Work to do}
+
+Main line of work
+\begin{itemize}
+	\item Constrained Multi-Objective problem
+\end{itemize}
+
+Secondary line of work
+\begin{itemize}
 	\item Include noisy test functions.
 	\item Set dynamically the M penalization.
 \end{itemize}

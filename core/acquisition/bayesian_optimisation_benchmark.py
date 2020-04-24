@@ -201,6 +201,7 @@ class BO(object):
                 bool_C = np.product(np.concatenate(C,axis=1)<0,axis=1)
                 func_val = Y * bool_C.reshape(-1,1)
 
+                print("self.suggested_sample",self.suggested_sample)
                 fig, axs = plt.subplots(2, 2)
                 axs[0, 0].set_title('True Function')
                 axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
@@ -226,10 +227,11 @@ class BO(object):
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
 
+
             bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
             func_val = self.Y * bool_C.reshape(-1, 1)
             self.Opportunity_Cost.append(np.max(func_val))
-
+            print("X", self.X,"Y", self.Y, "C", self.C, "OC", self.Opportunity_Cost)
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero
             self.num_acquisitions += 1

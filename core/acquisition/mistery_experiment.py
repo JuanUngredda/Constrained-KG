@@ -72,7 +72,7 @@ def function_caller_mistery(rep):
     data["C_bool"] = np.array(C_bool).reshape(-1)
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "Mistery_gradients"
+    subfolder = "Mistery_random_sampling"
     cwd = os.getcwd()
 
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -86,6 +86,8 @@ def function_caller_mistery(rep):
 
 
 
+# for i in range(40):
+#     function_caller_mistery(rep=i)
 
 
 

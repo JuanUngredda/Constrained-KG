@@ -188,7 +188,7 @@ class AcquisitionBase(object):
         plt.show()
 
 
-    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-9):
+    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-6):
         initial_design = np.random.random((80,2))*5 # self.test_samples
         fixed_dim =0
         variable_dim = 1

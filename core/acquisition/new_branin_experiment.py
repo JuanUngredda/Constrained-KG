@@ -45,7 +45,7 @@ def function_caller_new_brannin(rep):
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-    nz = 3
+    nz = 1
     acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz, true_func= new_brannin_f)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
@@ -70,7 +70,7 @@ def function_caller_new_brannin(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "new_branin_gradients"
+    subfolder = "new_branin_random_sampling"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -81,6 +81,7 @@ def function_caller_new_brannin(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-#function_caller_new_brannin(rep=15)
+
+# function_caller_new_brannin(rep=15)
 
 

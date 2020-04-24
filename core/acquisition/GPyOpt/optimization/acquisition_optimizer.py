@@ -51,7 +51,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=100, verbose=True):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=50, verbose=True):
         """
         Optimizes the input function.
 
@@ -82,7 +82,7 @@ class AcquisitionOptimizer(object):
         if re_use == True:
             anchor_points = self.old_anchor_points
         else:
-            anchor_points = anchor_points_generator.get(num_anchor=3,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+            anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
         # print("getting that sweet spot that you like")
         # if sweet_spot:
@@ -127,7 +127,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=100):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=20):
         """
         Optimizes the input function.
 
@@ -173,8 +173,8 @@ class AcquisitionOptimizer(object):
         self.inner_anchor_points = x_min
 
         # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
-        # print("optimized_points", optimized_points)
-
+        # # print("optimized_points", optimized_points)
+        #
         # bounds =self.space.get_bounds()
         # x_plot = np.random.random((1000,2))*(np.array([bounds[0][1], bounds[1][1]]) - np.array([bounds[0][0], bounds[1][0]])) +  np.array([bounds[0][0], bounds[1][0]])
         #

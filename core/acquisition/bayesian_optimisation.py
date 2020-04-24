@@ -329,7 +329,7 @@ class BO(object):
 
         start = time.time()
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-        out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=400, verbose=False)
+        out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=1000, verbose=False)
         suggested_sample =  self.space.zip_inputs(out[0])
         stop = time.time()
         # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
@@ -352,7 +352,7 @@ class BO(object):
 
         self.Opportunity_Cost.append(np.max(Y_aux))
 
-    def expected_improvement(self, X, offset=0.0):
+    def expected_improvement(self, X, offset=1e-4):
         '''
         Computes the EI at points X based on existing samples X_sample
         and Y_sample using a Gaussian process surrogate model.
@@ -369,7 +369,7 @@ class BO(object):
         '''
         mu, sigma = self.model.predict(X)
 
-        # sigma = np.sqrt(sigma).reshape(-1, 1)
+        sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
         # Needed for noise-based model,
         # otherwise use np.max(Y_sample).
@@ -378,16 +378,15 @@ class BO(object):
         func_val = self.Y * bool_C.reshape(-1, 1)
         mu_sample_opt = np.max(func_val) - offset
 
-        # with np.errstate(divide='warn'):
-        #     imp = mu - mu_sample_opt
-        #     Z = imp / sigma
-        #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-        #     ei[sigma == 0.0] = 0.0
+        with np.errstate(divide='warn'):
+            imp = mu - mu_sample_opt
+            Z = imp / sigma
+            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+            ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-        pf[pf<0.50] = 0
-
-        return -(mu *pf )
+        ei[pf<0.75] = 0
+        return -(ei *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)

@@ -69,7 +69,7 @@ def function_caller_test_func_2(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "test_function_2"
+    subfolder = "test_function_2_random_sampling"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -80,6 +80,8 @@ def function_caller_test_func_2(rep):
 
     print("X",X,"Y",Y, "C", C)
 
-function_caller_test_func_2(rep=2)
+
+for i in range(40):
+    function_caller_test_func_2(rep=i)
 
 
