@@ -70,7 +70,7 @@ def function_caller_new_brannin(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "new_branin_random_sampling"
+    subfolder = "new_branin_gradients"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
