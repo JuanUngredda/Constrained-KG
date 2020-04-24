@@ -109,12 +109,12 @@ N_PROCESSES = 8
 
 # set the computers you want to use here, tmux will load to show if they are active.
 ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
-                 "embutido", "caldereta", "dinuguan", "lechon",
-                 "niliga", "inihaw", "halabos", "sinuglaw"]
+                 "embutido", "jamon", "caldereta", "dinuguan", "lechon",
+                 "niliga", "inihaw", "halabos", "sinuglaw", "keiko", "kumeta"]
 
 # default list uses all computers, but some may need to be removed.
 # working with names is a bitch, instead use numbers (tmux panes).
-U = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, 16]
+U = [0,1,2,3,4,5,6,7,9,10,11,12,13,14]
 #U = [0,2,3,4,5,6,7,8]
 # U = [0,1,2,3,4,6,7,9,10,12,13,14,15,16]
 
