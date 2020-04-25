@@ -181,7 +181,6 @@ class BO(object):
 
             self._update_model()
 
-
             print("maKG optimizer")
             start = time.time()
             self.suggested_sample = self._compute_next_evaluations()
@@ -200,6 +199,7 @@ class BO(object):
             self.num_acquisitions += 1
             print("optimize_final_evaluation")
             self.optimize_final_evaluation()
+
             print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
 
         return self.X, self.Y, self.C , self.Opportunity_Cost
@@ -329,7 +329,7 @@ class BO(object):
 
         start = time.time()
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-        out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=1000, verbose=False)
+        out = self.acquisition.optimizer.optimize_inner_func(f=self.expected_improvement, duplicate_manager=None,  num_samples=100)
         suggested_sample =  self.space.zip_inputs(out[0])
         stop = time.time()
         # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
@@ -367,7 +367,9 @@ class BO(object):
         Returns:
             Expected improvements at points X.
         '''
-        mu, sigma = self.model.predict(X)
+
+        mu = self.model.posterior_mean(X)
+        sigma = self.model.posterior_variance(X, noise=False)
 
         sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
@@ -385,45 +387,29 @@ class BO(object):
             ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-        ei[pf<0.75] = 0
         return -(ei *pf )
+
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)
         x = np.atleast_2d(x)
-        if grad == False:
-            Fz = []
-            for m in range(model.output_dim):
-                Fz.append(self.probability_feasibility( x, model.output[m], grad, l))
-            Fz = np.product(Fz,axis=0)
-            return Fz
-        else:
-            Fz = []
-            grad_Fz = []
-            for m in range(model.output_dim):
-                # print("model.output[m]",model.output[m])
-                # print("mean[m]",mean[m])
-                # print("cov[m]",cov[m])
-                Fz_aux, grad_Fz_aux = self.probability_feasibility( x, model.output[m])
-                Fz.append(Fz_aux)
-                grad_Fz.append(grad_Fz_aux)
 
-            # print("np.array(Fz)", np.array(Fz), "grad_Fz", np.array(grad_Fz))
-            grad_Fz = self.product_gradient_rule(func = np.array(Fz), grad = np.array(grad_Fz))
-            # print("output grad_Fz", grad_Fz)
-
-            Fz = np.product(Fz, axis=0)
-            return Fz, grad_Fz
+        Fz = []
+        for m in range(model.output_dim):
+            Fz.append(self.probability_feasibility( x, model.output[m], grad, l))
+        Fz = np.product(Fz,axis=0)
+        return Fz
 
     def probability_feasibility(self, x, model, mean=None, cov=None, grad=False, l=0):
 
         model = model.model
         # kern = model.kern
         # X = model.X
-        mean, cov = model.predict(x, full_cov=True)
-        var = np.diag(cov).reshape(-1, 1)
+        mean = model.posterior_mean(x)
+        var = model.posterior_variance(x, noise=False)
+        # print("mean",mean,"var",var)
         std = np.sqrt(var).reshape(-1, 1)
-
+        # print("std",std)
         aux_var = np.reciprocal(var)
         mean = mean.reshape(-1, 1)
 

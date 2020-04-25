@@ -84,13 +84,13 @@ class AcquisitionOptimizer(object):
         else:
             anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
-        # print("getting that sweet spot that you like")
-        # if sweet_spot:
-        #     EI_suggested_sample = self.optimize_final_evaluation()
-        #     EI_suggested_sample = EI_suggested_sample.reshape(-1)
-        #     EI_suggested_sample = EI_suggested_sample.reshape(1,-1)
-        #     print("EI_suggested_samples", EI_suggested_sample, "anchor_points", anchor_points)
-        #     anchor_points = np.concatenate((EI_suggested_sample, anchor_points))
+        print("getting that sweet spot that you like")
+        if sweet_spot:
+            EI_suggested_sample = self.optimize_final_evaluation()
+            EI_suggested_sample = EI_suggested_sample.reshape(-1)
+            EI_suggested_sample = EI_suggested_sample.reshape(1,-1)
+            print("EI_suggested_samples", EI_suggested_sample, "anchor_points", anchor_points)
+            anchor_points = np.concatenate((EI_suggested_sample, anchor_points))
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
 
@@ -127,7 +127,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=20):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=100):
         """
         Optimizes the input function.
 
@@ -154,9 +154,9 @@ class AcquisitionOptimizer(object):
 
         anchor_points = anchor_points_generator.get(num_anchor=1,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
 
-        # print("self.inner_anchor_points", self.inner_anchor_points)
+
         if self.inner_anchor_points is not None:
-            # print("self.inner_anchor_points, anchor_points", self.inner_anchor_points, anchor_points)
+
             anchor_points = np.concatenate((self.inner_anchor_points, anchor_points))
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
@@ -173,7 +173,7 @@ class AcquisitionOptimizer(object):
         self.inner_anchor_points = x_min
 
         # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
-        # # print("optimized_points", optimized_points)
+        # print("optimized_points", optimized_points)
         #
         # bounds =self.space.get_bounds()
         # x_plot = np.random.random((1000,2))*(np.array([bounds[0][1], bounds[1][1]]) - np.array([bounds[0][0], bounds[1][0]])) +  np.array([bounds[0][0], bounds[1][0]])
@@ -214,7 +214,8 @@ class AcquisitionOptimizer(object):
 
         self.Y = self.model.get_Y_values()
         self.C = self.model_c.get_Y_values()
-        mu, sigma = self.model.predict(X)
+        mu = self.model.posterior_mean(X)
+        sigma = self.model.posterior_variance(X, noise=False)
 
         sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)

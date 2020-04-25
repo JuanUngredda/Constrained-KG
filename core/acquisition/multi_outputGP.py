@@ -121,14 +121,14 @@ class multi_outputGP(object):
         self.Y = Y
         return self.Y
     
-    def posterior_variance(self,  X):
+    def posterior_variance(self,  X, noise):
         """
         Returns posterior variance at X.
         """
         X = np.atleast_2d(X)
         var = np.empty((self.output_dim,X.shape[0]))
         for j in range(self.output_dim):
-            var[j,:] = self.output[j].posterior_variance(X)[:,0]
+            var[j,:] = self.output[j].posterior_variance(X, noise=noise)[:,0]
         return var
 
     def posterior_var_gradient_f(self,X):

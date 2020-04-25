@@ -401,7 +401,7 @@ class GP(Model):
         return mu
     
     
-    def posterior_variance(self, Xnew, kern=None):
+    def posterior_variance(self, Xnew, noise, kern=None):
         """
         For making predictions, does not account for normalization or likelihood
 
@@ -414,8 +414,12 @@ class GP(Model):
                         = N(f*| K_{x*x}(K_{xx} + \Sigma)^{-1}Y, K_{x*x*} - K_{xx*}(K_{xx} + \Sigma)^{-1}K_{xx*}
             \Sigma := \texttt{Likelihood.variance / Approximate likelihood covariance}
         """
+
         var = self.posterior.raw_posterior_variance(kern=self.kern if kern is None else kern, Xnew=Xnew, pred_var=self._predictive_variable)
-        var = self.likelihood.predictive_variance2(var)
+
+        if noise:
+            var = self.likelihood.predictive_variance2(var)
+
         return var
     
     

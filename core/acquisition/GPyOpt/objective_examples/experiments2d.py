@@ -402,7 +402,7 @@ class mistery(function2d):
         self.sd = sd
         self.name = 'Mistery'
 
-    def f(self, x, offset=-28):
+    def f(self, x, offset=-40):
         # print("x",x)
         n = x.shape[0]
         x1 = x[:, 0]

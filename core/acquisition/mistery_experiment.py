@@ -25,6 +25,7 @@ def function_caller_mistery(rep):
     f = MultiObjective([mistery_f.f])
     c = MultiObjective([mistery_f.c])
 
+
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
 
@@ -40,22 +41,22 @@ def function_caller_mistery(rep):
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', inner_optimizer='lbfgs', space=space, model = model_f, model_c=model_c)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model = model_f, model_c=model_c)
     #
     # # --- Initial design
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
 
-    nz=3
-    acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt, nz=nz)
+    nz=4
+    acquisition = KG(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-    max_iter  = 45
+    max_iter  = 40
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
 
     print("Code Ended")
 
@@ -85,7 +86,7 @@ def function_caller_mistery(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-
+#function_caller_mistery(rep=15)
 # for i in range(40):
 #     function_caller_mistery(rep=i)
 

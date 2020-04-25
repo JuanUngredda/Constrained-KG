@@ -146,7 +146,7 @@ class AcquisitionBase(object):
         else:
             # print("sanity check")
             #self.gradient_sanity_check_1D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
-            # self._gradient_sanity_check_2D(f=self._compute_Fz, grad_f=self._compute_Fz_xopt_withGradients)
+            #self._gradient_sanity_check_2D(f=self._compute_mu, grad_f=self._compute_mu_xopt_withGradients)
             # self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
             # self._gradient_sanity_check_2D_TEST2(f_df=self.acquisition_function_withGradients)
             # print("end sanity check")
@@ -188,7 +188,7 @@ class AcquisitionBase(object):
         plt.show()
 
 
-    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-6):
+    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-10):
         initial_design = np.random.random((80,2))*5 # self.test_samples
         fixed_dim =0
         variable_dim = 1

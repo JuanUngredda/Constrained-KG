@@ -94,10 +94,11 @@ class GPModel(BOModel):
 
         # update the model generating hmc samples
         self.model.optimize_restarts(num_restarts=5, max_iters = 20, verbose=False)
-        self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
-        self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)
-        ss = self.hmc.sample(num_samples=self.n_burnin + self.n_samples* self.subsample_interval, hmc_iters=self.leapfrog_steps)
-        self.hmc_samples = ss[self.n_burnin::self.subsample_interval]
+        print("self.model",self.model)
+        # self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
+        # self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)
+        # ss = self.hmc.sample(num_samples=self.n_burnin + self.n_samples* self.subsample_interval, hmc_iters=self.leapfrog_steps)
+        # self.hmc_samples = ss[self.n_burnin::self.subsample_interval]
 
         
     def get_hyperparameters_samples(self, n_samples=1):
@@ -137,12 +138,12 @@ class GPModel(BOModel):
         if X.ndim==1: X = X[None,:]
         return self.model.posterior_mean(X)
     
-    def posterior_variance(self, X):
+    def posterior_variance(self, X, noise):
         """
         Predictions with the model. Returns posterior means and standard deviations at X. Note that this is different in GPy where the variances are given.
         """
         if X.ndim==1: X = X[None,:]
-        v = np.clip(self.model.posterior_variance(X), 1e-10, np.inf)
+        v = np.clip(self.model.posterior_variance(X, noise=noise), 1e-10, np.inf)
         return v
     
     def partial_precomputation_for_covariance(self, X):
