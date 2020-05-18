@@ -55,7 +55,7 @@ def function_caller_mistery_bnch(rep):
 
         max_iter  = 45
         # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
 
         data = {}
