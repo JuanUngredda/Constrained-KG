@@ -130,7 +130,7 @@ class BO(object):
         :param verbosity: flag to print the optimization results after each iteration (default, False).
         :param evaluations_file: filename of the file where the evaluated points and corresponding evaluations are saved (default, None).
         """
-
+        self.verbosity=verbosity
         if self.objective is None:
             raise InvalidConfigError("Cannot run the optimization loop without the objective function")
 
@@ -176,6 +176,7 @@ class BO(object):
         # --- Initialize time cost of the evaluations
         print("MAIN LOOP STARTS")
         Opportunity_Cost = []
+        self.true_best_stats = {"true_best":[], "mean_gp":[], "std gp":[], "pf":[], "mu_pf":[], "var_pf":[], "residual_noise":[]}
         while (self.max_iter > self.num_acquisitions ):
 
 
@@ -226,11 +227,7 @@ class BO(object):
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
-
-
-            bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
-            func_val = self.Y * bool_C.reshape(-1, 1)
-            self.Opportunity_Cost.append(np.max(func_val))
+            self.Opportunity_Cost_caller()
             print("X", self.X,"Y", self.Y, "C", self.C, "OC", self.Opportunity_Cost)
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero
@@ -245,6 +242,16 @@ class BO(object):
         #file = open('test_file.txt','w')
         #np.savetxt('test_file.txt',value_so_far)
 
+    def Opportunity_Cost_caller(self):
+        self.true_best_value()
+
+        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
+        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
+
+        bool_C = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+        func_val = Y_true * bool_C.reshape(-1, 1)
+        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val))).reshape(-1))
 
     def optimize_final_evaluation(self):
 
@@ -272,7 +279,8 @@ class BO(object):
         Returns:
             Expected improvements at points X.
         '''
-        mu, sigma = self.model.predict(X)
+        mu = self.model.posterior_mean(X)
+        sigma = self.model.posterior_variance(X, noise=False)
 
         sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
@@ -325,8 +333,8 @@ class BO(object):
         model = model.model
         # kern = model.kern
         # X = model.X
-        mean, cov = model.predict(x, full_cov=True)
-        var = np.diag(cov).reshape(-1, 1)
+        mean = model.posterior_mean(x)
+        var = model.posterior_variance(x, noise=False)
         std = np.sqrt(var).reshape(-1, 1)
 
         aux_var = np.reciprocal(var)
@@ -424,7 +432,8 @@ class BO(object):
             X_inmodel = self.space.unzip_inputs(self.X)
             Y_inmodel = list(self.Y)
             C_inmodel = list(self.C)
-            
+
+            print("X", X_inmodel,len(X_inmodel) ,"Y",Y_inmodel, len(Y_inmodel))
             self.model.updateModel(X_inmodel, Y_inmodel)
             self.model_c.updateModel(X_inmodel, C_inmodel)
         ### --- Save parameters of the model
@@ -433,3 +442,67 @@ class BO(object):
 
     def get_evaluations(self):
         return self.X.copy(), self.Y.copy()
+
+    def true_best_value(self):
+        from scipy.optimize import minimize
+
+        X = initial_design('random', self.space, 1000)
+
+        fval = self.func_val(X)
+
+        anchor_point = np.array(X[np.argmin(fval)]).reshape(-1)
+        anchor_point = anchor_point.reshape(1, -1)
+        print("anchor_point",anchor_point)
+        best_design = minimize(self.func_val, anchor_point, method='Nelder-Mead', tol=1e-8).x
+
+        self.true_best_stats["true_best"].append(self.func_val(best_design))
+        self.true_best_stats["mean_gp"].append(self.model.posterior_mean(best_design))
+        self.true_best_stats["std gp"].append(self.model.posterior_variance(best_design, noise=False))
+        self.true_best_stats["pf"].append(self.probability_feasibility_multi_gp(best_design,self.model_c).reshape(-1,1))
+        mean = self.model_c.posterior_mean(best_design)
+        var = self.model_c.posterior_variance(best_design, noise=False)
+        residual_noise = self.model_c.posterior_variance(self.X[1], noise=False)
+        self.true_best_stats["mu_pf"].append(mean)
+        self.true_best_stats["var_pf"].append(var)
+        self.true_best_stats["residual_noise"].append(residual_noise)
+
+        if False:
+            fig, axs = plt.subplots(3, 2)
+            N = len(np.array(self.true_best_stats["std gp"]).reshape(-1))
+            GAP = np.array(np.abs(np.abs(self.true_best_stats["true_best"]).reshape(-1) - np.abs(self.true_best_stats["mean_gp"]).reshape(-1))).reshape(-1)
+            print("GAP len", len(GAP))
+            print("N",N)
+            axs[0, 0].set_title('GAP')
+            axs[0, 0].plot(range(N),GAP)
+            axs[0, 0].set_yscale("log")
+
+            axs[0, 1].set_title('VAR')
+            axs[0, 1].plot(range(N),np.array(self.true_best_stats["std gp"]).reshape(-1))
+            axs[0, 1].set_yscale("log")
+
+            axs[1, 0].set_title("PF")
+            axs[1, 0].plot(range(N),np.array(self.true_best_stats["pf"]).reshape(-1))
+
+            axs[1, 1].set_title("mu_PF")
+            axs[1, 1].plot(range(N),np.abs(np.array(self.true_best_stats["mu_pf"]).reshape(-1)))
+            axs[1, 1].set_yscale("log")
+
+            axs[2, 1].set_title("std_PF")
+            axs[2, 1].plot(range(N),np.sqrt(np.array(self.true_best_stats["var_pf"]).reshape(-1)))
+            axs[2, 1].set_yscale("log")
+
+            axs[2, 0].set_title("Irreducible noise")
+            axs[2, 0].plot(range(N), np.sqrt(np.array(self.true_best_stats["residual_noise"]).reshape(-1)))
+            axs[2, 0].set_yscale("log")
+
+            plt.show()
+
+    def func_val(self, x):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        Y,_ = self.objective.evaluate(x, true_val=True)
+        C,_ = self.constraint.evaluate(x, true_val=True)
+        Y = np.array(Y).reshape(-1)
+        out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+        out = np.array(out).reshape(-1)
+        return -out

@@ -418,8 +418,11 @@ class GP(Model):
         var = self.posterior.raw_posterior_variance(kern=self.kern if kern is None else kern, Xnew=Xnew, pred_var=self._predictive_variable)
 
         if noise:
+            print("INCLUDING VARIANCE")
+            print("var",var)
             var = self.likelihood.predictive_variance2(var)
-
+            print("var like", var)
+            raise
         return var
     
     

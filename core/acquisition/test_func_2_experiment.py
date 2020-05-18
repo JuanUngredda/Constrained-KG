@@ -40,7 +40,7 @@ def function_caller_test_func_2(rep):
 
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f)
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f, model_c=model_c)
     #
     # # --- Initial design
     #initial design

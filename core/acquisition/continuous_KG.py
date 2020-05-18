@@ -52,7 +52,7 @@ class KG(AcquisitionBase):
 
         self.update_current_best()
           # Number of samples of Z.
-        #np.random.seed(1) # np.random.seed(int(time.time()))#
+        np.random.seed(1) # np.random.seed(int(time.time()))#
 
         self.Z_samples_obj = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, -2.326])  # np.random.normal(size=self.nz)
         self.Z_samples_const = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, 2.326])
@@ -240,8 +240,9 @@ class KG(AcquisitionBase):
 
                         func_grad_val = np.array(mu_xnew).reshape(-1)*grad_Fz.reshape(-1) +  Fz.reshape(-1)*grad_mu_xnew.reshape(-1)#  grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
 
-                        return -func_val, -func_grad_val
+                        return  -func_val, -func_grad_val
 
+                    #self.gradient_sanity_check_2D(inner_func,inner_func_with_gradient)
 
                     # test_samples= initial_design('random', self.space, 1000)
                     #
@@ -457,12 +458,13 @@ class KG(AcquisitionBase):
                     marginal_acqX[i,0] -= opt_val
                     x_opt = np.atleast_2d(x_opt)
 
-                    grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:])# , test_samples= initial_design('random', self.space, 1000) )
+                    grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:] , test_samples= initial_design('random', self.space, 1000) )
 
                     mu_xopt = grad_obj.compute_value_mu_xopt(x_opt)
                     grad_mu_xopt = grad_obj.compute_grad_mu_xopt(x_opt)
 
-                    grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =x_opt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])#, test_samples= initial_design('random', self.space, 1000))
+                    grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =x_opt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:], test_samples= initial_design('random', self.space, 1000))
+
                     Fz_xopt , grad_Fz_xopt = grad_c.compute_probability_feasibility_multi_gp_xopt(xopt = x_opt, gradient_flag=True)
 
 
@@ -478,7 +480,7 @@ class KG(AcquisitionBase):
                     grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =self.current_max_xopt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])#, test_samples= initial_design('random', self.space, 1000))
                     Fz_xopt_current , grad_Fz_xopt_current = grad_c.compute_probability_feasibility_multi_gp_xopt(xopt = self.current_max_xopt, gradient_flag=True)
 
-
+                    print("np.array(mu_xopt_current).reshape(-1)*np.array(grad_Fz_xopt_current).reshape(-1) +  np.array(Fz_xopt_current).reshape(-1) * np.array(grad_mu_xopt_current).reshape(-1)",np.array(mu_xopt_current).reshape(-1),np.array(grad_Fz_xopt_current).reshape(-1) ,  np.array(Fz_xopt_current).reshape(-1) , np.array(grad_mu_xopt_current).reshape(-1))
                     grad_f_val_current = np.array(mu_xopt_current).reshape(-1)*np.array(grad_Fz_xopt_current).reshape(-1) +  np.array(Fz_xopt_current).reshape(-1) * np.array(grad_mu_xopt_current).reshape(-1)
 
                     # print("grad_f_val_xopt , grad_f_val_current",grad_f_val_xopt , grad_f_val_current, grad_f_val_xopt - grad_f_val_current)

@@ -41,13 +41,13 @@ class SingleObjective(Objective):
         self.objective_name = objective_name
 
 
-    def evaluate(self, x):
+    def evaluate(self, x,  true_val=False):
         """
         Performs the evaluation of the objective at x.
         """
 
         if self.n_procs == 1:
-            f_evals, cost_evals = self._eval_func(x)
+            f_evals, cost_evals = self._eval_func(x,  true_val= true_val)
         else:
             try:
                 f_evals, cost_evals = self._syncronous_batch_evaluation(x)
@@ -61,7 +61,7 @@ class SingleObjective(Objective):
         return f_evals, cost_evals
 
 
-    def _eval_func(self, x):
+    def _eval_func(self, x,  true_val=False):
         """
         Performs sequential evaluations of the function at x (single location or batch). The computing time of each
         evaluation is also provided.
@@ -71,7 +71,7 @@ class SingleObjective(Objective):
 
         for i in range(x.shape[0]):
             st_time    = time.time()
-            rlt = self.func(np.atleast_2d(x[i]))
+            rlt = self.func(np.atleast_2d(x[i]),  true_val= true_val)
             f_evals     = np.vstack([f_evals,rlt])
             cost_evals += [time.time()-st_time]
         return f_evals, cost_evals

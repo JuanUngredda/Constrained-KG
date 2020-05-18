@@ -39,14 +39,14 @@ class MultiObjective(Objective):
             self.objective[j] = GPyOpt.core.task.SingleObjective(func=self.func[j],objective_name=self.objective_name[j])
 
 
-    def evaluate(self, x):
+    def evaluate(self, x,  true_val=False):
         """
         Performs the evaluation of the objectives at x.
         """
         f_eval = [None]*self.output_dim #np.zeros(self.output_dim)
         cost_eval = 0
         for j in range(0,self.output_dim):
-            f_eval[j] = self.objective[j].evaluate(x)[0]
+            f_eval[j] = self.objective[j].evaluate(x,  true_val=true_val)[0]
         return f_eval, cost_eval
     
     

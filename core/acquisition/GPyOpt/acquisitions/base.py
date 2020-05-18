@@ -134,7 +134,7 @@ class AcquisitionBase(object):
         # print("-f_acq_cost*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x)",f_acq_cost*self.space.indicator_constraints(x), df_acq_cost*self.space.indicator_constraints(x))
         # print("self.space.indicator_constraints(x)",self.space.indicator_constraints(x), "f_acq_cost",f_acq_cost)
         # print("-f_acq_cost*self.space.indicator_constraints(x)",-f_acq_cost*self.space.indicator_constraints(x))
-        return -f_acqu*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x) #df_acq_cost*self.space.indicator_constraints(x) #
+        return df_acq_cost*self.space.indicator_constraints(x) #-f_acqu*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x) #
 
     def optimize(self, duplicate_manager=None, re_use=False):
         """
@@ -147,7 +147,7 @@ class AcquisitionBase(object):
             # print("sanity check")
             #self.gradient_sanity_check_1D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
             #self._gradient_sanity_check_2D(f=self._compute_mu, grad_f=self._compute_mu_xopt_withGradients)
-            # self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
+            self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
             # self._gradient_sanity_check_2D_TEST2(f_df=self.acquisition_function_withGradients)
             # print("end sanity check")
             import time

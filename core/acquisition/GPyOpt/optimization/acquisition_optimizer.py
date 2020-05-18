@@ -40,6 +40,7 @@ class AcquisitionOptimizer(object):
             self.model = self.kwargs['model']
 
         if 'model_c' in self.kwargs:
+
             self.model_c = self.kwargs['model_c']
 
         if 'anchor_points_logic' in self.kwargs:
@@ -127,7 +128,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=100):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=400):
         """
         Optimizes the input function.
 
@@ -196,7 +197,7 @@ class AcquisitionOptimizer(object):
 
         return EI_suggested_sample
 
-    def expected_improvement(self, X, offset=0.01):
+    def expected_improvement(self, X, offset=1e-4):
         '''
         Computes the EI at points X based on existing samples X_sample
         and Y_sample using a Gaussian process surrogate model.
@@ -240,14 +241,15 @@ class AcquisitionOptimizer(object):
         Fz = np.product(Fz,axis=0)
         return Fz
 
-
     def probability_feasibility(self, x, model, mean=None, cov=None, grad=False, l=0):
 
         model = model.model
         # kern = model.kern
         # X = model.X
-        mean, cov = model.predict(x, full_cov=True)
-        var = np.diag(cov).reshape(-1, 1)
+
+        mean = model.posterior_mean(x)
+        var = model.posterior_variance(x, noise=False)
+
         std = np.sqrt(var).reshape(-1, 1)
 
         aux_var = np.reciprocal(var)
