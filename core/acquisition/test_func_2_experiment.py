@@ -46,10 +46,10 @@ def function_caller_test_func_2(rep):
     #initial design
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-    nz = 1
+    nz = 4
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
 
 
     max_iter  = 30

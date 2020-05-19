@@ -18,7 +18,8 @@ def function_caller_mistery(rep):
     np.random.seed(rep)
 
     # func2 = dropwave()
-    mistery_f =mistery(sd=1e-6)
+    noise = 5
+    mistery_f =mistery(sd=np.sqrt(noise))
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -35,7 +36,7 @@ def function_caller_mistery(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
 
@@ -48,7 +49,7 @@ def function_caller_mistery(rep):
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
 
-    nz=1
+    nz=4
     acquisition = KG(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
@@ -56,7 +57,7 @@ def function_caller_mistery(rep):
 
     max_iter  = 40
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
 
     print("Code Ended")
 
@@ -73,7 +74,7 @@ def function_caller_mistery(rep):
     data["C_bool"] = np.array(C_bool).reshape(-1)
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "Mistery_gradients"
+    subfolder = "Mistery_gradients_"+str(noise)
     cwd = os.getcwd()
 
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -86,7 +87,7 @@ def function_caller_mistery(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_mistery(rep=15)
+#function_caller_mistery(rep=15)
 # for i in range(40):
 #     function_caller_mistery(rep=i)
 
