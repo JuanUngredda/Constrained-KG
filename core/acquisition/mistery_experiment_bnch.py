@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_mistery_bnch(rep):
-    for noise in [5]:#[1e-6, 0.1 , 1. , 5 ]:
+    for noise in [1e-6, 0.1 , 1. , 5 ]:
         np.random.seed(rep)
 
         # func2 = dropwave()

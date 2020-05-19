@@ -192,7 +192,7 @@ class AcquisitionOptimizer(object):
 
     def optimize_final_evaluation(self):
 
-        out = self.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=100, sweet_spot=False, verbose=False)
+        out = self.optimize(f=self.expected_improvement, duplicate_manager=None, re_use=False, num_samples=1000, sweet_spot=False, verbose=False)
         EI_suggested_sample =  self.space.zip_inputs(out[0])
 
         return EI_suggested_sample
@@ -220,17 +220,17 @@ class AcquisitionOptimizer(object):
 
         sigma = np.sqrt(sigma).reshape(-1, 1)
         mu = mu.reshape(-1,1)
-        bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
-        func_val = self.Y * bool_C.reshape(-1, 1)
-        mu_sample_opt = np.max(func_val) - offset
-        #print("mu_sample_opt", mu_sample_opt)
-        with np.errstate(divide='warn'):
-            imp = mu - mu_sample_opt
-            Z = imp / sigma
-            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-            ei[sigma == 0.0] = 0.0
+        # bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        # func_val = self.Y * bool_C.reshape(-1, 1)
+        # mu_sample_opt = np.max(func_val) - offset
+        # #print("mu_sample_opt", mu_sample_opt)
+        # with np.errstate(divide='warn'):
+        #     imp = mu - mu_sample_opt
+        #     Z = imp / sigma
+        #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+        #     ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-        return -(ei *pf )
+        return -(mu *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None,  l=0):
         # print("model",model.output)

@@ -16,9 +16,9 @@ import os
 
 def function_caller_new_brannin(rep):
     np.random.seed(rep)
-
+    noise = 0.1
     # func2 = dropwave()
-    new_brannin_f = new_brannin(sd=1e-6)
+    new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
     x_opt = np.array([[3.26495411, 0.05258315]])
     print("xopt", x_opt, "f", new_brannin_f.f(x_opt), "c", new_brannin_f.c(x_opt))
@@ -37,7 +37,7 @@ def function_caller_new_brannin(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
     # --- Aquisition optimizer
@@ -51,12 +51,12 @@ def function_caller_new_brannin(rep):
     nz = 4
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz = nz,optimizer = acq_opt, true_func= new_brannin_f)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
 
 
     max_iter  = 40
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
     print("Code Ended")
 
     C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
@@ -85,6 +85,6 @@ def function_caller_new_brannin(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_new_brannin(rep=15)
+function_caller_new_brannin(rep=15)
 
 

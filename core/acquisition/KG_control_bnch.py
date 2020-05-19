@@ -46,7 +46,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
 
-    funcions = [function_caller_mistery_bnch, function_caller_new_branin_bnch, function_caller_test_func_2_bnch]
+    funcions = [function_caller_mistery_bnch]
 
     for func in funcions:
         func(args.k)

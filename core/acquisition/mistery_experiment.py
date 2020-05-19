@@ -51,7 +51,7 @@ def function_caller_mistery(rep):
     nz=1
     acquisition = KG(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
 
 
     max_iter  = 40

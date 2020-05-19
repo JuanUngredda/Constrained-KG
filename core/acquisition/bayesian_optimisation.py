@@ -41,7 +41,7 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -56,6 +56,7 @@ class BO(object):
         self.X = X_init
         self.Y = Y_init
         self.C = C_init
+        self.deterministic = deterministic
         self.cost = CostModel(cost)
         self.model_parameters_iterations = None
 
@@ -176,6 +177,8 @@ class BO(object):
         # --- Initialize time cost of the evaluations
         print("MAIN LOOP STARTS")
         Opportunity_Cost = []
+        self.true_best_stats = {"true_best": [], "mean_gp": [], "std gp": [], "pf": [], "mu_pf": [], "var_pf": [],
+                                "residual_noise": []}
         while (self.max_iter > self.num_acquisitions ):
 
 
@@ -198,8 +201,12 @@ class BO(object):
             self.cum_time = time.time() - self.time_zero
             self.num_acquisitions += 1
             print("optimize_final_evaluation")
-            self.optimize_final_evaluation()
 
+            if self.deterministic:
+                self.optimize_final_evaluation()
+            else:
+                print("OPPORTUNITY COST NOISY EXPERIMENTS")
+                self.Opportunity_Cost_caller()
             print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
 
         return self.X, self.Y, self.C , self.Opportunity_Cost
@@ -267,7 +274,7 @@ class BO(object):
 
         # precision = []
         # for i in range(20):
-        #     kg_f = -self.acquisition._compute_acq(design_plot)
+        # kg_f = -self.acquisition._compute_acq(design_plot)
         #     precision.append(np.array(kg_f).reshape(-1))
 
         # print("mean precision", np.mean(precision, axis=0), "std precision",  np.std(precision, axis=0), "max precision", np.max(precision, axis=0), "min precision",np.min(precision, axis=0))
@@ -282,7 +289,7 @@ class BO(object):
         func_val = Y * bool_C.reshape(-1, 1)
 
         # kg_f = -self.acquisition._compute_acq(design_plot)
-        fig, axs = plt.subplots(1, 1)
+        fig, axs = plt.subplots(2, 2)
         axs[0, 0].set_title('True Function')
         axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
         axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
@@ -291,9 +298,9 @@ class BO(object):
                           label="suggested")
         axs[0, 0].legend()
 
-        # axs[0, 1].set_title('approximation Acqu Function')
-        # axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
-        # axs[0, 1].legend()
+        axs[0, 1].set_title('approximation Acqu Function')
+        axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
+        axs[0, 1].legend()
 
         # axs[1, 0].set_title("KG")
         # axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
@@ -303,9 +310,9 @@ class BO(object):
         # axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
         # axs[1, 1].legend()
 
-        # axs[2, 1].set_title('approximation kg Function')
-        # axs[2, 1].scatter(design_plot, np.array(kg_f).reshape(-1))
-        # axs[2, 1].legend()
+        axs[1, 1].set_title('Opportunity Cost')
+        axs[1, 1].plot(range(len(self.Opportunity_Cost)), self.Opportunity_Cost)
+        #axs[2, 1].legend()
         # import os
         # folder = "IMAGES"
         # subfolder = "new_branin"
@@ -326,6 +333,7 @@ class BO(object):
         # fig, axs = plt.subplots(2, 2)
         # axs[0, 0].set_title('True Function')
         # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
+
 
         start = time.time()
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
@@ -351,6 +359,17 @@ class BO(object):
         Y_aux = np.concatenate((func_val.reshape(-1),np.array(feasable_Y_data).reshape(-1)))
 
         self.Opportunity_Cost.append(np.max(Y_aux))
+
+    def Opportunity_Cost_caller(self):
+        self.true_best_value()
+
+        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
+        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
+
+        bool_C = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+        func_val = Y_true * bool_C.reshape(-1, 1)
+        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val))).reshape(-1))
 
     def expected_improvement(self, X, offset=1e-4):
         '''
@@ -511,3 +530,67 @@ class BO(object):
 
     def get_evaluations(self):
         return self.X.copy(), self.Y.copy()
+
+    def true_best_value(self):
+        from scipy.optimize import minimize
+
+        X = initial_design('random', self.space, 1000)
+
+        fval = self.func_val(X)
+
+        anchor_point = np.array(X[np.argmin(fval)]).reshape(-1)
+        anchor_point = anchor_point.reshape(1, -1)
+        print("anchor_point",anchor_point)
+        best_design = minimize(self.func_val, anchor_point, method='Nelder-Mead', tol=1e-8).x
+
+        self.true_best_stats["true_best"].append(self.func_val(best_design))
+        self.true_best_stats["mean_gp"].append(self.model.posterior_mean(best_design))
+        self.true_best_stats["std gp"].append(self.model.posterior_variance(best_design, noise=False))
+        self.true_best_stats["pf"].append(self.probability_feasibility_multi_gp(best_design,self.model_c).reshape(-1,1))
+        mean = self.model_c.posterior_mean(best_design)
+        var = self.model_c.posterior_variance(best_design, noise=False)
+        residual_noise = self.model_c.posterior_variance(self.X[1], noise=False)
+        self.true_best_stats["mu_pf"].append(mean)
+        self.true_best_stats["var_pf"].append(var)
+        self.true_best_stats["residual_noise"].append(residual_noise)
+
+        if False:
+            fig, axs = plt.subplots(3, 2)
+            N = len(np.array(self.true_best_stats["std gp"]).reshape(-1))
+            GAP = np.array(np.abs(np.abs(self.true_best_stats["true_best"]).reshape(-1) - np.abs(self.true_best_stats["mean_gp"]).reshape(-1))).reshape(-1)
+            print("GAP len", len(GAP))
+            print("N",N)
+            axs[0, 0].set_title('GAP')
+            axs[0, 0].plot(range(N),GAP)
+            axs[0, 0].set_yscale("log")
+
+            axs[0, 1].set_title('VAR')
+            axs[0, 1].plot(range(N),np.array(self.true_best_stats["std gp"]).reshape(-1))
+            axs[0, 1].set_yscale("log")
+
+            axs[1, 0].set_title("PF")
+            axs[1, 0].plot(range(N),np.array(self.true_best_stats["pf"]).reshape(-1))
+
+            axs[1, 1].set_title("mu_PF")
+            axs[1, 1].plot(range(N),np.abs(np.array(self.true_best_stats["mu_pf"]).reshape(-1)))
+            axs[1, 1].set_yscale("log")
+
+            axs[2, 1].set_title("std_PF")
+            axs[2, 1].plot(range(N),np.sqrt(np.array(self.true_best_stats["var_pf"]).reshape(-1)))
+            axs[2, 1].set_yscale("log")
+
+            axs[2, 0].set_title("Irreducible noise")
+            axs[2, 0].plot(range(N), np.sqrt(np.array(self.true_best_stats["residual_noise"]).reshape(-1)))
+            axs[2, 0].set_yscale("log")
+
+            plt.show()
+
+    def func_val(self, x):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        Y,_ = self.objective.evaluate(x, true_val=True)
+        C,_ = self.constraint.evaluate(x, true_val=True)
+        Y = np.array(Y).reshape(-1)
+        out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+        out = np.array(out).reshape(-1)
+        return -out

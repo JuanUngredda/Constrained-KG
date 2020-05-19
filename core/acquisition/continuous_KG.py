@@ -33,6 +33,7 @@ class KG(AcquisitionBase):
         self.Z_samples_obj = None
         self.Z_samples_const = None
         self.true_func = true_func
+        self.saved_Nx = -10
         super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
@@ -52,10 +53,15 @@ class KG(AcquisitionBase):
 
         self.update_current_best()
           # Number of samples of Z.
-        np.random.seed(1) # np.random.seed(int(time.time()))#
+        # np.random.seed(int(time.time()))#
 
-        self.Z_samples_obj = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, -2.326])  # np.random.normal(size=self.nz)
-        self.Z_samples_const = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, 2.326])
+        Nx = self.model.get_X_values().shape[0]
+        if Nx != self.saved_Nx:
+            self.saved_Nx = Nx
+            self.Z_samples_obj = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, -2.326])  # np.random.normal(size=self.nz)
+            self.Z_samples_const = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, 2.326])
+            print("self.Z_samples_obj ",self.Z_samples_obj )
+            print("self.Z_samples_const",self.Z_samples_const)
         # print("self.Z_samples_obj",self.Z_samples_obj)
         # print("self.Z_samples_obj",self.Z_samples_obj,"self.Z_samples_const",self.Z_samples_const)
         marginal_acqX = self._marginal_acq(X)
@@ -122,6 +128,7 @@ class KG(AcquisitionBase):
         # if self.Z_samples_obj is None:
         #
         #     np.random.seed(X.shape[0])
+
         marginal_acqX, marginal_dacq_dX = self._marginal_acq_with_gradient(X)
 
         acqX = np.reshape(marginal_acqX,(X.shape[0], 1))
@@ -451,7 +458,7 @@ class KG(AcquisitionBase):
 
                         return -func_val, -func_grad_val
 
-
+                    #self.gradient_sanity_check_2D(inner_func, inner_func_with_gradient)
                     x_opt, opt_val = self.optimizer.optimize_inner_func(f =inner_func, f_df=inner_func_with_gradient) # self.optimizer.optimize_inner_func(f =inner_func, f_df=None)#inner_func_with_gradient
                     # print("USING GRADIENT ESTIMATION x_opt, opt_val",x_opt, opt_val)
                     # print(" x_opt, opt_val", x_opt, opt_val)
@@ -460,6 +467,7 @@ class KG(AcquisitionBase):
 
                     grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, xopt =x_opt, aux=aux_obj, aux2=aux2_obj, varX=varX_obj[:,i], dvar_dX=dvar_obj_dX[:,i,:] , test_samples= initial_design('random', self.space, 1000) )
 
+                    #grad_obj.test_mode()
                     mu_xopt = grad_obj.compute_value_mu_xopt(x_opt)
                     grad_mu_xopt = grad_obj.compute_grad_mu_xopt(x_opt)
 
@@ -521,10 +529,10 @@ class KG(AcquisitionBase):
             f_delta = np.array(f_delta).reshape(-1)
             numerical_grad.append(np.array(f_delta / (2 * delta)).reshape(-1))
             start = time.time()
-            analytical_grad.append(grad_f(x).reshape(-1))
+            analytical_grad.append(np.array(grad_f(x)).reshape(-1))
             stop = time.time()
             print("anal time", stop-start)
-            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", grad_f(x).reshape(-1))
+            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", np.array(grad_f(x)).reshape(-1))
 
 
         func_val = np.array(func_val)

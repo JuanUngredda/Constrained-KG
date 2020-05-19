@@ -19,7 +19,7 @@ class AcquisitionBase(object):
 
     def __init__(self, model, space, optimizer,model_c=None, cost_withGradients=None):
 
-        self.analytical_gradient_prediction = True
+        self.analytical_gradient_prediction = False
         self.model = model
         self.space = space
         self.optimizer = optimizer
@@ -115,7 +115,7 @@ class AcquisitionBase(object):
         f_acqu = self.current_compute_acq()
         cost_x, _ = self.cost_withGradients(x)
 
-        return -(f_acqu*self.space.indicator_constraints(x))#/cost_x
+        return (f_acqu*self.space.indicator_constraints(x))#/cost_x
 
     def acquisition_function_withGradients(self, x):
 
