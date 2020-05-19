@@ -18,7 +18,7 @@ def function_caller_mistery(rep):
     np.random.seed(rep)
 
     # func2 = dropwave()
-    noise = 5
+    noise = 1
     mistery_f =mistery(sd=np.sqrt(noise))
 
     # --- Attributes
@@ -87,7 +87,7 @@ def function_caller_mistery(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_mistery(rep=15)
+#function_caller_mistery(rep=21)
 # for i in range(40):
 #     function_caller_mistery(rep=i)
 

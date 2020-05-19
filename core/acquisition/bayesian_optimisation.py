@@ -202,11 +202,8 @@ class BO(object):
             self.num_acquisitions += 1
             print("optimize_final_evaluation")
 
-            if self.deterministic:
-                self.optimize_final_evaluation()
-            else:
-                print("OPPORTUNITY COST NOISY EXPERIMENTS")
-                self.Opportunity_Cost_caller()
+
+            self.optimize_final_evaluation()
             print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
 
         return self.X, self.Y, self.C , self.Opportunity_Cost
@@ -288,8 +285,8 @@ class BO(object):
         bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
         func_val = Y * bool_C.reshape(-1, 1)
 
-        # kg_f = -self.acquisition._compute_acq(design_plot)
-        fig, axs = plt.subplots(2, 2)
+        kg_f = -self.acquisition._compute_acq(design_plot)
+        fig, axs = plt.subplots(3, 2)
         axs[0, 0].set_title('True Function')
         axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
         axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
@@ -302,16 +299,16 @@ class BO(object):
         axs[0, 1].scatter(design_plot[:,0],design_plot[:,1], c=np.array(ac_f).reshape(-1))
         axs[0, 1].legend()
 
-        # axs[1, 0].set_title("KG")
-        # axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
-        # axs[1, 0].legend()
+        axs[1, 0].set_title("KG")
+        axs[1, 0].scatter(design_plot[:,0],design_plot[:,1],c= np.array(kg_f).reshape(-1))
+        axs[1, 0].legend()
 
-        # axs[1, 1].set_title("mu pf")
-        # axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
-        # axs[1, 1].legend()
+        axs[1, 1].set_title("mu pf")
+        axs[1, 1].scatter(design_plot[:,0],design_plot[:,1],c= np.array(mu_f).reshape(-1) * np.array(pf).reshape(-1))
+        axs[1, 1].legend()
 
-        axs[1, 1].set_title('Opportunity Cost')
-        axs[1, 1].plot(range(len(self.Opportunity_Cost)), self.Opportunity_Cost)
+        axs[2, 1].set_title('Opportunity Cost')
+        axs[2, 1].plot(range(len(self.Opportunity_Cost)), self.Opportunity_Cost)
         #axs[2, 1].legend()
         # import os
         # folder = "IMAGES"
@@ -345,20 +342,27 @@ class BO(object):
         print("time EI", stop - start)
         # print("self.suggested_sample",suggested_sample)
         # --- Evaluate *f* in X, augment Y and update cost function (if needed)
-        Y, _ = self.objective.evaluate(suggested_sample)
+        Y, _ = self.objective.evaluate(suggested_sample, true_val=True )
         # print("Y",Y)
-        C, _ = self.constraint.evaluate(suggested_sample)
-
+        C, _ = self.constraint.evaluate(suggested_sample, true_val=True)
         bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
         func_val = Y * bool_C.reshape(-1, 1)
-        feasable_Y_data = np.array(self.Y).reshape(-1) * np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+
+
+        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
+        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
+
+        feasable_Y_data = np.array(Y_true).reshape(-1) * np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
         print("suggested_sample",suggested_sample, "feasable_Y_data",func_val)
         # print("C[-1, :]",C[-1, :])
         feasable_point = bool_C
 
         Y_aux = np.concatenate((func_val.reshape(-1),np.array(feasable_Y_data).reshape(-1)))
+        self.true_best_value()
+        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+        print("optimum", optimum)
+        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
 
-        self.Opportunity_Cost.append(np.max(Y_aux))
 
     def Opportunity_Cost_caller(self):
         self.true_best_value()
@@ -387,26 +391,34 @@ class BO(object):
             Expected improvements at points X.
         '''
 
-        mu = self.model.posterior_mean(X)
-        sigma = self.model.posterior_variance(X, noise=False)
+        if self.deterministic:
+            #print("DETERMINISTIC LAST STEP")
+            mu = self.model.posterior_mean(X)
+            sigma = self.model.posterior_variance(X, noise=False)
 
-        sigma = np.sqrt(sigma).reshape(-1, 1)
-        mu = mu.reshape(-1,1)
-        # Needed for noise-based model,
-        # otherwise use np.max(Y_sample).
-        # See also section 2.4 in [...]
-        bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
-        func_val = self.Y * bool_C.reshape(-1, 1)
-        mu_sample_opt = np.max(func_val) - offset
+            sigma = np.sqrt(sigma).reshape(-1, 1)
+            mu = mu.reshape(-1,1)
+            # Needed for noise-based model,
+            # otherwise use np.max(Y_sample).
+            # See also section 2.4 in [...]
+            bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+            func_val = self.Y * bool_C.reshape(-1, 1)
+            mu_sample_opt = np.max(func_val) - offset
 
-        with np.errstate(divide='warn'):
-            imp = mu - mu_sample_opt
-            Z = imp / sigma
-            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-            ei[sigma == 0.0] = 0.0
-        pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
+            with np.errstate(divide='warn'):
+                imp = mu - mu_sample_opt
+                Z = imp / sigma
+                ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+                ei[sigma == 0.0] = 0.0
+            pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-        return -(ei *pf )
+            return -(ei *pf )
+        else:
+            #print("NOISY LAST STEP")
+            mu = self.model.posterior_mean(X)
+            mu = mu.reshape(-1, 1)
+            pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1, 1)
+            return -(mu * pf)
 
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
