@@ -4,7 +4,7 @@ import subprocess as sp
 import os
 import argparse
 from mistery_experiment import function_caller_mistery
-#from new_branin_experiment import function_caller_new_brannin
+from new_branin_experiment import function_caller_new_brannin
 #from test_func_2_experiment import function_caller_test_func_2
 
 # This is a bare script that receives args, prints something, wastes some time,
@@ -45,9 +45,9 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    funcions = [function_caller_mistery]
+    functions = [function_caller_mistery, function_caller_new_brannin]
 
-    for func in funcions:
+    for func in functions:
         func(args.k)
 
     # save something to hard drive in /res/ subfolder

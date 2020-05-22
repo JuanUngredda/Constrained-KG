@@ -74,6 +74,6 @@ def function_caller_mistery_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_mistery_bnch(rep=2)
+function_caller_mistery_bnch(rep=2)
 
 

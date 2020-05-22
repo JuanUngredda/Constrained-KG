@@ -1,6 +1,6 @@
 import numpy as np
 #import matplotlib.pyplot as plt
-import pygmo as pg
+#import pygmo as pg
 from itertools import permutations
 
 

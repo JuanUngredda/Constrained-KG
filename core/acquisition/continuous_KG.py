@@ -58,8 +58,8 @@ class KG(AcquisitionBase):
         Nx = self.model.get_X_values().shape[0]
         if Nx != self.saved_Nx:
             self.saved_Nx = Nx
-            self.Z_samples_obj = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, -2.326])  # np.random.normal(size=self.nz)
-            self.Z_samples_const = np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, 2.326])
+            self.Z_samples_obj = np.array([-2.326, -1.282, 0,1.282, -2.326]) # np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, -2.326])  # np.random.normal(size=self.nz)
+            self.Z_samples_const = np.array([-2.326, -1.282, 0,1.282, -2.326]) # np.random.normal(size=self.nz) #np.array([-2.326, -1.282, 0,1.282, 2.326])
             print("self.Z_samples_obj ",self.Z_samples_obj )
             print("self.Z_samples_const",self.Z_samples_const)
         # print("self.Z_samples_obj",self.Z_samples_obj)
@@ -140,7 +140,7 @@ class KG(AcquisitionBase):
         # print("self.current_max_value", self.current_max_value)
         # print("KG", KG)
         #print("self.Z_samples_obj ",self.Z_samples_obj ,"self.Z_samples_const",self.Z_samples_const)
-        print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
+        #print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
         return np.array(KG).reshape(-1), np.array(dacq_dX).reshape(-1)
 
     def _marginal_acq(self, X):
@@ -488,7 +488,7 @@ class KG(AcquisitionBase):
                     grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, xopt =self.current_max_xopt, aux=aux_c, aux2=aux2_c, varX=varX_c[:,i], dvar_dX=dvar_c_dX[:,i,:])#, test_samples= initial_design('random', self.space, 1000))
                     Fz_xopt_current , grad_Fz_xopt_current = grad_c.compute_probability_feasibility_multi_gp_xopt(xopt = self.current_max_xopt, gradient_flag=True)
 
-                    print("np.array(mu_xopt_current).reshape(-1)*np.array(grad_Fz_xopt_current).reshape(-1) +  np.array(Fz_xopt_current).reshape(-1) * np.array(grad_mu_xopt_current).reshape(-1)",np.array(mu_xopt_current).reshape(-1),np.array(grad_Fz_xopt_current).reshape(-1) ,  np.array(Fz_xopt_current).reshape(-1) , np.array(grad_mu_xopt_current).reshape(-1))
+                    #print("np.array(mu_xopt_current).reshape(-1)*np.array(grad_Fz_xopt_current).reshape(-1) +  np.array(Fz_xopt_current).reshape(-1) * np.array(grad_mu_xopt_current).reshape(-1)",np.array(mu_xopt_current).reshape(-1),np.array(grad_Fz_xopt_current).reshape(-1) ,  np.array(Fz_xopt_current).reshape(-1) , np.array(grad_mu_xopt_current).reshape(-1))
                     grad_f_val_current = np.array(mu_xopt_current).reshape(-1)*np.array(grad_Fz_xopt_current).reshape(-1) +  np.array(Fz_xopt_current).reshape(-1) * np.array(grad_mu_xopt_current).reshape(-1)
 
                     # print("grad_f_val_xopt , grad_f_val_current",grad_f_val_xopt , grad_f_val_current, grad_f_val_xopt - grad_f_val_current)

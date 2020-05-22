@@ -3,7 +3,7 @@
 import GPyOpt
 import collections
 import numpy as np
-import pygmo as pg
+#import pygmo as pg
 import time
 import csv
 import matplotlib.pyplot as plt
@@ -267,7 +267,7 @@ class BO(object):
     def verbosity_plot_2D(self):
         ####plots
         print("generating plots")
-        design_plot = initial_design('random', self.space, 1000)
+        design_plot = initial_design('random', self.space, 100)
 
         # precision = []
         # for i in range(20):
