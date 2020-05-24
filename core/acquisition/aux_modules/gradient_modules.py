@@ -223,9 +223,10 @@ class gradients(object):
                 cov = self.compute_posterior_var_xopt(x=xopt, m=m)
                 Fz_aux = self.compute_probability_feasibility(xopt, self.model.output[m], mean,  cov, l)
                 grad_Fz_aux = self.compute_gradient_probability_feasibility_xopt(xopt, self.model.output[m], mean, cov, m=m)
-
                 grad_Fz.append(grad_Fz_aux)
                 Fz.append(Fz_aux)
+            # print("grad_Fz",grad_Fz)
+            # print("Fz", Fz)
 
 
             if len(np.array(Fz).reshape(-1)) == 1:
@@ -236,19 +237,24 @@ class gradients(object):
                 grad_Fz = np.vstack(grad_Fz)
 
                 grad_Fz = self.product_gradient_rule(func=np.array(Fz).reshape(-1), grad=np.array(grad_Fz))
+
                 grad_Fz = np.array(grad_Fz).reshape(-1)
 
                 # print("grad_Fz",grad_Fz)
                 return Fz_aux, grad_Fz.reshape(1, -1)
         else:
             Fz = []
+            # print("self.model.output_dim",self.model.output_dim)
             for m in range(self.model.output_dim):
                 mean = self.compute_value_mu_xopt(xopt=xopt, m=m)
                 cov = self.compute_posterior_var_xopt(x=xopt, m=m)
+                Fz_aux = self.compute_probability_feasibility(xopt, self.model.output[m], mean,  cov, l)
+                Fz.append(Fz_aux)
 
-                Fz.append(self.compute_probability_feasibility( xopt, self.model.output[m], mean,  cov, l))
+            # print("Fz", Fz)
             Fz = np.product(Fz,axis=0)
             Fz = np.array(Fz).reshape(-1)
+
             return Fz
 
     def compute_probability_feasibility_multi_gp(self, x, l=0, gradient_flag = False):
@@ -382,20 +388,14 @@ class gradients(object):
 
     def product_gradient_rule(self, func, grad):
 
-
-        func = func + np.random.normal(0,1e-10)
+        func = func + np.abs(np.random.normal(0,1e-20))
         recip = np.reciprocal(func)
         prod = np.product(func)
-
         vect1 = prod * recip
         vect1 = vect1.reshape(-1)
         vect1 = vect1.reshape(1,-1)
-
-
         vect2 = grad
-
         grad = np.dot(vect1, vect2)
-
         return grad
 
     def posterior_std(self,x):

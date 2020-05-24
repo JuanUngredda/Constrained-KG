@@ -134,7 +134,7 @@ class AcquisitionBase(object):
         # print("-f_acq_cost*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x)",f_acq_cost*self.space.indicator_constraints(x), df_acq_cost*self.space.indicator_constraints(x))
         # print("self.space.indicator_constraints(x)",self.space.indicator_constraints(x), "f_acq_cost",f_acq_cost)
         # print("-f_acq_cost*self.space.indicator_constraints(x)",-f_acq_cost*self.space.indicator_constraints(x))
-        return -f_acqu*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x) #df_acq_cost*self.space.indicator_constraints(x) #
+        return -f_acqu*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x) #df_acq_cost*self.space.indicator_constraints(x) # #
 
     def optimize(self, duplicate_manager=None, re_use=False):
         """
@@ -147,8 +147,8 @@ class AcquisitionBase(object):
             # print("sanity check")
             #self.gradient_sanity_check_1D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
             #self._gradient_sanity_check_2D(f=self._compute_mu, grad_f=self._compute_mu_xopt_withGradients)
-            #self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
-            #raise
+            # self._gradient_sanity_check_2D(f=self.acquisition_function, grad_f=self.acquisition_function_withGradients)
+            # raise
             # self._gradient_sanity_check_2D_TEST2(f_df=self.acquisition_function_withGradients)
             # print("end sanity check")
             import time
@@ -189,8 +189,8 @@ class AcquisitionBase(object):
         plt.show()
 
 
-    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-6):
-        initial_design = np.random.random((80,2))*0.5 +1 # self.test_samples
+    def _gradient_sanity_check_2D(self, f, grad_f, delta=1e-4):
+        initial_design = np.random.random((80,2))*1 # self.test_samples
         fixed_dim =0
         variable_dim = 1
         v1 = np.repeat(np.array(initial_design[0, fixed_dim]), len(initial_design[:, fixed_dim])).reshape(-1, 1)
@@ -204,6 +204,8 @@ class AcquisitionBase(object):
         delta_matrix = np.identity(dim)
         for x in X:
             x = x.reshape(1, -1)
+
+            analytical_gradient_val = grad_f(x).reshape(-1)
             f_val = np.array(f(x)).reshape(-1)
             f_delta = []
             for i in range(dim):
@@ -216,8 +218,8 @@ class AcquisitionBase(object):
             f_delta = np.array(f_delta).reshape(-1)
             numerical_grad.append(np.array(f_delta / (2 * delta)).reshape(-1))
 
-            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", grad_f(x).reshape(-1))
-            analytical_grad.append(grad_f(x).reshape(-1))
+            print("FD", np.array(f_delta / (2 * delta)).reshape(-1), "analytical", analytical_gradient_val.reshape(-1))
+            analytical_grad.append(analytical_gradient_val.reshape(-1))
 
         func_val = np.array(func_val)
         numerical_grad = np.array(numerical_grad)

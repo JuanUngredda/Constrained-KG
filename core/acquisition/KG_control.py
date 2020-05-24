@@ -5,7 +5,7 @@ import os
 import argparse
 from mistery_experiment import function_caller_mistery
 from new_branin_experiment import function_caller_new_brannin
-#from test_func_2_experiment import function_caller_test_func_2
+from test_func_2_experiment import function_caller_test_func_2
 
 # This is a bare script that receives args, prints something, wastes some time,
 # and saves something. Use this as a blank template to run experiments.
@@ -45,7 +45,7 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    functions = [function_caller_mistery, function_caller_new_brannin]
+    functions = [function_caller_test_func_2]
 
     for func in functions:
         func(args.k)
