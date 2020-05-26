@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_new_branin_bnch(rep):
-    for noise in [1e-6 , 1. , 5, 25 ]:
+    for noise in [1e-6 , 1.0 ]:
         np.random.seed(rep)
 
         # func2 = dropwave()

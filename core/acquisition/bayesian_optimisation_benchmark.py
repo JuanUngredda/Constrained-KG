@@ -242,16 +242,44 @@ class BO(object):
         #file = open('test_file.txt','w')
         #np.savetxt('test_file.txt',value_so_far)
 
+
     def Opportunity_Cost_caller(self):
+
+        # design_plot = initial_design('random', self.space, 1000)
+        # ac_f = self.expected_improvement(design_plot)
+        # fig, axs = plt.subplots(2, 2)
+        # axs[0, 0].set_title('True Function')
+        # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
+
+        # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
+        # plt.show()
+        # print("self.suggested_sample",suggested_sample)
+        # --- Evaluate *f* in X, augment Y and update cost function (if needed)
+
+        samples = self.X
+        print("samples",samples)
+        Y = self.model.posterior_mean(samples)
+        # print("Y",Y)
+        pf = self.probability_feasibility_multi_gp(samples, model=self.model_c)
+        func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+
+        print("Y", Y, "pf", pf)
+        suggested_final_sample = samples[np.argmax(func_val)]
+        suggested_final_sample = np.array(suggested_final_sample).reshape(-1)
+        suggested_final_sample = np.array(suggested_final_sample).reshape(1, -1)
+        print("suggested_final_sample",suggested_final_sample,"max", np.max(func_val))
+        Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
+        C_true, _ = self.constraint.evaluate(suggested_final_sample, true_val=True)
+
+
+        bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+        func_val_true = Y_true * bool_C_true.reshape(-1, 1)
+        print("suggested_final_sample", suggested_final_sample, "func_val_true", func_val_true)
+
         self.true_best_value()
-
-        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
-        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
-
-        bool_C = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-        func_val = Y_true * bool_C.reshape(-1, 1)
         optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val))).reshape(-1))
+        print("optimum", optimum)
+        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
     def optimize_final_evaluation(self):
 

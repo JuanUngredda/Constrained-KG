@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_mistery_bnch(rep):
-    for noise in [1e-6, 0.1 , 1. , 5 ]:
+    for noise in [1e-06]:
         np.random.seed(rep)
 
         # func2 = dropwave()
@@ -66,7 +66,7 @@ def function_caller_mistery_bnch(rep):
         subfolder = "Mistery_bnch_" +str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
+        path = cwd + "/" + folder +"/"+ subfolder +'/it0_' + str(rep)+ '.csv'
         if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
             os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
@@ -74,6 +74,6 @@ def function_caller_mistery_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-function_caller_mistery_bnch(rep=2)
+#function_caller_mistery_bnch(rep=2)
 
 

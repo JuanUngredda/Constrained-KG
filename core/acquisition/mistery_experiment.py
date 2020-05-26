@@ -16,7 +16,7 @@ import os
 
 def function_caller_mistery(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 1.0]:
+    for noise in [1.0]:
         # func2 = dropwave()
 
         mistery_f =mistery(sd=np.sqrt(noise))
@@ -87,7 +87,7 @@ def function_caller_mistery(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_mistery(rep=21)
+function_caller_mistery(rep=21)
 # for i in range(40):
 #     function_caller_mistery(rep=i)
 

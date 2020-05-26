@@ -342,38 +342,60 @@ class BO(object):
         print("time EI", stop - start)
         # print("self.suggested_sample",suggested_sample)
         # --- Evaluate *f* in X, augment Y and update cost function (if needed)
-        Y, _ = self.objective.evaluate(suggested_sample, true_val=True )
-        # print("Y",Y)
-        C, _ = self.constraint.evaluate(suggested_sample, true_val=True)
-        bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-        func_val = Y * bool_C.reshape(-1, 1)
 
 
-        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
-        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
+        if self.deterministic:
 
-        feasable_Y_data = np.array(Y_true).reshape(-1) * np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-        print("suggested_sample",suggested_sample, "feasable_Y_data",func_val)
-        # print("C[-1, :]",C[-1, :])
-        feasable_point = bool_C
+            Y, _ = self.objective.evaluate(suggested_sample, true_val=True)
+            # print("Y",Y)
+            C, _ = self.constraint.evaluate(suggested_sample, true_val=True)
+            bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+            func_val = Y * bool_C.reshape(-1, 1)
 
-        Y_aux = np.concatenate((func_val.reshape(-1),np.array(feasable_Y_data).reshape(-1)))
-        self.true_best_value()
-        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-        print("optimum", optimum)
-        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
+            Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
+            C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
+
+            feasable_Y_data = np.array(Y_true).reshape(-1) * np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+            print("feasable_Y_data", feasable_Y_data)
+            print("suggested_sample", suggested_sample, "feasable_Y_data", func_val)
+
+            feasable_point = bool_C
+
+            Y_aux = np.concatenate((func_val.reshape(-1), np.array(feasable_Y_data).reshape(-1)))
+            self.true_best_value()
+            optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+            print("optimum", optimum)
+            self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
+
+        else:
+            print("self.X,suggested_sample",self.X,suggested_sample)
+
+            samples = np.concatenate((self.X,suggested_sample))
+
+            Y= self.model.posterior_mean(samples)
+            # print("Y",Y)
+            pf = self.probability_feasibility_multi_gp(samples, model=self.model_c)
+            func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+
+            print("Y", Y, "pf", pf, "func_val", func_val)
+            suggested_final_sample = samples[np.argmax(func_val)]
+            suggested_final_sample = np.array(suggested_final_sample).reshape(-1)
+            suggested_final_sample = np.array(suggested_final_sample).reshape(1,-1)
+            print("suggested_final_sample", suggested_final_sample)
+            Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
+            print("Y_true", Y_true)
+            C_true, _ = self.constraint.evaluate(suggested_final_sample, true_val=True)
+            print("C_true", C_true)
+            bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+            func_val_true = Y_true * bool_C_true.reshape(-1, 1)
+            print("func_val_true",func_val_true)
+
+            self.true_best_value()
+            optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+            print("optimum", optimum)
+            self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
 
-    def Opportunity_Cost_caller(self):
-        self.true_best_value()
-
-        Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
-        C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
-
-        bool_C = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-        func_val = Y_true * bool_C.reshape(-1, 1)
-        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val))).reshape(-1))
 
     def expected_improvement(self, X, offset=1e-4):
         '''

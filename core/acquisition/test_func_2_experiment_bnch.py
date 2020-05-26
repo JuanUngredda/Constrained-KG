@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_test_func_2_bnch(rep):
-    for noise in [1e-6, 0.1 , 1. , 5 ]:
+    for noise in [ 1e-06 ]:
         np.random.seed(rep)
 
         # func2 = dropwave()
@@ -66,7 +66,7 @@ def function_caller_test_func_2_bnch(rep):
         subfolder = "test_function_2_bnch_" + str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
+        path = cwd + "/" + folder +"/"+ subfolder +'/it0_' + str(rep)+ '.csv'
         if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
             os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
