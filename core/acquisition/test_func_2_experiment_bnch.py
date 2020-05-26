@@ -10,13 +10,14 @@ from continuous_KG import KG
 from bayesian_optimisation_benchmark import BO
 import pandas as pd
 import os
-
+from time import time as time
 #ALWAYS check cost in
 # --- Function to optimize
 
 def function_caller_test_func_2_bnch(rep):
     for noise in [ 1e-06 ]:
-        np.random.seed(rep)
+
+        np.random.seed(int(time()))
 
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
