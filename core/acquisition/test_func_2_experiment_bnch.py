@@ -67,7 +67,7 @@ def function_caller_test_func_2_bnch(rep):
         subfolder = "test_function_2_bnch_" + str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it0_' + str(rep)+ '.csv'
+        path = cwd + "/" + folder +"/"+ subfolder +'/it1_' + str(rep)+ '.csv'
         if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
             os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
