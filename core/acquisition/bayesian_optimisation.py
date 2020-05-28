@@ -186,7 +186,10 @@ class BO(object):
 
             print("maKG optimizer")
             start = time.time()
-            self.suggested_sample = self._compute_next_evaluations()
+            if False:
+                self.suggested_sample = self._compute_next_evaluations()
+
+            self.suggested_sample = np.array([[1,1]])
             finish = time.time()
             print("time optimisation point X", finish - start)
 
@@ -356,9 +359,6 @@ class BO(object):
             C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
 
             feasable_Y_data = np.array(Y_true).reshape(-1) * np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-            print("feasable_Y_data", feasable_Y_data)
-            print("suggested_sample", suggested_sample, "feasable_Y_data", func_val)
-
             feasable_point = bool_C
 
             Y_aux = np.concatenate((func_val.reshape(-1), np.array(feasable_Y_data).reshape(-1)))
@@ -368,32 +368,35 @@ class BO(object):
             self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
 
         else:
-            print("self.X,suggested_sample",self.X,suggested_sample)
+            # print("self.X,suggested_sample",self.X,suggested_sample)
 
             samples = np.concatenate((self.X,suggested_sample))
-
+            # print("samples", samples)
             Y= self.model.posterior_mean(samples)
             # print("Y",Y)
             pf = self.probability_feasibility_multi_gp(samples, model=self.model_c)
+
+            # print("pf", pf)
             func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
 
-            print("Y", Y, "pf", pf, "func_val", func_val)
+            # print("Y", Y, "pf", pf, "func_val", func_val)
             suggested_final_sample = samples[np.argmax(func_val)]
             suggested_final_sample = np.array(suggested_final_sample).reshape(-1)
             suggested_final_sample = np.array(suggested_final_sample).reshape(1,-1)
-            print("suggested_final_sample", suggested_final_sample)
+            # print("suggested_final_sample", suggested_final_sample, "val",np.max(func_val) )
             Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
-            print("Y_true", Y_true)
+            # print("Y_true", Y_true)
             C_true, _ = self.constraint.evaluate(suggested_final_sample, true_val=True)
-            print("C_true", C_true)
+            # print("C_true", C_true)
             bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
             func_val_true = Y_true * bool_C_true.reshape(-1, 1)
-            print("func_val_true",func_val_true)
+            # print("func_val_true",func_val_true)
 
             self.true_best_value()
             optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-            print("optimum", optimum)
+            # print("optimum", optimum)
             self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+            # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
 
 
@@ -436,7 +439,7 @@ class BO(object):
 
             return -(ei *pf )
         else:
-            #print("NOISY LAST STEP")
+            print("NOISY LAST STEP")
             mu = self.model.posterior_mean(X)
             mu = mu.reshape(-1, 1)
             pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1, 1)

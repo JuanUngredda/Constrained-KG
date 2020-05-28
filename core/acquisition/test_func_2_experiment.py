@@ -52,7 +52,7 @@ def function_caller_test_func_2(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
 
 
-        max_iter  = 30
+        max_iter  = 45
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -81,6 +81,6 @@ def function_caller_test_func_2(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-function_caller_test_func_2(rep=21)
+#function_caller_test_func_2(rep=21)
 
 
