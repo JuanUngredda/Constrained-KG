@@ -15,9 +15,9 @@ from time import time as time
 # --- Function to optimize
 
 def function_caller_mistery_bnch(rep):
-    for noise in [1e-06]:
+    for noise in [1.0]:
 
-        np.random.seed(int(time()))
+        np.random.seed(rep)
 
         # func2 = dropwave()
         mistery_f =mistery(sd=np.sqrt(noise))
@@ -67,7 +67,7 @@ def function_caller_mistery_bnch(rep):
         subfolder = "Mistery_bnch_" +str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it0_' + str(rep)+ '.csv'
+        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
         if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
             os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
