@@ -87,7 +87,7 @@ def function_caller_mistery(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_mistery(rep=21)
+function_caller_mistery(rep=21)
 # for i in range(40):
 #     function_caller_mistery(rep=i)
 

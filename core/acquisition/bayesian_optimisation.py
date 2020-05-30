@@ -186,16 +186,14 @@ class BO(object):
 
             print("maKG optimizer")
             start = time.time()
-            if False:
-                self.suggested_sample = self._compute_next_evaluations()
 
-            self.suggested_sample = np.array([[1,1]])
+            self.suggested_sample = self._compute_next_evaluations()
             finish = time.time()
             print("time optimisation point X", finish - start)
 
             if verbosity:
                 self.verbosity_plot_2D()
-            print("self.Opportunity_Cost",self.Opportunity_Cost)
+
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
