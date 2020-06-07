@@ -87,8 +87,23 @@ class multi_outputGP(object):
         cov = np.empty((self.output_dim,X.shape[0]))
         for j in range(self.output_dim):
             tmp1, tmp2= self.output[j].predict(X,full_cov)
+
             m[j,:] = tmp1[:,0]
             cov[j,:] = tmp2[:,0]
+        return m, cov
+
+    def predict_full_cov(self,  X):
+        """
+        Predictions with the model. Returns posterior means and variance at X.
+        """
+        X = np.atleast_2d(X)
+        m = np.empty((self.output_dim,X.shape[0]))
+        cov = []
+        for j in range(self.output_dim):
+            tmp1, tmp2= self.output[j].predict(X,full_cov=True)
+
+            m[j,:] = tmp1[:,0]
+            cov.append(tmp2)
         return m, cov
     
     def posterior_mean(self,  X):

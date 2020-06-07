@@ -34,6 +34,7 @@ class KG(AcquisitionBase):
         self.Z_samples_const = None
         self.true_func = true_func
         self.saved_Nx = -10
+        self.name = "Constrained_KG"
         super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
