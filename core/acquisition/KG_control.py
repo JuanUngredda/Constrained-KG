@@ -54,8 +54,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
-    print(os.getcwd())
-    raise
+
     functions = [function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     for func in functions:
         func(args.k)

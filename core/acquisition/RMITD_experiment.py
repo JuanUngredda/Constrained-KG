@@ -15,6 +15,8 @@ import os
 # --- Function to optimize
 
 def function_caller_RMITD(rep):
+    print(os.getcwd())
+    raise
     np.random.seed(rep)
     # func2 = dropwave()
     function_rejected = True
