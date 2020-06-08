@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_RMITD_TS(rep):
-    print(os.getcwd())
+    print('__file__:    ', __file__)
     raise
     np.random.seed(rep)
     # func2 = dropwave()
