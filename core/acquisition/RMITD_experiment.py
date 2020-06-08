@@ -95,6 +95,6 @@ def function_caller_RMITD(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_RMITD(rep=21)
+#function_caller_RMITD(rep=21)
 
 
