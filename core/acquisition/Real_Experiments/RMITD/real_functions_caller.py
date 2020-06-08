@@ -38,6 +38,7 @@ class RMITD_test_function():
         self.eng = matlab.engine.start_matlab()
         path = "/home/rawsys/matjiu/Constrained-KG/core/acquisition/Real_Experiments/RMITD"#"/home/juan/Documents/PhD/GitHub_Reps/Constrained-KG/core/acquisition/Real_Experiments/RMITD"##
         os.chdir(path)
+        print(os.getcwd())
 
     def f(self, x, offset=0, true_val=False):
 
