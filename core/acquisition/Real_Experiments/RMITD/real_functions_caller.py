@@ -36,10 +36,11 @@ class RMITD_test_function():
 
 
         self.eng = matlab.engine.start_matlab()
-        path = "/home/rawsys/matjiu/Constrained-KG/core/acquisition/Real_Experiments/RMITD"#"/home/juan/Documents/PhD/GitHub_Reps/Constrained-KG/core/acquisition/Real_Experiments/RMITD"
+        path = "/home/rawsys/matjiu/Constrained-KG/core/acquisition/Real_Experiments/RMITD"#"/home/juan/Documents/PhD/GitHub_Reps/Constrained-KG/core/acquisition/Real_Experiments/RMITD"##
         os.chdir(path)
 
     def f(self, x, offset=0, true_val=False):
+
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
 
@@ -52,6 +53,7 @@ class RMITD_test_function():
             seed = int(time.time()) * 1.0
 
             if true_val:
+                print("eval real value")
                 reps = []
                 for i in range(50):
                     seed = int(time.time()) * 1.0
@@ -63,6 +65,7 @@ class RMITD_test_function():
                 print("MSE", np.std(reps) / np.sqrt(len(reps)))
                 out_vals.append(np.mean(reps))
             else:
+
                 fn = self.eng.RMITD(input_value, self.simulation_run, seed, False)
                 out_vals.append(fn)
 
@@ -72,6 +75,7 @@ class RMITD_test_function():
         return out_vals
 
     def c(self, x, true_val=False):
+
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
         b = x[:, 0]
@@ -82,8 +86,11 @@ class RMITD_test_function():
         return constraint.reshape(-1, 1)
 
     def func_val(self, x):
+
         Y = self.f(x, true_val=True)
         C = self.c(x)
         out = Y * (C <= 0)
         out = np.array(out).reshape(-1)
         return -out
+
+

@@ -17,10 +17,17 @@ import os
 def function_caller_RMITD(rep):
     np.random.seed(rep)
     # func2 = dropwave()
-    for i in range(2):
+    function_rejected = True
+    s = 0
+    while function_rejected or s<=1:
+    #for i in range(2):
         try:
             RMITD_f = RMITD_test_function()
+            function_rejected = False
+            s+=1
         except:
+            function_rejected = True
+            print("function_rejected check path inside function")
             pass
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -39,7 +46,7 @@ def function_caller_RMITD(rep):
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0,150)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    noise = 3
+    noise = 5.28
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
@@ -50,12 +57,12 @@ def function_caller_RMITD(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 25)
 
     nz = 1
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, deterministic=False)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
     max_iter  = 45
@@ -75,7 +82,7 @@ def function_caller_RMITD(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "test_function_2_noisy_experiments"
+    subfolder = "RMITD_KG"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -87,6 +94,6 @@ def function_caller_RMITD(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_RMITD(rep=21)
+#function_caller_RMITD(rep=21)
 
 

@@ -41,7 +41,7 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  expensive=False,Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -59,6 +59,7 @@ class BO(object):
         self.deterministic = deterministic
         self.cost = CostModel(cost)
         self.model_parameters_iterations = None
+        self.expensive = expensive
 
         try:
             if acquisition.name == "Constrained_Thompson_Sampling":
@@ -372,10 +373,14 @@ class BO(object):
                 feasable_point = bool_C
 
                 Y_aux = np.concatenate((func_val.reshape(-1), np.array(feasable_Y_data).reshape(-1)))
-                self.true_best_value()
-                optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-                print("optimum", optimum)
-                self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
+
+                if self.expensive:
+                    self.Opportunity_Cost.append(np.array(np.abs(np.max(Y_aux))).reshape(-1))
+                else:
+                    self.true_best_value()
+                    optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+                    print("optimum", optimum)
+                    self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(Y_aux))).reshape(-1))
 
             else:
                 # print("self.X,suggested_sample",self.X,suggested_sample)
@@ -402,11 +407,15 @@ class BO(object):
                 func_val_true = Y_true * bool_C_true.reshape(-1, 1)
                 # print("func_val_true",func_val_true)
 
-                self.true_best_value()
-                optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-                # print("optimum", optimum)
-                self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
-                # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+                if self.expensive:
+                    self.Opportunity_Cost.append(np.array(np.abs(np.max(func_val_true))).reshape(-1))
+                else:
+                    self.true_best_value()
+                    optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+                    # print("optimum", optimum)
+                    self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+                    # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+
         else:
             samples = self.X
             # print("samples", samples)
@@ -429,10 +438,14 @@ class BO(object):
             bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
             func_val_true = Y_true * bool_C_true.reshape(-1, 1)
 
-            self.true_best_value()
-            optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-            # print("optimum", optimum)
-            self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+            if self.expensive:
+                self.Opportunity_Cost.append(np.array(np.abs(np.max(func_val_true))).reshape(-1))
+            else:
+                self.true_best_value()
+                optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+                # print("optimum", optimum)
+                self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+                # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
 
 

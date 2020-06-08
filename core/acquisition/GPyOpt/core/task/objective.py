@@ -47,7 +47,11 @@ class SingleObjective(Objective):
         """
 
         if self.n_procs == 1:
+            import os
+            print(os.getcwd())
             f_evals, cost_evals = self._eval_func(x,  true_val= true_val)
+
+
         else:
             try:
                 f_evals, cost_evals = self._syncronous_batch_evaluation(x)

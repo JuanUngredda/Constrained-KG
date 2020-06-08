@@ -41,7 +41,7 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,expensive=False,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, true_preference = 0.5):
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -58,6 +58,7 @@ class BO(object):
         self.C = C_init
         self.cost = CostModel(cost)
         self.model_parameters_iterations = None
+        self.expensive = expensive
 
     def suggest_next_locations(self, context = None, pending_X = None, ignored_X = None):
         """
@@ -276,10 +277,14 @@ class BO(object):
         func_val_true = Y_true * bool_C_true.reshape(-1, 1)
         print("suggested_final_sample", suggested_final_sample, "func_val_true", func_val_true)
 
-        self.true_best_value()
-        optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-        print("optimum", optimum)
-        self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+        if self.expensive:
+            self.Opportunity_Cost.append(np.array(np.abs(np.max(func_val_true))).reshape(-1))
+        else:
+            self.true_best_value()
+            optimum = np.max(np.abs(self.true_best_stats["true_best"]))
+            # print("optimum", optimum)
+            self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
+            # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
     def optimize_final_evaluation(self):
 
