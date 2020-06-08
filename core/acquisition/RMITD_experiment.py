@@ -19,6 +19,7 @@ def function_caller_RMITD(rep):
     # func2 = dropwave()
     function_rejected = True
     s = 0
+    print(os.getcwd())
     while function_rejected or s<=1:
     #for i in range(2):
         try:
@@ -94,6 +95,6 @@ def function_caller_RMITD(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_RMITD(rep=21)
+function_caller_RMITD(rep=21)
 
 
