@@ -89,9 +89,13 @@ else
             % Generate Demand
             D_t = meanDemand(j) + X(i)%*Y(i,j);
             % Accept Bookings
+           
             sell = min(max(remainingCapacity-x(j),0),D_t);
+            
             remainingCapacity = remainingCapacity - sell;
+           
             revenue(i) = revenue(i) + price(j)*sell;
+            
         end
     end
 

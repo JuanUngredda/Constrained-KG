@@ -18,18 +18,8 @@ def function_caller_RMITD_EI(rep):
 
     np.random.seed(rep)
     # func2 = dropwave()
-    function_rejected = True
-    s = 0
-    while function_rejected or s<=1:
-    #for i in range(2):
-        try:
-            RMITD_f = RMITD_test_function()
-            function_rejected = False
-            s+=1
-        except:
-            function_rejected = True
-            print("function_rejected check path inside function")
-            pass
+
+    RMITD_f = RMITD_test_function()
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
     f = MultiObjective([RMITD_f.f])
@@ -63,7 +53,7 @@ def function_caller_RMITD_EI(rep):
     nz = 1
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
+    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True)
 
 
     max_iter  = 45
@@ -95,6 +85,6 @@ def function_caller_RMITD_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_RMITD_EI(rep=21)
+function_caller_RMITD_EI(rep=21)
 
 
