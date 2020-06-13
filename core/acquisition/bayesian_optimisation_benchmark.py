@@ -182,7 +182,7 @@ class BO(object):
 
 
             self._update_model()
-
+            self.Opportunity_Cost_caller()
 
             print("maKG optimizer")
             start = time.time()
@@ -228,7 +228,7 @@ class BO(object):
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
-            self.Opportunity_Cost_caller()
+
             print("X", self.X,"Y", self.Y, "C", self.C, "OC", self.Opportunity_Cost)
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero

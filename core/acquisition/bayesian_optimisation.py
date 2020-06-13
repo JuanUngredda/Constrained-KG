@@ -195,7 +195,7 @@ class BO(object):
 
 
             self._update_model()
-
+            self.optimize_final_evaluation()
             print("maKG optimizer")
             start = time.time()
 
@@ -216,7 +216,7 @@ class BO(object):
             print("optimize_final_evaluation")
 
 
-            self.optimize_final_evaluation()
+
             print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
 
         return self.X, self.Y, self.C , self.Opportunity_Cost
@@ -595,7 +595,7 @@ class BO(object):
 
         if self.sample_from_acq:
             print("suggest next location given THOMPSON SAMPLING")
-            candidate_points= initial_design('latin', self.space, 1000)
+            candidate_points= initial_design('latin', self.space, 2000)
             aux_var = self.acquisition._compute_acq(candidate_points)
         else:
 

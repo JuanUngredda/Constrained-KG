@@ -48,7 +48,7 @@ def function_caller_RMITD(rep):
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0,150)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    noise = 5.28
+    noise = 6.24
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
@@ -59,7 +59,7 @@ def function_caller_RMITD(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 25)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 18)
 
     nz = 1
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
@@ -67,7 +67,7 @@ def function_caller_RMITD(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
-    max_iter  = 45
+    max_iter  = 60
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")

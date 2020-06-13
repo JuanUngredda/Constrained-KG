@@ -1,2 +1,1 @@
-from . import real_functions_caller
-from . import RMITD
+from .real_functions_caller import RMITD_test_function

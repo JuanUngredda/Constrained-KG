@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import os
-from RMITD import RMITD_core
-
+from .RMITD_simulator import RMITD_core
 
 # class RMITD_test_function():
 #     '''
@@ -108,6 +107,7 @@ class RMITD_test_function():
         self.name = 'RMITD'
         self.simulation_run = 10000
 
+
     def f(self, x, offset=0, true_val=False):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
@@ -158,8 +158,8 @@ class RMITD_test_function():
         out = np.array(out).reshape(-1)
         return -out
 
-fun = RMITD_test_function()
+# fun = RMITD_test_function()
 
-x = np.array([100,20,30,20])
-print(fun.f(x))
-print(fun.func_val(x))
+# x = np.array([100,20,30,20])
+# print(fun.f(x))
+# print(fun.func_val(x))
