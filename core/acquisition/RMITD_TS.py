@@ -60,7 +60,8 @@ def function_caller_RMITD_TS(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 18)
+    init_num_samples = 18
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
     acquisition = TS(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
@@ -68,7 +69,7 @@ def function_caller_RMITD_TS(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
-    max_iter  = 60
+    max_iter  = 5
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -79,7 +80,7 @@ def function_caller_RMITD_TS(rep):
     print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
     print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
     print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
-    data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
+    data["Opportunity_cost"] = np.concatenate((np.zeros(init_num_samples), np.array(Opportunity_cost).reshape(-1)))
     data["Y"] = np.array(Y).reshape(-1)
     data["C_bool"] = np.array(C_bool).reshape(-1)
 

@@ -50,7 +50,8 @@ def function_caller_RMITD_EI(rep):
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 18)
+    init_num_samples = 18
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
     acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
@@ -69,7 +70,7 @@ def function_caller_RMITD_EI(rep):
     print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
     print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
     print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
-    data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
+    data["Opportunity_cost"] = np.concatenate((np.zeros(init_num_samples), np.array(Opportunity_cost).reshape(-1)))
     data["Y"] = np.array(Y).reshape(-1)
     data["C_bool"] = np.array(C_bool).reshape(-1)
 
