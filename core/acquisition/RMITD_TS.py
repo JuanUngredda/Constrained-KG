@@ -69,7 +69,7 @@ def function_caller_RMITD_TS(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
-    max_iter  = 5
+    max_iter  = 60
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
