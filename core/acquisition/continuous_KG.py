@@ -50,7 +50,9 @@ class KG(AcquisitionBase):
         :param X: set of points at which the acquisition function is evaluated. Should be a 2d array.
         """
         # print("_compute_acq")
+
         X =np.atleast_2d(X)
+        # X = X.astype("int")
 
         self.update_current_best()
           # Number of samples of Z.
@@ -122,7 +124,9 @@ class KG(AcquisitionBase):
         # print("_compute_acq_withGradients")
 
 
-        X =np.atleast_2d(X)
+        X = np.atleast_2d(X)
+        # X = X.astype("int")
+
         # self.update_current_best()
         # self.update_current_best()
         # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
@@ -218,7 +222,7 @@ class KG(AcquisitionBase):
                     def inner_func(X_inner):
 
                         X_inner = np.atleast_2d(X_inner)
-
+                        # X_inner = X_inner.astype("int")
                         grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner)#, test_samples = self.test_samples)
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
 
@@ -237,6 +241,8 @@ class KG(AcquisitionBase):
                         # print("inner_func_with_gradient")
 
                         X_inner = np.atleast_2d(X_inner)
+                        # X_inner = X_inner.astype("int")
+
                         grad_obj = gradients(x_new=x, model= self.model, Z = Z_obj, aux=aux_obj, X_inner=X_inner, precompute_grad =True)
 
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
@@ -325,6 +331,7 @@ class KG(AcquisitionBase):
 
         """
         """
+
         marginal_acqX = np.zeros((X.shape[0],1))
         marginal_dacq_dX = np.zeros((X.shape[0], X.shape[1], 1))
         # if self.MCMC:
@@ -397,7 +404,7 @@ class KG(AcquisitionBase):
                     # inner function of maKG acquisition function.
                     def inner_func(X_inner):
                         X_inner = np.atleast_2d(X_inner)
-
+                        # X_inner = X_inner.astype("int")
                         grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, aux=aux_obj,
                                              X_inner=X_inner)  # , test_samples = self.test_samples)
                         mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
@@ -415,6 +422,8 @@ class KG(AcquisitionBase):
                         # print("inner_func_with_gradient")
 
                         X_inner = np.atleast_2d(X_inner)
+                        # X_inner = X_inner.astype("int")
+
                         grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, aux=aux_obj, X_inner=X_inner,
                                              precompute_grad=True)
 

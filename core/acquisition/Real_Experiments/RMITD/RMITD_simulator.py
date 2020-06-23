@@ -4,7 +4,7 @@ import numpy as np
 def RMITD_core(x, runlength, seed):
     b = x[0]
     x = x[1:]
-    noise = 1
+    noise = 0.3
     if (np.sum(x<0)>0) or runlength <=0 or runlength != int(runlength) or seed <= 0 or int(seed) != seed:
         print("x should be >= 0, runlength should be positive integer, seed must be a positive integer")
         fn = np.nan

@@ -51,6 +51,7 @@ class TS(AcquisitionBase):
         """
         # print("_compute_acq")
         X =np.atleast_2d(X)
+        # X = X.astype("int")
         self.seed = int(time.time())
         suggested_sample, marginal_acqX = self._marginal_acq(X)
         return suggested_sample, marginal_acqX

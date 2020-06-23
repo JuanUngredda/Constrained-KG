@@ -60,6 +60,8 @@ class GPModel(BOModel):
             kern = self.kernel
             self.kernel = None
 
+        nu = np.mean(Y)
+        Y = Y - nu
         # --- define model
         noise_var = Y.var()*0.01 if self.noise_var is None else self.noise_var
 
@@ -73,15 +75,22 @@ class GPModel(BOModel):
         if self.exact_feval:
             self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
         else:
-            #self.model.Gaussian_noise.constrain_bounded(1,1.5)
-            self.model.Gaussian_noise.constrain_positive(warning=False)
+            # self.model.rbf.variance.constrain_fixed(3270.80, warning=False)
+            # self.model.rbf.lengthscale.constrain_fixed(24.44, warning=False)
+            self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
+            # self.model.Gaussian_noise.constrain_bounded(1e-3,36)
+            # self.model.rbf.lengthscale.constrain_bounded((np.max(X[:,0])- np.min(X[:,0]))*0.05,np.max(X[:,0])*0.25)
+            # self.model.Gaussian_noise.constrain_positive(warning=False)
             
 
     def updateModel(self, X_all, Y_all, X_new=None, Y_new=None):
         """
         Updates the model with new observations.
         """
-        
+
+        nu = np.mean(Y_all)
+        Y_all = Y_all - nu
+
         if self.model is None:
             self._create_model(X_all, Y_all)
         else:

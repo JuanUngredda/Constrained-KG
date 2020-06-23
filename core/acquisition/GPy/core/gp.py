@@ -45,6 +45,7 @@ class GP(Model):
 
         self.num_data, self.input_dim = self.X.shape
 
+
         assert Y.ndim == 2
         logger.info("initializing Y")
 
@@ -55,10 +56,15 @@ class GP(Model):
         else:
             self.normalizer = normalizer
 
+
+
+
         if self.normalizer is not None:
+
             self.normalizer.scale_by(Y)
             self.Y_normalized = ObsAr(self.normalizer.normalize(Y))
             self.Y = Y
+
         elif isinstance(Y, np.ndarray):
             self.Y = ObsAr(Y)
             self.Y_normalized = self.Y
@@ -108,6 +114,7 @@ class GP(Model):
         self.link_parameter(self.kern)
         self.link_parameter(self.likelihood)
         self.posterior = None
+
 
     def to_dict(self, save_data=True):
         input_dict = super(GP, self)._to_dict()

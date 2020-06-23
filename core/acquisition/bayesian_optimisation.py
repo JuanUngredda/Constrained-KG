@@ -349,6 +349,7 @@ class BO(object):
             start = time.time()
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize_inner_func(f=self.expected_improvement, duplicate_manager=None,  num_samples=100)
+            print("out",out)
             suggested_sample =  self.space.zip_inputs(out[0])
             stop = time.time()
             # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")

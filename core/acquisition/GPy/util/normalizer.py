@@ -61,8 +61,12 @@ class Standardize(_Norm):
         Y = np.ma.masked_invalid(Y, copy=False)
         self.mean = Y.mean(0).view(np.ndarray)
         self.std = 1 #Y.std(0).view(np.ndarray)
+        print("self.mean", self.mean)
+        print("self.std", self.std)
     def normalize(self, Y):
         super(Standardize, self).normalize(Y)
+        print("Y", Y)
+        print("(Y-self.mean)/self.std",(Y-self.mean)/self.std)
         return (Y-self.mean)/self.std
     def inverse_mean(self, X):
         return (X*self.std)+self.mean

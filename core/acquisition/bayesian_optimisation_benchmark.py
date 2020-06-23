@@ -292,7 +292,7 @@ class BO(object):
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
         out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
         suggested_sample =  self.space.zip_inputs(out[0])
-
+        # suggested_sample = suggested_sample.astype("int")
         print("suggested_sample",suggested_sample)
         return suggested_sample
 
@@ -312,6 +312,7 @@ class BO(object):
         Returns:
             Expected improvements at points X.
         '''
+        # X = X.astype("int")
         mu = self.model.posterior_mean(X)
         sigma = self.model.posterior_variance(X, noise=False)
 

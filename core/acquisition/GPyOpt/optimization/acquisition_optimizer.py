@@ -85,7 +85,7 @@ class AcquisitionOptimizer(object):
         else:
             anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
-        print("getting that sweet spot that you like")
+
         if sweet_spot:
             EI_suggested_sample = self.optimize_final_evaluation()
             EI_suggested_sample = EI_suggested_sample.reshape(-1)
@@ -100,9 +100,19 @@ class AcquisitionOptimizer(object):
         #     anchor_points = np.concatenate((self.outer_anchor_points, anchor_points))
 
         print("optimising anchor points....")
+        ###########################################REACTIVATE
         optimized_points = [apply_optimizer(self.optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
+        self.outer_anchor_points = x_min
+        ############################################
+        # anchor_points = anchor_points.astype("int")
+        # print("anchor_points",anchor_points)
+        # optimized_points = [self.f(a.flatten()) for a in anchor_points]
+        # print(" optimized_points", optimized_points)
+        #
+        # x_min = anchor_points[np.argmin(optimized_points)]
+        # fx_min = np.min(optimized_points)
         # self.outer_anchor_points = x_min
 
         print("anchor_points", anchor_points)
@@ -125,6 +135,8 @@ class AcquisitionOptimizer(object):
         # print("x_min, fx_min",x_min, fx_min)
         # print("x_min",x_min,"fx_min",fx_min)
         #x_min, fx_min = min([apply_optimizer(self.optimizer, a, f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points], key=lambda t:t[1])                   
+        # x_min = np.array(x_min).reshape(-1)
+        # x_min = x_min.reshape(1,-1)
         return x_min, fx_min
     
     
@@ -157,7 +169,7 @@ class AcquisitionOptimizer(object):
 
 
         if self.inner_anchor_points is not None:
-
+            # print("self.inner_anchor_points, anchor_points",self.inner_anchor_points, anchor_points)
             anchor_points = np.concatenate((self.inner_anchor_points, anchor_points))
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
@@ -168,10 +180,19 @@ class AcquisitionOptimizer(object):
 
         # print("anchor_points",anchor_points)
 
-
+        ################################REACTIVATE
         optimized_points = [apply_optimizer(self.inner_optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
         x_min, fx_min = min(optimized_points, key=lambda t:t[1])
         self.inner_anchor_points = x_min
+        ############################################
+        # print("anchor_points",anchor_points)
+        # optimized_points = [self.f(a.flatten()) for a in anchor_points]
+        # # print("optimized_points",optimized_points)
+        # x_min = anchor_points[np.argmin(optimized_points)]
+        # fx_min = np.min(optimized_points)
+        # x_min = np.array(x_min).reshape(-1)
+        # x_min = x_min.reshape(1,-1)
+        # self.inner_anchor_points = x_min
 
         # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
         # print("optimized_points", optimized_points)
@@ -188,6 +209,7 @@ class AcquisitionOptimizer(object):
         # plt.show()
         # print("self.inner_anchor_points",self.inner_anchor_points)
         # print("x_min, fx_min",x_min, fx_min)
+
         return x_min, fx_min
 
     def optimize_final_evaluation(self):
@@ -287,6 +309,7 @@ class AcquisitionOptimizer(object):
             return Fz.reshape(-1, 1), grad_Fz[:, :, 0]
         else:
             return Fz.reshape(-1, 1)
+
 
 class ContextManager(object):
     """

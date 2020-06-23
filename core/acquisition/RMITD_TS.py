@@ -43,14 +43,14 @@ def function_caller_RMITD_TS(rep):
     #c2 = MultiObjective([test_c2])
     # --- Space
     #define space of variables
-    space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,150)},
+    space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (100,140)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0,150)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0,150)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0,150)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    noise = 6.24
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
+    noise = 1.7232541835724107**2
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[False]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
 
@@ -69,7 +69,7 @@ def function_caller_RMITD_TS(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
-    max_iter  = 60
+    max_iter  = 50
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -98,6 +98,6 @@ def function_caller_RMITD_TS(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_RMITD_TS(rep=21)
+# function_caller_RMITD_TS(rep=21)
 
 
