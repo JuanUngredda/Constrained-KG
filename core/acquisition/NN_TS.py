@@ -60,7 +60,7 @@ def function_caller_NN_TS(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 1
+    init_num_samples = 18
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
@@ -69,7 +69,7 @@ def function_caller_NN_TS(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True, deterministic=False)
 
 
-    max_iter  = 50
+    max_iter  = 30
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -86,7 +86,7 @@ def function_caller_NN_TS(rep):
 
     gen_file = pd.DataFrame.from_dict(data)
     folder = "RESULTS"
-    subfolder = "RMITD_TS"
+    subfolder = "NN_TS"
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
