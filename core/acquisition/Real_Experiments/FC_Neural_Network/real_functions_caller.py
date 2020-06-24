@@ -21,7 +21,7 @@ class FC_NN_test_function():
         self.rho = 0.9
         self.epsilon = 1e-07
         self.epochs = 3
-        self.samples = 2
+        self.samples = 5000
         self.num_classes = 10
         self.max_time = max_time
 
@@ -50,7 +50,7 @@ class FC_NN_test_function():
             x = np.array(x).reshape(-1)
             x = x.reshape(1, -1)
             if true_val:
-                reps = 2
+                reps = 20
             else:
                 reps = 1
             out_val = []
