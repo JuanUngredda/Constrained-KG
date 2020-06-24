@@ -88,8 +88,8 @@ class GPModel(BOModel):
         Updates the model with new observations.
         """
 
-        nu = np.mean(Y_all)
-        Y_all = Y_all - nu
+        # nu = np.mean(Y_all)
+        # Y_all = Y_all - nu
 
         if self.model is None:
             self._create_model(X_all, Y_all)
