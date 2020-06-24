@@ -15,7 +15,7 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, max_time=2e-2):
+    def __init__(self, max_time=0.18):
         self.batch_size = 128
         self.learning_rate = 0.001
         self.rho = 0.9
