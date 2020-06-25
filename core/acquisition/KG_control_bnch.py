@@ -3,7 +3,7 @@ import sys
 import subprocess as sp
 import os
 import argparse
-from mistery_experiment_bnch import function_caller_mistery_bnch
+from mistery_experiment_bnch import function_caller_test_function_2_penalty
 from new_branin_experiment_bnch import function_caller_new_branin_bnch
 from test_func_2_experiment_bnch import function_caller_test_func_2_bnch
 
@@ -46,7 +46,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
 
-    funcions = [function_caller_mistery_bnch, function_caller_new_branin_bnch, function_caller_test_func_2_bnch]
+    funcions = [function_caller_test_function_2_penalty]
 
     for func in funcions:
         func(args.k)

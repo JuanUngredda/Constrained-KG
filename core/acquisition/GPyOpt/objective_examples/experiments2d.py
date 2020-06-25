@@ -416,7 +416,7 @@ class mistery(function2d):
         self.sd = sd
         self.name = 'Mistery'
 
-    def f(self, x, offset=-40, true_val=False):
+    def f(self, x, offset=0.0, true_val=False):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
 

@@ -14,13 +14,13 @@ from time import time as time
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller_mistery_bnch(rep):
-    for noise in [1.0]:
-
+def function_caller_test_function_2_penalty(rep):
+    for penalty in [-999,0,4]:
+        noise = 1e-6
         np.random.seed(rep)
 
         # func2 = dropwave()
-        mistery_f =mistery(sd=np.sqrt(noise))
+        mistery_f =new_brannin(sd=np.sqrt(noise))
 
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
@@ -33,7 +33,7 @@ def function_caller_mistery_bnch(rep):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
@@ -51,7 +51,7 @@ def function_caller_mistery_bnch(rep):
 
         acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="fixed", penalty_value=penalty)
 
 
         max_iter  = 45
@@ -64,7 +64,7 @@ def function_caller_mistery_bnch(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "Mistery_bnch_" +str(noise)
+        subfolder = "new_brannin_" +str(penalty)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -75,6 +75,6 @@ def function_caller_mistery_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_mistery_bnch(rep=2)
+#function_caller_mistery_bnch(rep=21)
 
 
