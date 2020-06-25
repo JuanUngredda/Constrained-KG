@@ -51,7 +51,7 @@ def function_caller_test_function_2_penalty(rep):
 
         acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="fixed", penalty_value=penalty)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="proposed", penalty_value=penalty)
 
 
         max_iter  = 45
@@ -64,7 +64,7 @@ def function_caller_test_function_2_penalty(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "new_brannin_" +str(penalty)
+        subfolder = "new_brannin_proposed_" +str(penalty)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
