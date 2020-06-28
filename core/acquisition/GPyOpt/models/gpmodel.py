@@ -60,8 +60,8 @@ class GPModel(BOModel):
             kern = self.kernel
             self.kernel = None
 
-        nu = np.mean(Y)
-        Y = Y - nu
+        # nu = np.mean(Y)
+        # Y = Y - nu
         # --- define model
         noise_var = Y.var()*0.01 if self.noise_var is None else self.noise_var
 

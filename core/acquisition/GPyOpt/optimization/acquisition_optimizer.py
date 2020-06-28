@@ -130,13 +130,6 @@ class AcquisitionOptimizer(object):
             plt.title("OPTIMISED POINTS")
             plt.show()
 
-        # print("self.inner_anchor_points",self.inner_anchor_points)
-        # print("x_m
-        # print("x_min, fx_min",x_min, fx_min)
-        # print("x_min",x_min,"fx_min",fx_min)
-        #x_min, fx_min = min([apply_optimizer(self.optimizer, a, f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points], key=lambda t:t[1])                   
-        # x_min = np.array(x_min).reshape(-1)
-        # x_min = x_min.reshape(1,-1)
         return x_min, fx_min
     
     

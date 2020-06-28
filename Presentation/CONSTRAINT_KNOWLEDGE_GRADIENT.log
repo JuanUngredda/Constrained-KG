@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.16)  16 JUN 2020 23:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.16)  27 JUN 2020 16:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1868,7 +1868,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-Overfull \hbox (26.53404pt too wide) detected at line 162
+Overfull \hbox (12.23802pt too wide) detected at line 162
 []
  []
 
@@ -1878,102 +1878,162 @@ Overfull \hbox (26.53404pt too wide) detected at line 162
 
 ] [4
 
+] [5
+
 ]
-<Mistery.png, id=51, 1927.2pt x 1084.05pt>
+<Mistery.png, id=56, 1927.2pt x 1084.05pt>
 File: Mistery.png Graphic file (type png)
 <use Mistery.png>
-Package pdftex.def Info: Mistery.png  used on input line 211.
+Package pdftex.def Info: Mistery.png  used on input line 236.
 (pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-<New_Branin.png, id=54, 1927.2pt x 1084.05pt>
+<New_Branin.png, id=59, 1927.2pt x 1084.05pt>
 File: New_Branin.png Graphic file (type png)
 <use New_Branin.png>
-Package pdftex.def Info: New_Branin.png  used on input line 211.
+Package pdftex.def Info: New_Branin.png  used on input line 236.
 (pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-<test_function_2.png, id=56, 1927.2pt x 1084.05pt>
+<test_function_2.png, id=61, 1927.2pt x 1084.05pt>
 File: test_function_2.png Graphic file (type png)
 <use test_function_2.png>
-Package pdftex.def Info: test_function_2.png  used on input line 211.
+Package pdftex.def Info: test_function_2.png  used on input line 236.
 (pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-<mistery_OC.pdf, id=58, 433.62pt x 289.08pt>
-File: mistery_OC.pdf Graphic file (type pdf)
-<use mistery_OC.pdf>
-Package pdftex.def Info: mistery_OC.pdf  used on input line 211.
+<mistery_OC_1e-06.pdf, id=63, 433.62pt x 289.08pt>
+File: mistery_OC_1e-06.pdf Graphic file (type pdf)
+<use mistery_OC_1e-06.pdf>
+Package pdftex.def Info: mistery_OC_1e-06.pdf  used on input line 236.
 (pdftex.def)             Requested size: 98.335pt x 65.55627pt.
-<New_Branin_OC.pdf, id=59, 433.62pt x 289.08pt>
-File: New_Branin_OC.pdf Graphic file (type pdf)
-<use New_Branin_OC.pdf>
-Package pdftex.def Info: New_Branin_OC.pdf  used on input line 211.
+<new_brannin_OC_1e-06.pdf, id=64, 433.62pt x 289.08pt>
+File: new_brannin_OC_1e-06.pdf Graphic file (type pdf)
+<use new_brannin_OC_1e-06.pdf>
+Package pdftex.def Info: new_brannin_OC_1e-06.pdf  used on input line 236.
 (pdftex.def)             Requested size: 98.335pt x 65.55627pt.
-<test_function_2_OC.pdf, id=60, 433.62pt x 289.08pt>
-File: test_function_2_OC.pdf Graphic file (type pdf)
-<use test_function_2_OC.pdf>
-Package pdftex.def Info: test_function_2_OC.pdf  used on input line 211.
+<test_function_OC_1e-06.pdf, id=65, 433.62pt x 289.08pt>
+File: test_function_OC_1e-06.pdf Graphic file (type pdf)
+<use test_function_OC_1e-06.pdf>
+Package pdftex.def Info: test_function_OC_1e-06.pdf  used on input line 236.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+<mistery_OC_1_0.pdf, id=66, 433.62pt x 289.08pt>
+File: mistery_OC_1_0.pdf Graphic file (type pdf)
+<use mistery_OC_1_0.pdf>
+Package pdftex.def Info: mistery_OC_1_0.pdf  used on input line 236.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+<new_brannin_OC_1_0.pdf, id=67, 433.62pt x 289.08pt>
+File: new_brannin_OC_1_0.pdf Graphic file (type pdf)
+<use new_brannin_OC_1_0.pdf>
+Package pdftex.def Info: new_brannin_OC_1_0.pdf  used on input line 236.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+<test_function_OC_1_0.pdf, id=68, 433.62pt x 289.08pt>
+File: test_function_OC_1_0.pdf Graphic file (type pdf)
+<use test_function_OC_1_0.pdf>
+Package pdftex.def Info: test_function_OC_1_0.pdf  used on input line 236.
 (pdftex.def)             Requested size: 98.335pt x 65.55627pt.
 
-Overfull \hbox (23.71515pt too wide) in paragraph at lines 211--211
+Overfull \hbox (23.71515pt too wide) in paragraph at lines 236--236
  [] 
  []
 
-[5
+[6
 
- <./Mistery.png> <./New_Branin.png> <./test_function_2.png> <./mistery_OC.pdf> 
-<./New_Branin_OC.pdf
+ <./Mistery.png> <./New_Branin.png> <./test_function_2.png> <./mistery_OC_1e-06
+.pdf> <./new_brannin_OC_1e-06.pdf
 
-pdfTeX warning: /usr/bin/pdflatex (file ./New_Branin_OC.pdf): PDF inclusion: mu
-ltiple pdfs with page group included in a single page
-> <./test_function_2_OC.pdf
+pdfTeX warning: /usr/bin/pdflatex (file ./new_brannin_OC_1e-06.pdf): PDF inclus
+ion: multiple pdfs with page group included in a single page
+> <./test_function_OC_1e-06.pdf
 
-pdfTeX warning: /usr/bin/pdflatex (file ./test_function_2_OC.pdf): PDF inclusio
+pdfTeX warning: /usr/bin/pdflatex (file ./test_function_OC_1e-06.pdf): PDF incl
+usion: multiple pdfs with page group included in a single page
+> <./mistery_OC_1_0.pdf
+
+pdfTeX warning: /usr/bin/pdflatex (file ./mistery_OC_1_0.pdf): PDF inclusion: m
+ultiple pdfs with page group included in a single page
+> <./new_brannin_OC_1_0.pdf
+
+pdfTeX warning: /usr/bin/pdflatex (file ./new_brannin_OC_1_0.pdf): PDF inclusio
 n: multiple pdfs with page group included in a single page
->] [6
+> <./test_function_OC_1_0.pdf
 
-]
-File: Mistery.png Graphic file (type png)
-<use Mistery.png>
-Package pdftex.def Info: Mistery.png  used on input line 260.
-(pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-File: New_Branin.png Graphic file (type png)
-<use New_Branin.png>
-Package pdftex.def Info: New_Branin.png  used on input line 260.
-(pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-File: test_function_2.png Graphic file (type png)
-<use test_function_2.png>
-Package pdftex.def Info: test_function_2.png  used on input line 260.
-(pdftex.def)             Requested size: 96.73302pt x 45.52458pt.
-<mistery_OC_gradients.pdf, id=191, 433.62pt x 289.08pt>
-File: mistery_OC_gradients.pdf Graphic file (type pdf)
-<use mistery_OC_gradients.pdf>
-Package pdftex.def Info: mistery_OC_gradients.pdf  used on input line 260.
-(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
-<New_Branin_OC_gradients.pdf, id=192, 433.62pt x 289.08pt>
-File: New_Branin_OC_gradients.pdf Graphic file (type pdf)
-<use New_Branin_OC_gradients.pdf>
-Package pdftex.def Info: New_Branin_OC_gradients.pdf  used on input line 260.
-(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
-<test_function_2_OC_gradients.pdf, id=193, 433.62pt x 289.08pt>
-File: test_function_2_OC_gradients.pdf Graphic file (type pdf)
-<use test_function_2_OC_gradients.pdf>
-Package pdftex.def Info: test_function_2_OC_gradients.pdf  used on input line 2
-60.
-(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+pdfTeX warning: /usr/bin/pdflatex (file ./test_function_OC_1_0.pdf): PDF inclus
+ion: multiple pdfs with page group included in a single page
+>]
+<RMITD_OC.pdf, id=211, 433.62pt x 289.08pt>
+File: RMITD_OC.pdf Graphic file (type pdf)
+<use RMITD_OC.pdf>
+Package pdftex.def Info: RMITD_OC.pdf  used on input line 250.
+(pdftex.def)             Requested size: 215.10196pt x 143.4016pt.
 
-Overfull \hbox (23.71515pt too wide) in paragraph at lines 260--260
- [] 
+Overfull \vbox (11.94603pt too high) detected at line 250
  []
 
 [7
 
- <./mistery_OC_gradients.pdf> <./New_Branin_OC_gradients.pdf
+ <./RMITD_OC.pdf>]
+<FC_NN.png, id=251, 501.875pt x 310.15875pt>
+File: FC_NN.png Graphic file (type png)
+<use FC_NN.png>
+Package pdftex.def Info: FC_NN.png  used on input line 264.
+(pdftex.def)             Requested size: 215.10196pt x 132.93498pt.
+ [8
 
-pdfTeX warning: /usr/bin/pdflatex (file ./New_Branin_OC_gradients.pdf): PDF inc
-lusion: multiple pdfs with page group included in a single page
-> <./test_function_2_OC_gradients.pdf
+ <./FC_NN.png (PNG copy)>] [9
 
-pdfTeX warning: /usr/bin/pdflatex (file ./test_function_2_OC_gradients.pdf): PD
-F inclusion: multiple pdfs with page group included in a single page
->] [8
+]
+<penalty_image0.pdf, id=262, 433.62pt x 289.08pt>
+File: penalty_image0.pdf Graphic file (type pdf)
+<use penalty_image0.pdf>
+Package pdftex.def Info: penalty_image0.pdf  used on input line 312.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+<penalty_image-2.pdf, id=263, 433.62pt x 289.08pt>
+File: penalty_image-2.pdf Graphic file (type pdf)
+<use penalty_image-2.pdf>
+Package pdftex.def Info: penalty_image-2.pdf  used on input line 312.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
+<penalty_image-4.pdf, id=264, 433.62pt x 289.08pt>
+File: penalty_image-4.pdf Graphic file (type pdf)
+<use penalty_image-4.pdf>
+Package pdftex.def Info: penalty_image-4.pdf  used on input line 312.
+(pdftex.def)             Requested size: 98.335pt x 65.55627pt.
 
-] [9
+Overfull \hbox (23.71515pt too wide) in paragraph at lines 312--312
+ [] 
+ []
+
+[10
+
+ <./penalty_image0.pdf> <./penalty_image-2.pdf
+
+pdfTeX warning: /usr/bin/pdflatex (file ./penalty_image-2.pdf): PDF inclusion: 
+multiple pdfs with page group included in a single page
+> <./penalty_image-4.pdf
+
+pdfTeX warning: /usr/bin/pdflatex (file ./penalty_image-4.pdf): PDF inclusion: 
+multiple pdfs with page group included in a single page
+>]
+Overfull \hbox (12.23802pt too wide) detected at line 329
+[]
+ []
+
+[11
+
+]
+File: New_Branin.png Graphic file (type png)
+<use New_Branin.png>
+Package pdftex.def Info: New_Branin.png  used on input line 345.
+(pdftex.def)             Requested size: 157.19116pt x 73.97733pt.
+<penalty_OC.pdf, id=324, 433.62pt x 289.08pt>
+File: penalty_OC.pdf Graphic file (type pdf)
+<use penalty_OC.pdf>
+Package pdftex.def Info: penalty_OC.pdf  used on input line 345.
+(pdftex.def)             Requested size: 153.64493pt x 102.42783pt.
+
+Overfull \hbox (27.54622pt too wide) in paragraph at lines 345--345
+ [] 
+ []
+
+[12
+
+ <./penalty_OC.pdf>] [13
+
+] [14
 
 ]
 \tf@nav=\write7
@@ -1985,39 +2045,40 @@ F inclusion: multiple pdfs with page group included in a single page
 \tf@snm=\write9
 \openout9 = `CONSTRAINT_KNOWLEDGE_GRADIENT.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 305.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 305.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 390.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 390.
  (./CONSTRAINT_KNOWLEDGE_GRADIENT.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 305.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 305.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 390.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 390.
 Package rerunfilecheck Info: File `CONSTRAINT_KNOWLEDGE_GRADIENT.out' has not c
 hanged.
 (rerunfilecheck)             Checksum: 2B07A7CD615415EC1047D04F7CE25407;45.
  ) 
 Here is how much of TeX's memory you used:
- 28837 strings out of 492982
- 561540 string characters out of 6134895
+ 28895 strings out of 492982
+ 562462 string characters out of 6134895
  816755 words of memory out of 5000000
- 31698 multiletter control sequences out of 15000+600000
- 16083 words of font info for 58 fonts, out of 8000000 for 9000
+ 31732 multiletter control sequences out of 15000+600000
+ 16343 words of font info for 62 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,16n,71p,796b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/font
-s/type1/public/amsfonts/cm/cmssi8.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/sy
-mbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/sym
-bols/msbm10.pfb>
-Output written on CONSTRAINT_KNOWLEDGE_GRADIENT.pdf (9 pages, 1381977 bytes).
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmssi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/
+msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/m
+sbm10.pfb>
+Output written on CONSTRAINT_KNOWLEDGE_GRADIENT.pdf (14 pages, 1461922 bytes).
 PDF statistics:
- 382 PDF objects out of 1000 (max. 8388607)
- 131 compressed objects within 2 object streams
- 20 named destinations out of 1000 (max. 500000)
- 10894 words of extra memory for PDF output out of 12000 (max. 10000000)
+ 417 PDF objects out of 1000 (max. 8388607)
+ 181 compressed objects within 2 object streams
+ 30 named destinations out of 1000 (max. 500000)
+ 10912 words of extra memory for PDF output out of 12000 (max. 10000000)
 

@@ -3,7 +3,6 @@
 import GPyOpt
 import collections
 import numpy as np
-import pygmo as pg
 import time
 import csv
 import matplotlib.pyplot as plt
@@ -41,7 +40,7 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,expensive=False,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init , penalty_tag="fixed" , penalty_value=0.0 , expensive=False,  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, true_preference = 0.5):
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -59,6 +58,8 @@ class BO(object):
         self.cost = CostModel(cost)
         self.model_parameters_iterations = None
         self.expensive = expensive
+        self.penalty_tag = penalty_tag
+        self.penalty_value = penalty_value
 
     def suggest_next_locations(self, context = None, pending_X = None, ignored_X = None):
         """
@@ -289,6 +290,12 @@ class BO(object):
     def optimize_final_evaluation(self):
 
 
+        out = self.acquisition.optimizer.optimize(f=self.current_best, duplicate_manager=None)
+        print("out", out)
+        print("out", out[1])
+
+        self.best_mu_all =  -1*np.array(out[1]).reshape(-1)
+
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
         out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
         suggested_sample =  self.space.zip_inputs(out[0])
@@ -296,6 +303,12 @@ class BO(object):
         print("suggested_sample",suggested_sample)
         return suggested_sample
 
+
+    def current_best(self,X):
+        # X = X.astype("int")
+        mu = self.model.posterior_mean(X)
+        mu = mu.reshape(-1,1)
+        return -mu.reshape(-1)
 
     def expected_improvement(self, X, offset=0.0):
         '''
@@ -333,7 +346,15 @@ class BO(object):
             ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-        return -(ei.reshape(-1) *pf.reshape(-1) )
+        if self.penalty_tag == "fixed":
+            self.penalty = self.penalty_value
+        else:
+            dif = np.array(mu).reshape(-1) - np.array(self.best_mu_all).reshape(-1)
+            constraints = self.model_c.posterior_mean(X) # MAYBE CHECK FOR SEVERAL CONSTRAINTS
+            sum_constraints = np.sum(constraints,axis=0).reshape(-1)
+            self.penalty = dif * sum_constraints
+
+        return -(ei.reshape(-1) *pf.reshape(-1) + (1 - pf.reshape(-1))*self.penalty )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)
