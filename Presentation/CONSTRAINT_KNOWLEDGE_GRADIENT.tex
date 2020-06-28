@@ -146,14 +146,14 @@ $$KG(x) = \mathbb{E}[\max_{x'}\{\mu^{n+1}(x')\}|x^{n+1}=x]$$
 Constrained KG with Probability of Feasibility (pf):
 \begin{align*}
 \begin{split}
-c-KG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x')\}|x^{n+1}=x]
+cKG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x')\}|x^{n+1}=x]
 \end{split}
 \end{align*}
 
 Constrained KG corrected*:
 \begin{align*}
 \begin{split}
-c-KG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x') + (1-pf^{n+1}(x'))M\}|x^{n+1}=x]
+cKG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x') + (1-pf^{n+1}(x'))M\}|x^{n+1}=x]
 \end{split}
 \end{align*}
 
@@ -182,16 +182,39 @@ benchmark Method:
 \end{itemize}
 Test Functions:
 \begin{itemize}
-	\item New Branin, test function 2, and Mistery function. Non-noisy and constrained test functions.
+	\item New Branin, test function 2, and Mistery function. Non-noisy and Noisy objective functions with unknown constraints.
 \end{itemize}
 
 Important Remark:
 \begin{itemize}
 	\item In the last evaluation of our approach, the function is sampled according to Expected Improvement times the probability of feasibility.
 \end{itemize}
+
 \end{frame}
 
-\begin{frame}{Plots}
+\begin{frame}{Performance Evaluation}
+Given sampled data $D^{N} = \{(x_{0},y_{0}),\dots, (x_{N},y_{N}) \}$. The recommended design is given by the max value of the Gaussian Process approximation $\mu^{N}$.
+
+$$
+x_{r} = \max_{D^{N}}\mu^{N}(x)
+$$
+
+
+Performance is measured as difference in true value $y_{true}$ (if it's noisy) between best true design $x^{*}$ and recommended sampled design $(x_{r})$.
+
+$$
+Performance(x_{r}) = y_{true}(x_{r}) - y_{true}(x_{r}) 
+$$
+
+For real experiments performance was measured as
+$$
+Performance(x_{r}) = y_{true}(x_{r}) 
+$$
+
+\end{frame}
+
+
+\begin{frame}{PLOTS}
 \begin{figure}
 	
 	\centering
@@ -199,16 +222,49 @@ Important Remark:
 		Mistery&
 		New Branin&
 		Test function 2\\
-		
 		\includegraphics[height=1.6cm, trim={450 300 450 300},clip]{Mistery.png}&
 		\includegraphics[height=1.6cm, trim={450 240 450 360},clip]{New_Branin.png}&
 		\includegraphics[height=1.6cm, trim={450 230 450 370},clip]{test_function_2.png}\\
-		\includegraphics[width=0.32\linewidth]{mistery_OC.pdf}&
-		\includegraphics[width=0.32\linewidth]{New_Branin_OC.pdf}&
-		\includegraphics[width=0.32\linewidth]{test_function_2_OC.pdf}\\
+		\includegraphics[width=0.32\linewidth]{mistery_OC_1e-06.pdf}&
+		\includegraphics[width=0.32\linewidth]{new_brannin_OC_1e-06.pdf}&
+		\includegraphics[width=0.32\linewidth]{test_function_OC_1e-06.pdf}\\
+		\includegraphics[width=0.32\linewidth]{mistery_OC_1_0.pdf}&
+		\includegraphics[width=0.32\linewidth]{new_brannin_OC_1_0.pdf}&
+		\includegraphics[width=0.32\linewidth]{test_function_OC_1_0.pdf}\\
 	\end{tabular}	
 \end{figure}
 \end{frame}
+
+
+\begin{frame}{Real Experiments (Multi-Stage Revenue Management with Inter-Temporal Dependence)}
+
+A businessman chooses to buy b > 0 units of capacity, paying c > 0 dollars per unit of capacity at $t = 0$.During stage $t (t = 1, \dots , T)$ he observes demand $D_{t}$ for units at price $p_{t}$, at which point, he must choose to sell $x_{t}$ units $(0 \leq xt \leq D_{t})$, provided that the total number of units sold (accross all past periods) does not exceed b.
+
+\begin{figure}
+	
+	\centering
+	\begin{tabular}{c}
+		\includegraphics[width=0.7\linewidth]{RMITD_OC.pdf}\\
+	\end{tabular}	
+\end{figure}
+\end{frame}
+
+\begin{frame}{Real Experiments (Tuning a Fully Connected Neural Network)}
+
+I tune the hyperparamters of a two-hidden-layer neural network subject to
+the constraint that the prediction time must not exceed 0.01s. The search space consists of 4 parameters: 2 dropout parameters, and the number of hidden units in each layer.
+
+\begin{figure}
+	
+	\centering
+	\begin{tabular}{c}
+		\includegraphics[width=0.7\linewidth]{FC_NN.png}\\
+	\end{tabular}	
+\end{figure}
+\end{frame}
+
+
+
 
 \begin{frame}{Gradient Information}
 
@@ -236,26 +292,55 @@ Potential issue with Finite Differences:
 \end{itemize}
 
 \end{frame}
+	
 
-
-\begin{frame}{Results with Analytical Gradients}
+\begin{frame}{Dynamically change of M penalization.}
 
 \begin{figure}
 	
 	\centering
 	\begin{tabular}{ccc}
-		Mistery&
-		New Branin&
-		Test function 2\\
+		\includegraphics[width=0.32\linewidth]{penalty_image0.pdf}&
+		\includegraphics[width=0.32\linewidth]{penalty_image-2.pdf}&
+		\includegraphics[width=0.32\linewidth]{penalty_image-4.pdf}\\
+		(a)&
+		(b)&
+		(c)\\
 		
-		\includegraphics[height=1.6cm, trim={450 300 450 300},clip]{Mistery.png}&
-		\includegraphics[height=1.6cm, trim={450 240 450 360},clip]{New_Branin.png}&
-		\includegraphics[height=1.6cm, trim={450 230 450 370},clip]{test_function_2.png}\\
-		\includegraphics[width=0.32\linewidth]{mistery_OC_gradients.pdf}&
-		\includegraphics[width=0.32\linewidth]{New_Branin_OC_gradients.pdf}&
-		\includegraphics[width=0.32\linewidth]{test_function_2_OC_gradients.pdf}\\
 	\end{tabular}	
-\end{figure}	
+\end{figure}
+\end{frame}
+
+\begin{frame}{Dynamically change of M penalization (Formulation)}
+
+\begin{align*}
+\begin{split}
+cKG(x) &= \mathbb{E}[\max_{x'}\{pf^{n+1}(x')\mu^{n+1}(x') + (1-pf^{n+1}(x'))M\}|x^{n+1}=x]
+\end{split}
+\end{align*}
+
+$$
+M = (\mu(x) - \mu^{*}) \sum_{i}{\mu_{c_{i}}(x)}
+$$
+\begin{itemize}
+	\item $(\mu(x) - \mu^{*})$ penalises values with higher negative values $\mu(x)$ far from estimated optimum $\mu^{*})$
+	\item $\sum_{i}{\mu_{c_{i}}(x)}$ penalises regions far from feasible area.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Result plots}
+
+Constrained Brannin function using dynamic change of penalisation on EGO. Comparison against highly penalised infeasibility (M=-999), and encouraged infeasibility (M=2).
+
+\begin{figure}
+	
+	\centering
+	\begin{tabular}{cc}
+		\includegraphics[height=2.6cm, trim={450 240 450 360},clip]{New_Branin.png}&
+		\includegraphics[width=0.5\linewidth]{penalty_OC.pdf}\\
+
+	\end{tabular}	
+\end{figure}
 
 \end{frame}
 
@@ -288,6 +373,11 @@ $$
 
 \end{frame}
 
+
+
+
+
+
 \begin{frame}{Work to do}
 
 Main line of work
@@ -295,11 +385,6 @@ Main line of work
 	\item Constrained Multi-Objective problem
 \end{itemize}
 
-Secondary line of work
-\begin{itemize}
-	\item Include noisy test functions.
-	\item Set dynamically the M penalization.
-\end{itemize}
 \end{frame}
 
 \end{document}

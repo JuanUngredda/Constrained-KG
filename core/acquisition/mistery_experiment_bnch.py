@@ -15,7 +15,8 @@ from time import time as time
 # --- Function to optimize
 
 def function_caller_test_function_2_penalty(rep):
-    for penalty in [-999,0,4]:
+    for penalty in [-999, 4]:
+
         noise = 1e-6
         np.random.seed(rep)
 
@@ -51,10 +52,10 @@ def function_caller_test_function_2_penalty(rep):
 
         acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="proposed", penalty_value=penalty)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="fixed", penalty_value=penalty)
 
 
-        max_iter  = 45
+        max_iter  = 35
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -75,6 +76,8 @@ def function_caller_test_function_2_penalty(rep):
 
         print("X",X,"Y",Y, "C", C)
 
+for rep in range(10):
+    function_caller_test_function_2_penalty(rep)
 #function_caller_mistery_bnch(rep=21)
 
 

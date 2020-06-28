@@ -4,6 +4,7 @@ import subprocess as sp
 import os
 import argparse
 from mistery_experiment_bnch import function_caller_test_function_2_penalty
+from dummy_file import dummy_func
 from new_branin_experiment_bnch import function_caller_new_branin_bnch
 from test_func_2_experiment_bnch import function_caller_test_func_2_bnch
 
@@ -46,7 +47,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
 
-    funcions = [function_caller_test_function_2_penalty]
+    funcions = [dummy_func]
 
     for func in funcions:
         func(args.k)
