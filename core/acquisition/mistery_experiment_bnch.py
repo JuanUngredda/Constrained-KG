@@ -76,8 +76,8 @@ def function_caller_test_function_2_penalty(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-for rep in range(10):
-    function_caller_test_function_2_penalty(rep)
+# for rep in range(10):
+#     function_caller_test_function_2_penalty(rep)
 #function_caller_mistery_bnch(rep=21)
 
 
