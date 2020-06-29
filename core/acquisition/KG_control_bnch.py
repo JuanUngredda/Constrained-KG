@@ -53,8 +53,8 @@ def run(args):
         func(args.k)
 
     # save something to hard drive in /res/ subfolder
-    with open(this_job_savefile, 'w') as f:
-        f.write(output + "\n\n")
+    # with open(this_job_savefile, 'w') as f:
+    #     f.write(output + "\n\n")
 
     # end of demo
     print("\nOutput saved to file: ", this_job_savefile, "\n\n\n\n")
