@@ -29,7 +29,7 @@ class GPModel(BOModel):
     MCMC_sampler = True
     analytical_gradient_prediction = True  # --- Needed in all models to check is the gradients of acquisitions are computable.
 
-    def __init__(self, kernel=None, noise_var=None, exact_feval=False, n_samples = 5, n_burnin = 100, subsample_interval = 10, step_size = 1e-1, leapfrog_steps=20, verbose=False, ARD=False):
+    def __init__(self, kernel=None, noise_var=None, exact_feval=False, normalizer=None, n_samples = 5, n_burnin = 100, subsample_interval = 10, step_size = 1e-1, leapfrog_steps=20, verbose=False, ARD=False):
         self.kernel = kernel
         self.noise_var = noise_var
         self.exact_feval = exact_feval
@@ -42,6 +42,7 @@ class GPModel(BOModel):
         self.model = None
         self.ARD = ARD
         self.hyperparameters_counter = 0
+        self.normalizer = normalizer
 
     @staticmethod
     def fromConfig(config):
@@ -64,12 +65,13 @@ class GPModel(BOModel):
         # Y = Y - nu
         # --- define model
         noise_var = Y.var()*0.01 if self.noise_var is None else self.noise_var
+        print("noise_var",noise_var)
 
-        self.model = GPy.models.GPRegression(X, Y, kernel=kern, noise_var=noise_var)
+        self.model = GPy.models.GPRegression(X, Y, kernel=kern, noise_var=noise_var, normalizer=self.normalizer)
 
         # --- Define prior on the hyper-parameters for the kernel (for integrated acquisitions)
         self.model.kern.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
-        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(1,5))
+        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(2,4))
 
         # --- Restrict variance if exact evaluations of the objective
         if self.exact_feval:
@@ -77,10 +79,36 @@ class GPModel(BOModel):
         else:
             # self.model.rbf.variance.constrain_fixed(3270.80, warning=False)
             # self.model.rbf.lengthscale.constrain_fixed(24.44, warning=False)
-            self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
-            # self.model.Gaussian_noise.constrain_bounded(1e-3,36)
-            # self.model.rbf.lengthscale.constrain_bounded((np.max(X[:,0])- np.min(X[:,0]))*0.05,np.max(X[:,0])*0.25)
-            # self.model.Gaussian_noise.constrain_positive(warning=False)
+            #self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
+            #self.model.Gaussian_noise.constrain_bounded(1e-21,5)
+            #self.model.rbf.lengthscale.constrain_bounded((np.max(X[:,0])- np.min(X[:,0]))*0.05,np.max(X[:,0])*0.20)
+            self.model.Gaussian_noise.constrain_positive(warning=False)
+
+    def trainModel(self, X_all, Y_all, X_new=None, Y_new=None):
+        """
+        Updates the model with new observations.
+        """
+
+        # nu = np.mean(Y_all)
+        # Y_all = Y_all - nu
+
+        if self.model is None:
+            self._create_model(X_all, Y_all)
+        else:
+            self.model.set_XY(X_all, Y_all)
+
+        # if self.model is None:
+        #     self._create_model(X_all, Y_all)
+        # else:
+        #     self.model.set_XY(X_all, Y_all)
+
+        # update the model generating hmc samples
+        self.model.optimize_restarts(num_restarts=1, verbose=True)
+        print("self.model", self.model)
+        # self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
+        # self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)
+        # ss = self.hmc.sample(num_samples=self.n_burnin + self.n_samples* self.subsample_interval, hmc_iters=self.leapfrog_steps)
+        # self.hmc_samples = ss[self.n_burnin::self.subsample_interval]
             
 
     def updateModel(self, X_all, Y_all, X_new=None, Y_new=None):
@@ -102,7 +130,7 @@ class GPModel(BOModel):
         #     self.model.set_XY(X_all, Y_all)
 
         # update the model generating hmc samples
-        self.model.optimize_restarts(num_restarts=5, max_iters = 20, verbose=False)
+        self.model.optimize_restarts(num_restarts=5, verbose=False)
         print("self.model",self.model)
         # self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
         # self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)

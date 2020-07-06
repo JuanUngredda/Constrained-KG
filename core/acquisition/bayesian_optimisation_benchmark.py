@@ -157,6 +157,10 @@ class BO(object):
             self.max_iter = max_iter
             self.max_time = max_time
 
+
+        # print("------------------------TRAINING HYPERS----------------------")
+        # self._get_hyperparameters()
+
         # --- Initial function evaluation and model fitting
         if self.X is not None and self.Y is None:
             self.Y, cost_values = self.objective.evaluate(self.X)
@@ -176,7 +180,7 @@ class BO(object):
         value_so_far = []
 
         # --- Initialize time cost of the evaluations
-        print("MAIN LOOP STARTS")
+        print("-----------------------MAIN LOOP STARTS----------------------")
         Opportunity_Cost = []
         self.true_best_stats = {"true_best":[], "mean_gp":[], "std gp":[], "pf":[], "mu_pf":[], "var_pf":[], "residual_noise":[]}
         while (self.max_iter > self.num_acquisitions ):
@@ -476,6 +480,31 @@ class BO(object):
         ### We zip the value in case there are categorical variables
         return self.space.zip_inputs(aux_var[0])
         #return initial_design('random', self.space, 1)
+
+    def _get_hyperparameters(self):
+        """
+        Updates the model (when more than one observation is available) and saves the parameters (if available).
+        """
+        X_basis = GPyOpt.experiment_design.initial_design('latin', self.space, 2000)
+
+        X_train = X_basis
+        # N=4
+        # for i in range(N - 1):
+        #     X_train = np.concatenate([X_train, X_basis])
+
+        Y_train, cost_train = self.objective.evaluate(X_train)
+        C_train, C_cost_train = self.constraint.evaluate(X_train)
+
+        ### --- input that goes into the model (is unziped in case there are categorical variables)
+        X_inmodel = self.space.unzip_inputs(X_train)
+
+        Y_inmodel = list(Y_train)
+        C_inmodel = list(C_train)
+
+        print("X", X_inmodel,len(X_inmodel) ,"Y",Y_inmodel, len(Y_inmodel))
+        self.model.trainModel(X_inmodel, Y_inmodel)
+        self.model_c.trainModel(X_inmodel, C_inmodel)
+
 
     def _update_model(self):
         """

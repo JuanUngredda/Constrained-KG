@@ -15,7 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_new_branin_bnch(rep):
-    for noise in [1.0 ]:
+    for noise in [1e-6]:
         np.random.seed(rep)
 
         # func2 = dropwave()
@@ -35,8 +35,9 @@ def function_caller_new_branin_bnch(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim = n_f, noise_var=[1e-21]*n_c, exact_feval=[True]*n_c, normalizer=True)
+        model_c = multi_outputGP(output_dim = n_c, noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
+
 
 
         # --- Aquisition optimizer
@@ -53,7 +54,7 @@ def function_caller_new_branin_bnch(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 45
+        max_iter  = 40
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -83,6 +84,6 @@ def function_caller_new_branin_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_new_branin_bnch(rep=1)
+function_caller_new_branin_bnch(rep=1)
 
 

@@ -47,11 +47,7 @@ class SingleObjective(Objective):
         """
 
         if self.n_procs == 1:
-            import os
-            print(os.getcwd())
             f_evals, cost_evals = self._eval_func(x,  true_val= true_val)
-
-
         else:
             try:
                 f_evals, cost_evals = self._syncronous_batch_evaluation(x)
@@ -78,6 +74,7 @@ class SingleObjective(Objective):
             rlt = self.func(np.atleast_2d(x[i]),  true_val= true_val)
             f_evals     = np.vstack([f_evals,rlt])
             cost_evals += [time.time()-st_time]
+
         return f_evals, cost_evals
 
 

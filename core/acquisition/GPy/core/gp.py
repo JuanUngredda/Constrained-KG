@@ -58,7 +58,6 @@ class GP(Model):
 
 
 
-
         if self.normalizer is not None:
 
             self.normalizer.scale_by(Y)

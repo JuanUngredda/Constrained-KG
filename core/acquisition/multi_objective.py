@@ -43,10 +43,13 @@ class MultiObjective(Objective):
         """
         Performs the evaluation of the objectives at x.
         """
+
         f_eval = [None]*self.output_dim #np.zeros(self.output_dim)
         cost_eval = 0
+
         for j in range(0,self.output_dim):
             f_eval[j] = self.objective[j].evaluate(x,  true_val=true_val)[0]
+
         return f_eval, cost_eval
     
     

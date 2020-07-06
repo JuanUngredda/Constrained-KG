@@ -32,7 +32,6 @@ class GPRegression(GP):
             kernel = kern.RBF(X.shape[1])
 
         likelihood = likelihoods.Gaussian(variance=noise_var)
-
         super(GPRegression, self).__init__(X, Y, kernel, likelihood, name='GP regression', Y_metadata=Y_metadata, normalizer=normalizer, mean_function=mean_function)
 
     @staticmethod

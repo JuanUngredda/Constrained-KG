@@ -18,7 +18,7 @@ class multi_outputGP(object):
     """
     analytical_gradient_prediction = True
 
-    def __init__(self, output_dim, kernel=None, noise_var=None, exact_feval=None, ARD=None):
+    def __init__(self, output_dim, kernel=None, noise_var=None, exact_feval=None, ARD=None, normalizer=None):
         
         self.output_dim = output_dim
         
@@ -45,7 +45,7 @@ class multi_outputGP(object):
         
         self.output = [None]*output_dim
         for j in range(0,output_dim):
-            self.output[j] = GPyOpt.models.GPModel(kernel=self.kernel[j],noise_var=self.noise_var[j],exact_feval=self.exact_feval[j],ARD=self.ARD[j],verbose=False)
+            self.output[j] = GPyOpt.models.GPModel(kernel=self.kernel[j],noise_var=self.noise_var[j],exact_feval=self.exact_feval[j],ARD=self.ARD[j],verbose=False, normalizer=normalizer)
 
     #@staticmethod
     #def fromConfig(config):
@@ -58,6 +58,13 @@ class multi_outputGP(object):
         """
         for j in range(0,self.output_dim):
             self.output[j].updateModel(X_all,Y_all[j],None,None)
+
+    def trainModel(self, X_all, Y_all):
+        """
+        Updates the model with new observations.
+        """
+        for j in range(0,self.output_dim):
+            self.output[j].trainModel(X_all,Y_all[j],None,None)
             
             
     def get_hyperparameters_samples(self, n_samples=1):
