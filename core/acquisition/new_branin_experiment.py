@@ -35,8 +35,8 @@ def function_caller_new_brannin(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -83,6 +83,6 @@ def function_caller_new_brannin(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_new_brannin(rep=15)
+function_caller_new_brannin(rep=15)
 
 
