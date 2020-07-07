@@ -3,20 +3,20 @@ import sys
 import subprocess as sp
 import os
 import argparse
-from mistery_experiment import function_caller_mistery
+# from mistery_experiment import function_caller_mistery
 from new_branin_experiment import function_caller_new_brannin
-from test_func_2_experiment import function_caller_test_func_2
+# from test_func_2_experiment import function_caller_test_func_2
 
-from new_branin_TS import function_caller_new_brannin_TS
-from test_func_2_TS import function_caller_test_func_2_TS
-from mistery_experiment_TS import function_caller_mistery_TS
-from RMITD_TS import function_caller_RMITD_TS
-from RMITD_EI import function_caller_RMITD_EI
-from RMITD_experiment import function_caller_RMITD
-
-from NN_TS import function_caller_NN_TS
-from NN_EI import function_caller_NN_EI
-from NN_experiment import function_caller_NN
+# from new_branin_TS import function_caller_new_brannin_TS
+# from test_func_2_TS import function_caller_test_func_2_TS
+# from mistery_experiment_TS import function_caller_mistery_TS
+# from RMITD_TS import function_caller_RMITD_TS
+# from RMITD_EI import function_caller_RMITD_EI
+# from RMITD_experiment import function_caller_RMITD
+#
+# from NN_TS import function_caller_NN_TS
+# from NN_EI import function_caller_NN_EI
+# from NN_experiment import function_caller_NN
 
 
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
