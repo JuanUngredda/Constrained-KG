@@ -14,7 +14,7 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller_new_branin_bnch(rep):
+def function_caller_new_branin_EI(rep):
     for noise in [1e-6]:
         np.random.seed(rep)
 
@@ -73,7 +73,7 @@ def function_caller_new_branin_bnch(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "new_branin_bnch_extended_" + str(noise)
+        subfolder = "new_branin_det_scaled_experiments_EI" + str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -84,6 +84,6 @@ def function_caller_new_branin_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-function_caller_new_branin_bnch(rep=1)
+#function_caller_new_branin_bnch(rep=1)
 
 

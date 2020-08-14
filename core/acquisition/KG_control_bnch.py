@@ -3,10 +3,11 @@ import sys
 import subprocess as sp
 import os
 import argparse
-from mistery_experiment_bnch import function_caller_test_function_2_penalty
-from dummy_file import dummy_func
-from new_branin_experiment_bnch import function_caller_new_branin_bnch
-from test_func_2_experiment_bnch import function_caller_test_func_2_bnch
+#from mistery_experiment_bnch import function_caller_test_function_2_penalty
+#from dummy_file import dummy_func
+from new_branin_experiment_bnch import function_caller_new_branin_EI
+from new_branin_TS import function_caller_new_brannin_TS
+#from test_func_2_experiment_bnch import function_caller_test_func_2_bnch
 
 # This is a bare script that receives args, prints something, wastes some time,
 # and saves something. Use this as a blank template to run experiments.
@@ -47,7 +48,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
 
-    funcions = [dummy_func]
+    funcions = [function_caller_new_branin_EI, function_caller_new_brannin_TS]
 
     for func in funcions:
         func(args.k)
