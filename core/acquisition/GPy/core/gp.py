@@ -330,7 +330,9 @@ class GP(Model):
 
         if self.normalizer is not None:
             #mu, var = self.normalizer.inverse_mean(mu), self.normalizer.inverse_variance(var)
+
             mu = self.normalizer.inverse_mean(mu)
+
 
         return mu, var
 

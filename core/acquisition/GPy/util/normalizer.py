@@ -57,10 +57,15 @@ class _Norm(object):
 class Standardize(_Norm):
     def __init__(self):
         self.mean = None
+        self.scaling_counter = 0 #Just making sure that standardarization will be done with just initial data. Otherwise it will include biased data.
     def scale_by(self, Y):
-        Y = np.ma.masked_invalid(Y, copy=False)
-        self.mean = Y.mean(0).view(np.ndarray)
-        self.std = 1#Y.std(0).view(np.ndarray)
+        self.scaling_counter += 1
+        if self.scaling_counter ==1:
+            Y = np.ma.masked_invalid(Y, copy=False)
+            self.mean = Y.mean(0).view(np.ndarray)
+            self.std = 1#Y.std(0).view(np.ndarray)
+
+
     def normalize(self, Y):
         super(Standardize, self).normalize(Y)
         return (Y-self.mean)/self.std

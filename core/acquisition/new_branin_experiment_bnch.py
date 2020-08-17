@@ -35,8 +35,8 @@ def function_caller_new_branin_EI(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f, noise_var=[1e-21]*n_c, exact_feval=[True]*n_c, normalizer=True)
-        model_c = multi_outputGP(output_dim = n_c, noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim = n_f, noise_var=[noise]*n_c, exact_feval=[True]*n_c, normalizer=True)
+        model_c = multi_outputGP(output_dim = n_c, noise_var=[noise]*n_c, exact_feval=[True]*n_c)
 
 
 
@@ -84,6 +84,6 @@ def function_caller_new_branin_EI(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_new_branin_bnch(rep=1)
+#function_caller_new_branin_EI(rep=1)
 
 

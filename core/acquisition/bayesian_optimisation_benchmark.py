@@ -226,8 +226,7 @@ class BO(object):
 
                 axs[1,1].set_title("mu")
                 axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
-
-
+                #print("max", np.max(np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1)), "min", np.min(np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1)))
                 plt.show()
 
             self.X = np.vstack((self.X,self.suggested_sample))
@@ -287,7 +286,8 @@ class BO(object):
         else:
             self.true_best_value()
             optimum = np.max(np.abs(self.true_best_stats["true_best"]))
-            # print("optimum", optimum)
+            print("optimum", optimum, "found val", np.array(np.abs(np.max(func_val_true))).reshape(-1))
+
             self.Opportunity_Cost.append(optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
             # print("OC_i", optimum - np.array(np.abs(np.max(func_val_true))).reshape(-1))
 
