@@ -35,7 +35,7 @@ def function_caller_new_branin_EI(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f, noise_var=[noise]*n_c, exact_feval=[True]*n_c, normalizer=False)
+        model_f = multi_outputGP(output_dim = n_f, noise_var=[noise]*n_c, exact_feval=[True]*n_c, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c, noise_var=[noise]*n_c, exact_feval=[True]*n_c)
 
 
@@ -56,7 +56,7 @@ def function_caller_new_branin_EI(rep):
 
         max_iter  = 40
         # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
 
         C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
@@ -84,6 +84,6 @@ def function_caller_new_branin_EI(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-function_caller_new_branin_EI(rep=7)
+#function_caller_new_branin_EI(rep=7)
 
 
