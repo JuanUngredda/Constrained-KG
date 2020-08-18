@@ -137,13 +137,13 @@ class FC_NN_test_function():
 
         return X_mean_average - self.max_time
 
-# objective_function = FC_NN_test_function()
-# # print("Verbose execution")
-# test_error = objective_function.c(X = np.array([[0.2,0.2,5,5],
-#                                                 [0.2,0.2,5,5]]), true_val=True, verbose=0)
-#
-# # test_error = objective_function.train_model(X = np.array([[0.2,0.2,9,9],
-# #                                                               [0.2,0.2,9,9]]), verbose=1)
-# print("Test error:", test_error)
+objective_function = FC_NN_test_function()
+print("Verbose execution")
+test_error = objective_function.c(X = np.array([[0.2,0.2,5,5],
+                                                 [0.2,0.2,5,5]]), true_val=True, verbose=0)
+
+test_error = objective_function.train_model(X = np.array([[0.2,0.2,9,9],
+                                                               [0.2,0.2,9,9]]), verbose=1)
+print("Test error:", test_error)
 
 
