@@ -64,7 +64,7 @@ def function_caller_test_func_2_EI(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "test_function_2_det_EI" + str(noise)
+        subfolder = "test_function_2_scaled_det_EI" + str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'

@@ -74,7 +74,7 @@ def function_caller_mistery_TS(rep):
         data["C_bool"] = np.array(C_bool).reshape(-1)
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "Mistery_TS"+str(noise)
+        subfolder = "mistery_scaled_det_TS_"+str(noise)
         cwd = os.getcwd()
 
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
