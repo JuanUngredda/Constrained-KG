@@ -200,14 +200,11 @@ class BO(object):
             start = time.time()
 
             self.suggested_sample = self._compute_next_evaluations()
-            print("self.suggested_sample",self.suggested_sample)
-
             finish = time.time()
             print("time optimisation point X", finish - start)
 
             if verbosity:
                 self.verbosity_plot_2D()
-
 
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
@@ -491,7 +488,7 @@ class BO(object):
                 ei[sigma == 0.0] = 0.0
             pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-            return -np.array(ei *pf ).reshape(-1)
+            return -(ei *pf )
         else:
             print("NOISY LAST STEP")
             mu = self.model.posterior_mean(X)

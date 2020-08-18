@@ -52,7 +52,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=200, verbose=True):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=500, verbose=True):
         """
         Optimizes the input function.
 
@@ -115,6 +115,8 @@ class AcquisitionOptimizer(object):
         # fx_min = np.min(optimized_points)
         # self.outer_anchor_points = x_min
 
+        print("anchor_points", anchor_points)
+        print("optimized_points", optimized_points)
         if False:
             opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
 
@@ -131,7 +133,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=100):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=1000):
         """
         Optimizes the input function.
 
@@ -176,30 +178,30 @@ class AcquisitionOptimizer(object):
         x_min, fx_min = min(optimized_points, key=lambda t:t[1])
         self.inner_anchor_points = x_min
         ############################################
-        #print("anchor_points",anchor_points)
-        #optimized_points = [self.f(a.flatten()) for a in anchor_points]
-        #print("optimized_points",optimized_points)
-        #x_min = anchor_points[np.argmin(optimized_points)]
-        #fx_min = np.min(optimized_points)
-        #x_min = np.array(x_min).reshape(-1)
-        #x_min = x_min.reshape(1,-1)
-        #self.inner_anchor_points = x_min
+        # print("anchor_points",anchor_points)
+        # optimized_points = [self.f(a.flatten()) for a in anchor_points]
+        # # print("optimized_points",optimized_points)
+        # x_min = anchor_points[np.argmin(optimized_points)]
+        # fx_min = np.min(optimized_points)
+        # x_min = np.array(x_min).reshape(-1)
+        # x_min = x_min.reshape(1,-1)
+        # self.inner_anchor_points = x_min
 
-        #opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
-        #print("optimized_points", optimized_points)
+        # opt_x = np.array([np.array(i[0]).reshape(-1) for i in optimized_points])
+        # print("optimized_points", optimized_points)
         #
-        #bounds =self.space.get_bounds()
-        #x_plot = np.random.random((1000,2))*(np.array([bounds[0][1], bounds[1][1]]) - np.array([bounds[0][0], bounds[1][0]])) +  np.array([bounds[0][0], bounds[1][0]])
+        # bounds =self.space.get_bounds()
+        # x_plot = np.random.random((1000,2))*(np.array([bounds[0][1], bounds[1][1]]) - np.array([bounds[0][0], bounds[1][0]])) +  np.array([bounds[0][0], bounds[1][0]])
         #
-        #f_vals = np.array([f(i) for i in x_plot]).reshape(-1)
-        #print("min max", np.min(f_vals ), np.max(f_vals ))
-        #plt.scatter(np.array(x_plot[:,0]).reshape(-1), (x_plot[:,1]).reshape(-1), c=np.array(f_vals).reshape(-1))
-        #plt.scatter(anchor_points[:,0], anchor_points[:,1], color="magenta")
-        #plt.scatter(opt_x[:,0],opt_x[:,1], color="magenta", marker="x")
-        #plt.scatter(x_min[:,0], x_min[:,1], color="red")
-        #plt.show()
-        #print("self.inner_anchor_points",self.inner_anchor_points)
-        #print("x_min, fx_min",x_min, fx_min)
+        # f_vals = np.array([f(i) for i in x_plot]).reshape(-1)
+        # # print("min max", np.min(f_vals ), np.max(f_vals ))
+        # plt.scatter(np.array(x_plot[:,0]).reshape(-1), (x_plot[:,1]).reshape(-1), c=np.array(f_vals).reshape(-1))
+        # plt.scatter(anchor_points[:,0], anchor_points[:,1], color="magenta")
+        # plt.scatter(opt_x[:,0],opt_x[:,1], color="magenta", marker="x")
+        # plt.scatter(x_min[:,0], x_min[:,1], color="red")
+        # plt.show()
+        # print("self.inner_anchor_points",self.inner_anchor_points)
+        # print("x_min, fx_min",x_min, fx_min)
 
         return x_min, fx_min
 
@@ -243,7 +245,7 @@ class AcquisitionOptimizer(object):
         #     ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
         #     ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-        return -np.array(mu *pf).reshape(-1)
+        return -(mu *pf )
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None,  l=0):
         # print("model",model.output)
