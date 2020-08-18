@@ -16,7 +16,7 @@ import os
 
 def function_caller_test_func_2_TS(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 1.0]:
+    for noise in [1e-21]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -34,7 +34,7 @@ def function_caller_test_func_2_TS(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,1)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,1)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 3
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
 
@@ -49,10 +49,10 @@ def function_caller_test_func_2_TS(rep):
         nz=1
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=False,deterministic=False)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=False)
 
 
-        max_iter  = 45
+        max_iter  = 25
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -81,6 +81,6 @@ def function_caller_test_func_2_TS(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_test_func_2(rep=21)
+#function_caller_test_func_2_TS(rep=21)
 
 

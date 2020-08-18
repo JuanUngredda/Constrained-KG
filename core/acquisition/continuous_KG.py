@@ -91,7 +91,7 @@ class KG(AcquisitionBase):
             mu = self.model.posterior_mean(X_inner)[0]
             mu = mu.reshape(-1, 1)
             pf = self.probability_feasibility_multi_gp(X_inner, self.model_c).reshape(-1, 1)
-            return -(mu * pf)
+            return -np.array(mu * pf).reshape(-1)
         inner_opt_x, inner_opt_val = self.optimizer.optimize(f=current_func, f_df=None, num_samples=1000,verbose=False)
         # print("inner_opt_x, inner_opt_val",inner_opt_x, inner_opt_val)
         return inner_opt_x,-inner_opt_val

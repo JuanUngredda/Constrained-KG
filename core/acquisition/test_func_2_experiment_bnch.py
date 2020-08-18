@@ -14,8 +14,8 @@ from time import time as time
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller_test_func_2_bnch(rep):
-    for noise in [ 1.0 ]:
+def function_caller_test_func_2_EI(rep):
+    for noise in [ 1e-21 ]:
 
         np.random.seed(rep)
 
@@ -36,7 +36,7 @@ def function_caller_test_func_2_bnch(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,1)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,1)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 3
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
 
@@ -54,7 +54,7 @@ def function_caller_test_func_2_bnch(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 45
+        max_iter  = 25
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -64,7 +64,7 @@ def function_caller_test_func_2_bnch(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "test_function_2_bnch_" + str(noise)
+        subfolder = "test_function_2_det_EI" + str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -75,6 +75,6 @@ def function_caller_test_func_2_bnch(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_test_func_2_bnch(rep=2)
+#function_caller_test_func_2_EI(rep=2)
 
 

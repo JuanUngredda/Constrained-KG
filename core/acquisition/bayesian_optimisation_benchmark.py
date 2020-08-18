@@ -315,7 +315,7 @@ class BO(object):
         out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
         suggested_sample =  self.space.zip_inputs(out[0])
         # suggested_sample = suggested_sample.astype("int")
-        print("suggested sample", suggested_sample, "ei", self.ei_final_eval, "pf", self.pf_final_eval)
+
 
         return suggested_sample
 
@@ -364,9 +364,6 @@ class BO(object):
 
 
         self.penalty = self.penalty_value
-
-        self.ei_final_eval = ei
-        self.pf_final_eval = pf
 
         return -ei.reshape(-1) *pf.reshape(-1)
 

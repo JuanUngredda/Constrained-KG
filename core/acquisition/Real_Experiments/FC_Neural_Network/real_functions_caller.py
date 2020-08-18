@@ -20,7 +20,7 @@ class FC_NN_test_function():
         self.learning_rate = 0.001
         self.rho = 0.9
         self.epsilon = 1e-07
-        self.epochs = 3
+        self.epochs = 5
         self.samples = 5000
         self.num_classes = 10
         self.max_time = max_time
@@ -45,7 +45,7 @@ class FC_NN_test_function():
         validation_score = np.zeros((X.shape[0], 1))
 
         for index in range(X.shape[0]):
-
+	    print("index", index, X.shape[0])
             x = X[index]
             x = np.array(x).reshape(-1)
             x = x.reshape(1, -1)
@@ -139,11 +139,15 @@ class FC_NN_test_function():
 
 objective_function = FC_NN_test_function()
 print("Verbose execution")
+
+test_error = objective_function.train_model(X = np.array([[0.2,0.2,2,2],
+                                                               [0.2,0.2,2,2]]), verbose=1)
+                                                               
+print("FINISHED")
+                                                               
 test_error = objective_function.c(X = np.array([[0.2,0.2,5,5],
                                                  [0.2,0.2,5,5]]), true_val=True, verbose=0)
 
-test_error = objective_function.train_model(X = np.array([[0.2,0.2,9,9],
-                                                               [0.2,0.2,9,9]]), verbose=1)
 print("Test error:", test_error)
 
 

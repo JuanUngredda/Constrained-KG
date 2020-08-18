@@ -14,14 +14,11 @@ from time import time as time
 #ALWAYS check cost in
 # --- Function to optimize
 
-def function_caller_test_function_2_penalty(rep):
-    for penalty in [-999, 4]:
-
-        noise = 1e-6
+def function_caller_mistery_EI(rep):
+    for noise in [1e-21]:
         np.random.seed(rep)
-
         # func2 = dropwave()
-        mistery_f =new_brannin(sd=np.sqrt(noise))
+        mistery_f =mistery(sd=np.sqrt(noise))
 
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
@@ -34,10 +31,10 @@ def function_caller_test_function_2_penalty(rep):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
 
@@ -52,10 +49,10 @@ def function_caller_test_function_2_penalty(rep):
 
         acquisition = KG(model=model_f, model_c=model_c , space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, penalty_tag="fixed", penalty_value=penalty)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 35
+        max_iter  = 30
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
@@ -65,7 +62,7 @@ def function_caller_test_function_2_penalty(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "new_brannin_proposed_" +str(penalty)
+        subfolder = "mistery_scaled_det_EI_" +str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -78,6 +75,6 @@ def function_caller_test_function_2_penalty(rep):
 
 # for rep in range(10):
 #     function_caller_test_function_2_penalty(rep)
-#function_caller_mistery_bnch(rep=21)
+#function_caller_mistery_EI(rep=21)
 
 

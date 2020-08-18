@@ -255,7 +255,9 @@ def apply_optimizer(optimizer, x0, f=None, df=None, f_df=None, duplicate_manager
 
     #if f(x0).shape[0]==2:
     # print("x0",x0,"f",f(x0))
+
     suggested_x, suggested_fx = optimizer.optimize(x0, f, df, f_df)
+
     #suggested_fx = f(suggested_x)
 
 

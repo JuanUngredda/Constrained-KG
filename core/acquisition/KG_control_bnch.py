@@ -7,6 +7,13 @@ import argparse
 #from dummy_file import dummy_func
 from new_branin_experiment_bnch import function_caller_new_branin_EI
 from new_branin_TS import function_caller_new_brannin_TS
+
+from mistery_experiment_bnch import function_caller_mistery_EI
+from mistery_experiment_TS import function_caller_mistery_TS
+
+from test_func_2_experiment_bnch import function_caller_test_func_2_EI
+from test_func_2_TS import function_caller_test_func_2_TS
+
 #from test_func_2_experiment_bnch import function_caller_test_func_2_bnch
 
 # This is a bare script that receives args, prints something, wastes some time,
@@ -48,7 +55,7 @@ def run(args):
 
     # IMPORT AND RUN MODULES
 
-    funcions = [function_caller_new_branin_EI, function_caller_new_brannin_TS]
+    funcions = [function_caller_mistery_EI, function_caller_mistery_TS, function_caller_test_func_2_EI, function_caller_test_func_2_TS]
 
     for func in funcions:
         func(args.k)
