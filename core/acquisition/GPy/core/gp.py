@@ -406,6 +406,11 @@ class GP(Model):
         #print(mu)
         if self.mean_function is not None:
             mu += self.mean_function.f(Xnew)
+
+        if self.normalizer is not None:
+            #mu, var = self.normalizer.inverse_mean(mu), self.normalizer.inverse_variance(var)
+
+            mu = self.normalizer.inverse_mean(mu)
         return mu
     
     

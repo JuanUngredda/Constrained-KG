@@ -209,7 +209,7 @@ class BO(object):
                 func_val = Y * bool_C.reshape(-1,1)
 
                 print("self.suggested_sample",self.suggested_sample)
-                fig, axs = plt.subplots(2, 2)
+                fig, axs = plt.subplots(3, 2)
                 axs[0, 0].set_title('True Function')
                 axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(func_val).reshape(-1))
                 axs[0, 0].scatter(self.X[:, 0], self.X[:, 1], color="red", label="sampled")
@@ -217,16 +217,27 @@ class BO(object):
                                   label="suggested")
 
                 axs[0, 1].set_title('approximation Acqu Function')
-                axs[0, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
-
-
+                im2 = axs[0, 1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
+                fig.colorbar(im2, ax=axs[0, 1])
+                print("max", np.max(np.array(ac_f).reshape(-1)), "min", np.min(np.array(ac_f).reshape(-1)))
                 axs[1,0].set_title("convergence")
                 axs[1,0].plot(range(len(self.Opportunity_Cost)), np.array(self.Opportunity_Cost).reshape(-1))
                 axs[1,0].set_yscale("log")
 
-                axs[1,1].set_title("mu")
-                axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
+                axs[1,1].set_title("mu pf")
+                im = axs[1,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1))
+                fig.colorbar(im, ax=axs[1,1])
+
+                axs[2,0].set_title("mu")
+                im3 = axs[2,0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(mu_f).reshape(-1))
+                fig.colorbar(im3, ax=axs[2,0])
+
+                axs[2,1].set_title("pf")
+                im4 = axs[2,1].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(pf).reshape(-1))
+                fig.colorbar(im4, ax=axs[2,1])
+
                 #print("max", np.max(np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1)), "min", np.min(np.array(mu_f).reshape(-1)*np.array(pf).reshape(-1)))
+
                 plt.show()
 
             self.X = np.vstack((self.X,self.suggested_sample))
@@ -294,17 +305,18 @@ class BO(object):
     def optimize_final_evaluation(self):
 
 
-        out = self.acquisition.optimizer.optimize(f=self.current_best, duplicate_manager=None)
-        print("out", out)
-        print("out", out[1])
+        #out = self.acquisition.optimizer.optimize(f=self.current_best, duplicate_manager=None)
+        #print("out", out)
+        #print("out", out[1])
 
-        self.best_mu_all =  -1*np.array(out[1]).reshape(-1)
+        #self.best_mu_all =  -1*np.array(out[1]).reshape(-1)
 
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
         out = self.acquisition.optimizer.optimize(f=self.expected_improvement, duplicate_manager=None)
         suggested_sample =  self.space.zip_inputs(out[0])
         # suggested_sample = suggested_sample.astype("int")
-        print("suggested_sample",suggested_sample)
+        print("suggested sample", suggested_sample, "ei", self.ei_final_eval, "pf", self.pf_final_eval)
+
         return suggested_sample
 
 
@@ -350,15 +362,13 @@ class BO(object):
             ei[sigma == 0.0] = 0.0
         pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
 
-        if self.penalty_tag == "fixed":
-            self.penalty = self.penalty_value
-        else:
-            dif = np.array(mu).reshape(-1) - np.array(self.best_mu_all).reshape(-1)
-            constraints = self.model_c.posterior_mean(X) # MAYBE CHECK FOR SEVERAL CONSTRAINTS
-            sum_constraints = np.sum(constraints,axis=0).reshape(-1)
-            self.penalty = dif * sum_constraints
 
-        return -(ei.reshape(-1) *pf.reshape(-1) + (1 - pf.reshape(-1))*self.penalty )
+        self.penalty = self.penalty_value
+
+        self.ei_final_eval = ei
+        self.pf_final_eval = pf
+
+        return -ei.reshape(-1) *pf.reshape(-1)
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
         # print("model",model.output)
