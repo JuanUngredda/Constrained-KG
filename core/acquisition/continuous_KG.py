@@ -61,8 +61,8 @@ class KG(AcquisitionBase):
         Nx = self.model.get_X_values().shape[0]
         if Nx != self.saved_Nx:
             self.saved_Nx = Nx
-            self.Z_samples_obj = np.array([0]) #np.array([-2.326, -1.282, 0,1.282, -2.326])
-            self.Z_samples_const = np.array([0])  #np.array([-2.326, -1.282, 0,1.282, -2.326])
+            self.Z_samples_obj = np.array([-2.326, -1.282, 0,1.282, -2.326])
+            self.Z_samples_const = np.array([-2.326, -1.282, 0,1.282, -2.326])
             print("self.Z_samples_obj ",self.Z_samples_obj )
             print("self.Z_samples_const",self.Z_samples_const)
         # print("self.Z_samples_obj",self.Z_samples_obj)

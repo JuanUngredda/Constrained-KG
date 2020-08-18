@@ -54,7 +54,7 @@ def function_caller_new_brannin(rep):
 
         max_iter  = 30
         # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")
 
         C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
@@ -83,6 +83,6 @@ def function_caller_new_brannin(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-function_caller_new_brannin(rep=21)
+#function_caller_new_brannin(rep=21)
 
 

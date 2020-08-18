@@ -52,7 +52,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=500, verbose=True):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,sweet_spot=True, num_samples=200, verbose=True):
         """
         Optimizes the input function.
 
@@ -86,7 +86,7 @@ class AcquisitionOptimizer(object):
             anchor_points = anchor_points_generator.get(num_anchor=1,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
             self.old_anchor_points = anchor_points
 
-        if sweet_spot:
+        if False:#sweet_spot:
             EI_suggested_sample = self.optimize_final_evaluation()
             EI_suggested_sample = EI_suggested_sample.reshape(-1)
             EI_suggested_sample = EI_suggested_sample.reshape(1,-1)
@@ -133,7 +133,7 @@ class AcquisitionOptimizer(object):
         return x_min, fx_min
     
     
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=1000):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, num_samples=500):
         """
         Optimizes the input function.
 
