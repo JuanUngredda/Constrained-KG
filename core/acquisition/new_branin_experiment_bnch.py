@@ -84,6 +84,6 @@ def function_caller_new_branin_EI(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_new_branin_EI(rep=7)
+function_caller_new_branin_EI(rep=7)
 
 

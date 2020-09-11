@@ -45,7 +45,7 @@ class FC_NN_test_function():
         validation_score = np.zeros((X.shape[0], 1))
 
         for index in range(X.shape[0]):
-	    print("index", index, X.shape[0])
+            print("index", index, X.shape[0])
             x = X[index]
             x = np.array(x).reshape(-1)
             x = x.reshape(1, -1)
@@ -140,8 +140,7 @@ class FC_NN_test_function():
 objective_function = FC_NN_test_function()
 print("Verbose execution")
 
-test_error = objective_function.train_model(X = np.array([[0.2,0.2,2,2],
-                                                               [0.2,0.2,2,2]]), verbose=1)
+test_error = objective_function.(X = np.array([[0.2,0.2,2,2],[0.2,0.2,2,2]]), verbose=1)
                                                                
 print("FINISHED")
                                                                
