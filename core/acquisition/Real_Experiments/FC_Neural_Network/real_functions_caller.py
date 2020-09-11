@@ -140,7 +140,7 @@ class FC_NN_test_function():
 objective_function = FC_NN_test_function()
 print("Verbose execution")
 
-test_error = objective_function.(X = np.array([[0.2,0.2,2,2],[0.2,0.2,2,2]]), verbose=1)
+test_error = objective_function.f(X = np.array([[0.2,0.2,2,2],[0.2,0.2,2,2]]), verbose=1)
                                                                
 print("FINISHED")
                                                                
