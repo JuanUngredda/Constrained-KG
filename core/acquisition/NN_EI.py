@@ -40,7 +40,7 @@ def function_caller_NN_EI(rep):
     n_f = 1
     n_c = 1
     noise = 0.002**2
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[False]*n_f)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[False]*n_f, normalizer=True)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
 
@@ -50,7 +50,7 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 18
+    init_num_samples = 10
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
@@ -59,7 +59,7 @@ def function_caller_NN_EI(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True)
 
 
-    max_iter  = 30
+    max_iter  = 40
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
