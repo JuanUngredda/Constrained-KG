@@ -147,10 +147,10 @@ objective_function = FC_NN_test_function()
 
 #test_error = objective_function.f(X = np.array([[0.2,0.2,3,3]]), verbose=1)
                                                                
-print("FINISHED")
+# print("FINISHED")
                                           
-test_error = objective_function.c(X = np.array([[0.0,0.0,13,13]]), true_val=True, verbose=0)
+# test_error = objective_function.c(X = np.array([[0.0,0.0,13,13]]), true_val=True, verbose=0)
 
-print("Test error:", test_error)
+# print("Test error:", test_error)
 
 
