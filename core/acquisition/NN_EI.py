@@ -59,7 +59,7 @@ def function_caller_NN_EI(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True)
 
 
-    max_iter  = 40
+    max_iter  = 2
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -80,6 +80,7 @@ def function_caller_NN_EI(rep):
     cwd = os.getcwd()
     print("cwd", cwd)
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
+    raise
     if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
         os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
