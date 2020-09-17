@@ -15,13 +15,13 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, max_time=0.18):
-        self.batch_size = 128
+    def __init__(self, max_time=0.003):
+        self.batch_size = 500
         self.learning_rate = 0.001
         self.rho = 0.9
         self.epsilon = 1e-07
-        self.epochs = 5
-        self.samples = 5000
+        self.epochs = 3
+        self.samples = 1000
         self.num_classes = 10
         self.max_time = max_time
 
@@ -50,7 +50,7 @@ class FC_NN_test_function():
             x = np.array(x).reshape(-1)
             x = x.reshape(1, -1)
             if true_val:
-                reps = 20
+                reps = 1
             else:
                 reps = 1
             out_val = []
@@ -89,7 +89,7 @@ class FC_NN_test_function():
                 # print("batch_size", batch_size, "epochs", epochs)
                 history = model.fit(x_train, y_train,
                                     batch_size=batch_size,
-                                    epochs=epochs,
+                                    epochs=self.epochs,
                                     verbose=verbose,
                                     validation_data=(x_test, y_test))
 
@@ -97,6 +97,7 @@ class FC_NN_test_function():
                 # Part 6: get test measurements
                 score = model.evaluate(x_test, y_test, verbose=1)
                 out_val.append(score[1])
+            print("out_val",out_val)
             print("np.mean(out_val)",np.mean(out_val))
             print("np.std", np.std(out_val))
             print("mse",np.std(out_val)/len(out_val) )
@@ -119,33 +120,36 @@ class FC_NN_test_function():
         for index in range(X.shape[0]):
 
             x = X[index]
-
-            self.f(x, verbose)
-
+            print("x",x, "verbose", verbose, "true_val", true_val)
+            self.f(x,true_val=true_val , verbose=verbose)
+            if verbose == 1: self.model.summary()
             samples = self.samples
             average_time = np.zeros(samples)
+    
             for i in range(samples):
                 start = time.time()
-                self.model.predict_classes(x=self.x_test, batch_size=batch_size)
+                #np.argmax(self.model.predict(x=self.x_test, batch_size=batch_size), axis=-1)
+                #self.model.predict_classes(x=self.x_test, batch_size=batch_size)
+                self.model(self.x_test, training=False)
                 stop = time.time()
                 average_time[i] = stop - start
-
-            # print("np.mean(average_time)", np.mean(average_time))
-            # print("std", np.std(average_time))
-            # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
+            average_time = average_time[1:]
+            #print("average time", average_time)
+            print("np.mean(average_time)", np.mean(average_time))
+            print("std", np.std(average_time))
+            print("mse", np.std(average_time) / np.sqrt(len(average_time)))
             X_mean_average[index, 0] = np.mean(average_time)
 
         return X_mean_average - self.max_time
 
 objective_function = FC_NN_test_function()
-print("Verbose execution")
+#print("Verbose execution")
 
-test_error = objective_function.f(X = np.array([[0.2,0.2,2,2],[0.2,0.2,2,2]]), verbose=1)
+#test_error = objective_function.f(X = np.array([[0.2,0.2,3,3]]), verbose=1)
                                                                
 print("FINISHED")
-                                                               
-test_error = objective_function.c(X = np.array([[0.2,0.2,5,5],
-                                                 [0.2,0.2,5,5]]), true_val=True, verbose=0)
+                                          
+test_error = objective_function.c(X = np.array([[0.0,0.0,13,13]]), true_val=True, verbose=0)
 
 print("Test error:", test_error)
 

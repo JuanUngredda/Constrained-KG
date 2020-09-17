@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_experiment_bnch.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_experiment_bnch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,6 +86,7 @@
       <updated>1599039637936</updated>
       <workItem from="1599039638993" duration="136000" />
       <workItem from="1599040794846" duration="1651000" />
+      <workItem from="1599917802494" duration="712000" />
     </task>
     <servers />
   </component>
