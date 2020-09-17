@@ -39,7 +39,7 @@ def function_caller_NN_EI(rep):
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (5,12)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    noise = 0.002**2
+    noise = 0.02**2
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[False]*n_f, normalizer=True)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
@@ -50,7 +50,7 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 10
+    init_num_samples = 2
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
@@ -83,10 +83,10 @@ def function_caller_NN_EI(rep):
 
     if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
         os.makedirs(cwd + "/" + folder +"/"+ subfolder)
+
+    gen_file.to_csv(path_or_buf=path)
     print("path", path)
     raise
-    gen_file.to_csv(path_or_buf=path)
-
     print("X",X,"Y",Y, "C", C)
 
 
