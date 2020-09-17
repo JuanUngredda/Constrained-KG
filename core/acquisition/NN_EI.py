@@ -88,6 +88,6 @@ def function_caller_NN_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_RMITD_EI(rep=21)
+function_caller_NN_EI(rep=21)
 
 
