@@ -446,7 +446,7 @@ class BO(object):
         """
         print(1)
         print(self.suggested_sample)
-        self.Y_new, cost_new = self.objective.evaluate(self.suggested_sample)
+        self.Y_new, cost_new = self.objective.evaluate(self.suggested_sample, true_val=True)
         self.C_new, C_cost_new = self.constraint.evaluate(self.suggested_sample)
         self.cost.update_cost_model(self.suggested_sample, cost_new)   
         for j in range(self.objective.output_dim):

@@ -20,12 +20,12 @@ def function_caller_NN_EI(rep):
     np.random.seed(rep)
     # func2 = dropwave()
 
-    RMITD_f = FC_NN_test_function()
+    NN_f = FC_NN_test_function()
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
-    f = MultiObjective([RMITD_f.f])
-    c = MultiObjective([RMITD_f.c])
+    f = MultiObjective([NN_f.f])
+    c = MultiObjective([NN_f.c])
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -50,7 +50,7 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 2
+    init_num_samples = 5
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
@@ -59,7 +59,7 @@ def function_caller_NN_EI(rep):
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True)
 
 
-    max_iter  = 2
+    max_iter  = 30
     # print("Finished Initialization")
     X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
     print("Code Ended")
@@ -85,11 +85,11 @@ def function_caller_NN_EI(rep):
         os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
     gen_file.to_csv(path_or_buf=path)
-    print("path", path)
-    raise
+
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_NN_EI(rep=21)
+for r in range(20):
+    function_caller_NN_EI(rep=r)
 
 

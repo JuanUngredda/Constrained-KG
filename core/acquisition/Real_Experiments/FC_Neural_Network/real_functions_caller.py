@@ -50,7 +50,7 @@ class FC_NN_test_function():
             x = np.array(x).reshape(-1)
             x = x.reshape(1, -1)
             if true_val:
-                reps = 1
+                reps = 20
             else:
                 reps = 1
             out_val = []
