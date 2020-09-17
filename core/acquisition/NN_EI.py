@@ -78,12 +78,13 @@ def function_caller_NN_EI(rep):
     folder = "RESULTS"
     subfolder = "NN_EI"
     cwd = os.getcwd()
-    print("cwd", cwd)
+
     path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-    raise
+
     if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
         os.makedirs(cwd + "/" + folder +"/"+ subfolder)
-
+    print("path", path)
+    raise
     gen_file.to_csv(path_or_buf=path)
 
     print("X",X,"Y",Y, "C", C)
