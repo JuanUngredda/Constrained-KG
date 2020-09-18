@@ -16,7 +16,7 @@ import os
 # --- Function to optimize
 
 def function_caller_NN_EI(rep):
-
+    rep = rep + 4
     np.random.seed(rep)
     # func2 = dropwave()
 
@@ -89,7 +89,7 @@ def function_caller_NN_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-for r in range(20):
-    function_caller_NN_EI(rep=r)
+# for r in range(20):
+#     function_caller_NN_EI(rep=r)
 
 
