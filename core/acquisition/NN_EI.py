@@ -16,7 +16,7 @@ import os
 # --- Function to optimize
 
 def function_caller_NN_EI(rep):
-    
+
     for rep in range(15):
         rep = rep + 4
         np.random.seed(rep)

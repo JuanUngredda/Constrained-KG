@@ -349,7 +349,7 @@ class test_function_2(function2d):
         else:
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return -(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)
+        return np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
 
     def c1(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -362,7 +362,7 @@ class test_function_2(function2d):
         term3 = -12
         fval = (term1 + term2)*np.exp(-x2**7)+term3
         # print("fval",-fval.reshape(-1, 1))
-        return fval.reshape(n,1)
+        return np.array(fval.reshape(n,1)).reshape(-1)
 
     def c2(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -372,7 +372,7 @@ class test_function_2(function2d):
         x2 = x[:, 1]
         fval = 10*x1 + x2 -7
         # print("fval",-fval.reshape(-1, 1))
-        return fval.reshape(n,1)
+        return np.array(fval.reshape(n,1)).reshape(-1)
 
     def c3(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -385,7 +385,7 @@ class test_function_2(function2d):
         term3 = -0.2
         fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
-        return fval.reshape(n,1)
+        return np.array(fval.reshape(n,1)).reshape(-1)
 
     def c(self, x, true_val=False):
         return [self.c1(x), self.c2(x), self.c3(x)]
@@ -435,7 +435,7 @@ class mistery(function2d):
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
 
-        return -(fval.reshape(n, 1) + offset) + noise.reshape(-1, 1)
+        return np.array(-(fval.reshape(n, 1) + offset) + noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:
@@ -445,7 +445,7 @@ class mistery(function2d):
         x2 = x[:, 1]
         fval = -np.sin(x1 - x2 - np.pi / 8.0)
         # print("fval",-fval.reshape(-1, 1))
-        return fval.reshape(n, 1)
+        return np.array(fval.reshape(n, 1)).reshape(-1)
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)
@@ -489,7 +489,7 @@ class new_brannin(function2d):
         else:
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return -(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)
+        return np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:
@@ -502,7 +502,7 @@ class new_brannin(function2d):
         term3 = 5
         fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
-        return fval.reshape(n,1)
+        return np.array(fval.reshape(n,1)).reshape(-1)
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)
