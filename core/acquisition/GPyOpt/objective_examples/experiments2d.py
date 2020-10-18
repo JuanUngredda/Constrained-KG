@@ -10,6 +10,7 @@ except:
 import numpy as np
 from ..util.general import reshape
 import torch
+import math
 
 
 class function2d:
@@ -662,6 +663,7 @@ class new_brannin_torch(function2d):
         self.fmin = 268.781
         self.sd = sd
         self.name = 'new_brannin'
+        self.pi = torch.Tensor([math.pi])
 
     def f(self, x, offset=0,  true_val=False):
         if len(x.shape) == 1:
@@ -685,8 +687,8 @@ class new_brannin_torch(function2d):
         n = x.shape[0]
         x1 = x[:, 0]
         x2 = x[:, 1]
-        term1 = (x2 - (5.1/(4 * torch.pi**2.0))*x1**2.0 + (5.0/torch.pi)*x1 - 6)**2.0
-        term2 = 10 * (1 - (1.0/(8 * torch.pi)))*np.cos(x1)
+        term1 = (x2 - (5.1/(4 * self.pi**2.0))*x1**2.0 + (5.0/self.pi)*x1 - 6)**2.0
+        term2 = 10 * (1 - (1.0/(8 * self.pi)))*np.cos(x1)
         term3 = 5
         fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
