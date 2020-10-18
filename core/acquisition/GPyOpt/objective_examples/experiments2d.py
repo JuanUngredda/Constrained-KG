@@ -688,7 +688,7 @@ class new_brannin_torch(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         term1 = (x2 - (5.1/(4 * self.pi**2.0))*x1**2.0 + (5.0/self.pi)*x1 - 6)**2.0
-        term2 = 10 * (1 - (1.0/(8 * self.pi)))*np.cos(x1)
+        term2 = 10 * (1 - (1.0/(8 * self.pi)))*torch.cos(x1)
         term3 = 5
         fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
