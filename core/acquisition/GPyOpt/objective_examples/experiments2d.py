@@ -397,6 +397,81 @@ class test_function_2(function2d):
         out = np.array(out).reshape(-1)
         return -out
 
+
+class test_function_2_torch(function2d):
+    def __init__(self, bounds=None, sd=None):
+        self.input_dim = 2
+        if bounds is None:
+            self.bounds = [(0, 1), (0, 1)]
+        else:
+            self.bounds = bounds
+        self.min = [(0.2018, 0.833)]
+        self.fmin = 0.748
+        self.sd = sd
+        self.name = 'test_function_2'
+
+    def f(self, x, offset=0, true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term2 = -(x1 - 1)**2.0
+        term3 = -(x2  - 0.5 )** 2.0
+        fval = term2 + term3
+        if self.sd == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
+        return torch.reshape(fval, (-1,)) #torch.reshape(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1), -1)
+
+    def c1(self, x, true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x1 - 3)**2.0
+        term2 = (x2 + 2)**2.0
+        term3 = -12
+        fval = (term1 + term2)*torch.exp(-x2**7)+term3
+        # print("fval",-fval.reshape(-1, 1))
+        return torch.reshape(fval, (-1,))#torch.reshape(fval, -1)
+
+    def c2(self, x, true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        fval = 10*x1 + x2 -7
+        # print("fval",-fval.reshape(-1, 1))
+        return torch.reshape(fval, (-1,))#torch.reshape(fval, -1)
+
+    def c3(self, x, true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x1 - 0.5)**2.0
+        term2 = (x2 - 0.5)**2.0
+        term3 = -0.2
+        fval = term1 + term2 + term3
+        # print("fval",-fval.reshape(-1, 1))
+        return torch.reshape(fval, (-1,))#np.array(fval.reshape(n,1)).reshape(-1)
+
+    def c(self, x, true_val=False):
+        return [self.c1(x), self.c2(x), self.c3(x)]
+
+    def func_val(self, x):
+        Y = self.f(x, true_val=True)
+        C = self.c(x)
+        out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+        out = np.array(out).reshape(-1)
+        return -out
+
 class mistery(function2d):
     '''
     Six hump camel function
