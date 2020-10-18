@@ -31,7 +31,7 @@ def function_caller_test_fun_2_nEI(rep):
 
         np.random.seed(rep)
         NOISE_SE = noise
-        N_BATCH = 5
+        N_BATCH = 50
         initial_points = 10
         MC_SAMPLES = 500
 

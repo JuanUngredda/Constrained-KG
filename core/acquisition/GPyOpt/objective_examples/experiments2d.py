@@ -424,7 +424,7 @@ class test_function_2_torch(function2d):
         else:
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return torch.reshape(fval, (-1,)) #torch.reshape(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1), -1)
+        return torch.reshape(-fval, (-1,)) #torch.reshape(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1), -1)
 
     def c1(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -530,6 +530,63 @@ class mistery(function2d):
         return -out
 
 
+class mistery_torch(function2d):
+    '''
+    Six hump camel function
+
+    :param bounds: the box constraints to define the domain in which the function is optimized.
+    :param sd: standard deviation, to generate noisy evaluations of the function.
+    '''
+
+    def __init__(self, bounds=None, sd=None):
+        self.input_dim = 2
+        if bounds is None:
+            self.bounds = [(0, 5), (0, 5)]
+        else:
+            self.bounds = bounds
+        self.min = [(2.7450, 2.3523)]
+        self.fmin = 1.1743
+        self.sd = sd
+        self.name = 'Mistery'
+
+    def f(self, x, offset=0.0, true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = 2
+        term2 = 0.01 * (x2 - x1 ** 2.0) ** 2.0
+        term3 = (1 - x1) ** 2
+        term4 = 2 * (2 - x2) ** 2
+        term5 = 7 * torch.sin(0.5 * x1) * torch.sin(0.7 * x1 * x2)
+        fval = term1 + term2 + term3 + term4 + term5
+        if self.sd == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
+
+        return torch.reshape(-fval, (-1,))  #np.array(-(fval.reshape(n, 1) + offset) + noise.reshape(-1, 1)).reshape(-1)
+
+    def c(self, x,  true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        fval = -torch.sin(x1 - x2 - np.pi / 8.0)
+        # print("fval",-fval.reshape(-1, 1))
+        return torch.reshape(fval, (-1,)) # np.array(fval.reshape(n, 1)).reshape(-1)
+
+    def func_val(self, x):
+        Y = self.f(x, true_val=True)
+        C = self.c(x)
+        out = Y * (C < 0)
+        out = np.array(out).reshape(-1)
+        return -out
+
 
 class new_brannin(function2d):
     '''
@@ -578,6 +635,62 @@ class new_brannin(function2d):
         fval = term1 + term2 + term3
         # print("fval",-fval.reshape(-1, 1))
         return np.array(fval.reshape(n,1)).reshape(-1)
+
+    def func_val(self, x):
+        Y = self.f(x, true_val=True)
+        C = self.c(x)
+        out = Y * (C < 0)
+        out = np.array(out).reshape(-1)
+        return -out
+
+
+class new_brannin_torch(function2d):
+    '''
+    Six hump camel function
+
+    :param bounds: the box constraints to define the domain in which the function is optimized.
+    :param sd: standard deviation, to generate noisy evaluations of the function.
+    '''
+
+    def __init__(self, bounds=None, sd=None):
+        self.input_dim = 2
+        if bounds is None:
+            self.bounds = [(-5, 10), (0, 15)]
+        else:
+            self.bounds = bounds
+        self.min = [(3.26, 0.05)]
+        self.fmin = 268.781
+        self.sd = sd
+        self.name = 'new_brannin'
+
+    def f(self, x, offset=0,  true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = -(x1 - 10)**2
+        term2 = -(x2 - 15)**2.0
+        fval = term1 + term2
+        if self.sd == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
+        return torch.reshape(-fval, (-1,))  #np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
+
+    def c(self, x,  true_val=False):
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        n = x.shape[0]
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        term1 = (x2 - (5.1/(4 * torch.pi**2.0))*x1**2.0 + (5.0/torch.pi)*x1 - 6)**2.0
+        term2 = 10 * (1 - (1.0/(8 * torch.pi)))*np.cos(x1)
+        term3 = 5
+        fval = term1 + term2 + term3
+        # print("fval",-fval.reshape(-1, 1))
+        return torch.reshape(fval, (-1,))  #np.array(fval.reshape(n,1)).reshape(-1)
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)

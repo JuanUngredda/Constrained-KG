@@ -1,5 +1,5 @@
 import numpy as np
-from GPyOpt.objective_examples.experiments2d import mistery,  test_function_2, new_brannin
+from GPyOpt.objective_examples.experiments2d import mistery_torch,  test_function_2, new_brannin
 
 import pandas as pd
 import os
@@ -29,12 +29,12 @@ def function_caller_mistery_nEI(rep):
 
         np.random.seed(rep)
         NOISE_SE = noise
-        N_BATCH = 5
+        N_BATCH = 50
         initial_points = 10
         MC_SAMPLES = 500
 
 
-        problem_class = mistery(sd=np.sqrt(0.0))
+        problem_class = mistery_torch(sd=np.sqrt(0.0))
         bounds = torch.tensor([[0.0, 0.0], [5.0, 5.0] ], device=device, dtype=dtype)
         input_dim = problem_class.input_dim
 
