@@ -196,11 +196,11 @@ def function_caller_test_fun_2_nEI(rep):
             t1 = time.time()
 
             if verbose:
-                # print(
-                #     f"\niteration {iteration:>2}: best_value (qNEI) = ",
-                #     f"({best_value_nei:>4.2f}), "
-                #     f"time = {t1 - t0:>4.2f}.", end=""
-                # )
+                print(
+                    f"\niteration {iteration:>2}: best_value (qNEI) = "
+                    f"({best_value_nei:>4.2f}), "
+                    f"time = {t1 - t0:>4.2f}.", end=""
+                )
             else:
                 print(".", end="")
 
