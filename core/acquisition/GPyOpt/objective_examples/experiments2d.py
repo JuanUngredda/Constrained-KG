@@ -663,7 +663,7 @@ class new_brannin_torch(function2d):
         self.fmin = 268.781
         self.sd = sd
         self.name = 'new_brannin'
-        self.pi = torch.Tensor([math.pi])
+        self.pi = torch.acos(torch.zeros(1)).item() * 2
 
     def f(self, x, offset=0,  true_val=False):
         if len(x.shape) == 1:
