@@ -18,6 +18,7 @@ from botorch.exceptions import BadInitialCandidatesWarning
 import time
 from botorch.optim import optimize_acqf
 from Transformation_Translation import Translate
+from Last_Step import Constrained_Mean_Response
 import warnings
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -25,9 +26,9 @@ print("device: ", device)
 dtype = torch.double
 
 def function_caller_new_branin_nEI(rep):
-    for noise in [ 1e-04, 1.0 ]:
+    for noise in [ 1e-06, 1.0 ]:
 
-        np.random.seed(rep)
+        torch.manual_seed(rep)
         NOISE_SE = noise
         N_BATCH = 50
         initial_points = 10
@@ -66,7 +67,10 @@ def function_caller_new_branin_nEI(rep):
 
         def generate_initial_data(n=10):
             # generate training data
-            train_x = torch.rand(n, input_dim, device=device, dtype=dtype)
+            ub = bounds[1, :]
+            lb = bounds[0, :]
+            delta = ub - lb
+            train_x = torch.rand(n, input_dim, device=device, dtype=dtype) * delta + lb
             exact_obj = objective_function(train_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
             train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
@@ -89,7 +93,7 @@ def function_caller_new_branin_nEI(rep):
         def optimize_acqf_and_get_observation(acq_func):
             """Optimizes the acquisition function, and returns a new candidate and a noisy observation."""
             # optimize
-            BATCH_SIZE = 3
+            BATCH_SIZE = 1
             candidates, _ = optimize_acqf(
                 acq_function=acq_func,
                 bounds=bounds,
@@ -111,10 +115,10 @@ def function_caller_new_branin_nEI(rep):
 
         verbose = True
 
-        best_observed_all_nei= []
+        best_observed_all_nei, best_observed_all_ei= [], []
 
         # average over multiple trials
-        best_observed_nei= []
+        best_observed_nei, best_observed_ei = [], []
 
         # call helper functions to generate initial training data and initialize model
         train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei = generate_initial_data(n=initial_points)
@@ -162,18 +166,34 @@ def function_caller_new_branin_nEI(rep):
                 model_nei.state_dict(),
             )
 
+            Last_Step = Constrained_Mean_Response(
+                model=model_nei,
+                best_f=0.0, #dummy variable really, doesnt do anything since I take max/min of posterior mean
+                objective=constrained_obj
+                )
+
+
+            last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step)
+
+
+            # update progress
+            best_value_nei = weighted_obj(train_x_nei).max().item()
+            best_value_last_step = weighted_obj(last_x_nei).max().item()
+
+            best_value = np.max([best_value_nei, best_value_last_step])
+
             t1 = time.time()
 
             if verbose:
                 print(
                     f"\niteration {iteration:>2}: best_value (qNEI) = "
-                    f"({best_value_nei:>4.2f}), "
+                    f"({best_value:>4.2f}), "
                     f"time = {t1 - t0:>4.2f}.", end=""
                 )
             else:
                 print(".", end="")
 
-            best_observed_all_nei.append(np.max(best_observed_nei))
+            best_observed_all_nei.append(best_value)
 
             data = {}
 

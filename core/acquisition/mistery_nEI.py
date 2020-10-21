@@ -1,6 +1,6 @@
 import numpy as np
 from GPyOpt.objective_examples.experiments2d import mistery_torch,  test_function_2, new_brannin
-
+import matplotlib.pyplot as plt
 import pandas as pd
 import os
 from time import time as time
@@ -13,11 +13,13 @@ from gpytorch.mlls.sum_marginal_log_likelihood import SumMarginalLogLikelihood
 from botorch.acquisition.objective import ConstrainedMCObjective
 from botorch import fit_gpytorch_model
 from botorch.acquisition.monte_carlo import qExpectedImprovement, qNoisyExpectedImprovement
+from botorch.acquisition.analytic import ConstrainedExpectedImprovement
 from botorch.sampling.samplers import SobolQMCNormalSampler
 from botorch.exceptions import BadInitialCandidatesWarning
 import time
 from botorch.optim import optimize_acqf
 from Transformation_Translation import Translate
+from Last_Step import Constrained_Mean_Response
 import warnings
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -25,13 +27,13 @@ print("device: ", device)
 dtype = torch.double
 
 def function_caller_mistery_nEI(rep):
-    for noise in [ 1e-04, 1.0 ]:
+    for noise in [ 1e-6,1.0]:
 
-        np.random.seed(rep)
+        torch.manual_seed(rep)
         NOISE_SE = noise
         N_BATCH = 50
         initial_points = 10
-        MC_SAMPLES = 500
+        MC_SAMPLES = 256
 
 
         problem_class = mistery_torch(sd=np.sqrt(0.0))
@@ -49,7 +51,7 @@ def function_caller_mistery_nEI(rep):
             return objective_function(X) * (outcome_constraint(X) <= 0).type_as(X)
 
         #train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
-        train_cvar = torch.tensor(0.0, device=device, dtype=dtype)
+        train_cvar = torch.tensor(1e-6, device=device, dtype=dtype)
 
         def obj_callable(Z):
             return Z[..., 0]
@@ -65,7 +67,10 @@ def function_caller_mistery_nEI(rep):
 
         def generate_initial_data(n=10):
             # generate training data
-            train_x = torch.rand(n, input_dim, device=device, dtype=dtype)
+            ub = bounds[1, :]
+            lb = bounds[0, :]
+            delta = ub - lb
+            train_x = torch.rand(n, input_dim, device=device, dtype=dtype) * delta + lb
             exact_obj = objective_function(train_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
             train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
@@ -75,7 +80,7 @@ def function_caller_mistery_nEI(rep):
 
         def initialize_model(train_x, train_obj, train_con, state_dict=None):
             # define models for objective and constraint
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object)
+            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object)#FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj)).to(train_x) #
             model_con = FixedNoiseGP(train_x, train_con, train_cvar.expand_as(train_con)).to(train_x)
             # combine into a multi-output GP model
             model = ModelListGP(model_obj, model_con)
@@ -88,7 +93,8 @@ def function_caller_mistery_nEI(rep):
         def optimize_acqf_and_get_observation(acq_func):
             """Optimizes the acquisition function, and returns a new candidate and a noisy observation."""
             # optimize
-            BATCH_SIZE = 3
+            BATCH_SIZE = 1
+            diagnostics = False
             candidates, _ = optimize_acqf(
                 acq_function=acq_func,
                 bounds=bounds,
@@ -98,6 +104,18 @@ def function_caller_mistery_nEI(rep):
                 options={"batch_limit": 5, "maxiter": 200},
             )
             # observe new values
+            if diagnostics:
+
+                ub = bounds[1, :]
+                lb = bounds[0, :]
+                delta = ub - lb
+                rand_x = torch.rand(10000, 1, input_dim, device=device, dtype=dtype) * delta + lb
+                acq_func_val = acq_func.forward(rand_x).unsqueeze(-1)
+                acq_func_val = acq_func_val.squeeze(-1).detach().numpy()
+                print("max val", np.max(acq_func_val),"min", np.min(acq_func_val))
+                plt.scatter(rand_x[:, :, 0].squeeze(-1), rand_x[:,:, 1].squeeze(-1), c = acq_func_val)
+                plt.show()
+
             new_x = candidates.detach()
             exact_obj = objective_function(new_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(new_x).unsqueeze(-1)  # add output dimension
@@ -110,14 +128,15 @@ def function_caller_mistery_nEI(rep):
 
         verbose = True
 
-        best_observed_all_nei= []
+        best_observed_all_nei, best_observed_all_ei= [], []
 
         # average over multiple trials
-        best_observed_nei= []
+        best_observed_nei, best_observed_ei = [], []
 
         # call helper functions to generate initial training data and initialize model
         train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei = generate_initial_data(n=initial_points)
         Translate_Object = Translate(m=1, Y=train_obj_nei)
+        train_x_ei, train_obj_ei, train_con_ei, best_observed_value_ei =train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei
         mll_nei, model_nei = initialize_model(train_x_nei, train_obj_nei, train_con_nei)
         best_observed_nei.append(best_observed_value_nei)
 
@@ -138,6 +157,7 @@ def function_caller_mistery_nEI(rep):
                 sampler=qmc_sampler,
                 objective=constrained_obj,
             )
+
 
             # optimize and get new observation
             new_x_nei, new_obj_nei, new_con_nei = optimize_acqf_and_get_observation(qNEI)
@@ -161,19 +181,38 @@ def function_caller_mistery_nEI(rep):
                 model_nei.state_dict(),
             )
 
+            Last_Step = Constrained_Mean_Response(
+                model=model_nei,
+                best_f=0.0, #dummy variable really, doesnt do anything since I take max/min of posterior mean
+                objective=constrained_obj
+                )
+
+
+            last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step)
+
+
+            # update progress
+            best_value_nei = weighted_obj(train_x_nei).max().item()
+            best_value_last_step = weighted_obj(last_x_nei).max().item()
+
+            # print("last_x_nei,",last_x_nei)
+            # print("best_value_nei",best_value_nei)
+            # print("best_value_last_step ",best_value_last_step )
+            # print("[best_value_nei , best_value_last_step ]",[best_value_nei , best_value_last_step ])
+            best_value = np.max([best_value_nei , best_value_last_step ])
+            # print("best_value",best_value)
             t1 = time.time()
 
             if verbose:
                 print(
                     f"\niteration {iteration:>2}: best_value (qNEI) = "
-                    f"({best_value_nei:>4.2f}), "
+                    f"({best_value:>4.2f}), "
                     f"time = {t1 - t0:>4.2f}.", end=""
                 )
             else:
                 print(".", end="")
 
-            best_observed_all_nei.append(np.max(best_observed_nei))
-
+            best_observed_all_nei.append(best_value)
             data = {}
 
             data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)
@@ -188,6 +227,8 @@ def function_caller_mistery_nEI(rep):
                 os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
             gen_file.to_csv(path_or_buf=path)
+
+
 
 
 # function_caller_mistery_nEI(rep=2)
