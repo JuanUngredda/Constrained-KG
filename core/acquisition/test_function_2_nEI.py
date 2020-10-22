@@ -4,6 +4,7 @@ from GPyOpt.objective_examples.experiments2d import mistery,  test_function_2_to
 import pandas as pd
 import os
 from time import time as time
+from gpytorch.kernels import RBFKernel, ScaleKernel
 #ALWAYS check cost in
 # --- Function to optimize
 from botorch.test_functions import Hartmann
@@ -99,7 +100,10 @@ def function_caller_test_fun_2_nEI(rep):
 
         def initialize_model(train_x, train_obj, train_con1,train_con2,train_con3, state_dict=None):
             # define models for objective and constraint
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object)#, train_yvar.expand_as(train_obj)).to(train_x)
+            covar_module = ScaleKernel(RBFKernel(
+                    ard_num_dims=train_x.shape[-1]
+                ),)
+            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#, train_yvar.expand_as(train_obj)).to(train_x)
             model_con1 = FixedNoiseGP(train_x, train_con1, train_cvar.expand_as(train_con1)).to(train_x)
             model_con2= FixedNoiseGP(train_x, train_con2, train_cvar.expand_as(train_con2)).to(train_x)
             model_con3 = FixedNoiseGP(train_x, train_con3, train_cvar.expand_as(train_con3)).to(train_x)

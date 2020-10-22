@@ -8,6 +8,7 @@ from time import time as time
 # --- Function to optimize
 from botorch.test_functions import Hartmann
 import torch
+from gpytorch.kernels import RBFKernel, ScaleKernel
 from botorch.models import FixedNoiseGP, ModelListGP, SingleTaskGP
 from gpytorch.mlls.sum_marginal_log_likelihood import SumMarginalLogLikelihood
 from botorch.acquisition.objective import ConstrainedMCObjective
@@ -80,7 +81,10 @@ def function_caller_new_branin_nEI(rep):
 
         def initialize_model(train_x, train_obj, train_con, state_dict=None):
             # define models for objective and constraint
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object)
+            covar_module = ScaleKernel(RBFKernel(
+                    ard_num_dims=train_x.shape[-1]
+                ),)
+            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)
             model_con = FixedNoiseGP(train_x, train_con, train_cvar.expand_as(train_con)).to(train_x)
             # combine into a multi-output GP model
             model = ModelListGP(model_obj, model_con)

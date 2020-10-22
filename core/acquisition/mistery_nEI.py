@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 from time import time as time
+from gpytorch.kernels import RBFKernel, ScaleKernel
+from gpytorch.priors.torch_priors import GammaPrior
 #ALWAYS check cost in
 # --- Function to optimize
 from botorch.test_functions import Hartmann
@@ -80,7 +82,10 @@ def function_caller_mistery_nEI(rep):
 
         def initialize_model(train_x, train_obj, train_con, state_dict=None):
             # define models for objective and constraint
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object)#FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj)).to(train_x) #
+            covar_module = ScaleKernel(RBFKernel(
+                    ard_num_dims=train_x.shape[-1]
+                ),)
+            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj)).to(train_x) #
             model_con = FixedNoiseGP(train_x, train_con, train_cvar.expand_as(train_con)).to(train_x)
             # combine into a multi-output GP model
             model = ModelListGP(model_obj, model_con)
@@ -90,11 +95,11 @@ def function_caller_mistery_nEI(rep):
                 model.load_state_dict(state_dict)
             return mll, model
 
-        def optimize_acqf_and_get_observation(acq_func):
+        def optimize_acqf_and_get_observation(acq_func, diagnostics = False):
             """Optimizes the acquisition function, and returns a new candidate and a noisy observation."""
             # optimize
             BATCH_SIZE = 1
-            diagnostics = False
+
             candidates, _ = optimize_acqf(
                 acq_function=acq_func,
                 bounds=bounds,
@@ -109,11 +114,19 @@ def function_caller_mistery_nEI(rep):
                 ub = bounds[1, :]
                 lb = bounds[0, :]
                 delta = ub - lb
-                rand_x = torch.rand(10000, 1, input_dim, device=device, dtype=dtype) * delta + lb
-                acq_func_val = acq_func.forward(rand_x).unsqueeze(-1)
-                acq_func_val = acq_func_val.squeeze(-1).detach().numpy()
-                print("max val", np.max(acq_func_val),"min", np.min(acq_func_val))
-                plt.scatter(rand_x[:, :, 0].squeeze(-1), rand_x[:,:, 1].squeeze(-1), c = acq_func_val)
+                rand_x = torch.rand(10000, input_dim, device=device, dtype=dtype) * delta + lb#torch.rand(10000, 1, input_dim, device=device, dtype=dtype) * delta + lb
+                print("rand_x ",rand_x .shape)
+                acq_func_val = weighted_obj(rand_x)
+                # acq_func_val = acq_func.forward(rand_x).unsqueeze(-1)
+                # acq_func_val = acq_func_val.squeeze(-1).detach().numpy()
+                # print("max val", np.max(acq_func_val),"min", np.min(acq_func_val))
+                #plt.scatter(rand_x[:, :, 0].squeeze(-1), rand_x[:,:, 1].squeeze(-1), c = acq_func_val)
+                plt.scatter(rand_x[:, 0].squeeze(-1), rand_x[:, 1].squeeze(-1), c=acq_func_val)
+                plt.scatter(train_x_nei[:,0],train_x_nei[:,1], color="red")
+                plt.scatter(train_x_nei[-1, 0], train_x_nei[-1, 1], color="magenta")
+                plt.show()
+
+                plt.plot( best_observed_all_nei)
                 plt.show()
 
             new_x = candidates.detach()
@@ -160,7 +173,7 @@ def function_caller_mistery_nEI(rep):
 
 
             # optimize and get new observation
-            new_x_nei, new_obj_nei, new_con_nei = optimize_acqf_and_get_observation(qNEI)
+            new_x_nei, new_obj_nei, new_con_nei = optimize_acqf_and_get_observation(qNEI, diagnostics = False)
 
             # update training points
             train_x_nei = torch.cat([train_x_nei, new_x_nei])
@@ -214,7 +227,7 @@ def function_caller_mistery_nEI(rep):
 
             best_observed_all_nei.append(best_value)
             data = {}
-
+            print(" best_observed_all_nei",  best_observed_all_nei)
             data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)
 
             gen_file = pd.DataFrame.from_dict(data)
