@@ -58,35 +58,18 @@ def function_caller_test_func_2(rep):
 
         max_iter  = 50
         # print("Finished Initialization")
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
+        subfolder = "test_function_2_hybrid_KG_" + str(noise)
+        folder = "RESULTS"
+        cwd = os.getcwd()
+        path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
         print("Code Ended")
 
-        C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-        data = {}
-        print("C",C)
-        print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
-        print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
-        print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
-        data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
-        data["Y"] = np.array(Y).reshape(-1)
-        data["C_bool"] = np.array(C_bool).reshape(-1)
-        data["recommended_val"] = np.concatenate((np.zeros(10), np.array(recommended_val).reshape(-1)))
-        data["optimum"] = np.concatenate((np.zeros(10), np.array(optimum).reshape(-1)))
 
-        gen_file = pd.DataFrame.from_dict(data)
-        folder = "RESULTS"
-        subfolder = "test_function_2_hybrid_KG_"+str(noise)
-        cwd = os.getcwd()
-        print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-        if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
-            os.makedirs(cwd + "/" + folder +"/"+ subfolder)
-
-        gen_file.to_csv(path_or_buf=path)
 
         print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_test_func_2(rep=21)
+function_caller_test_func_2(rep=21)
 
 
