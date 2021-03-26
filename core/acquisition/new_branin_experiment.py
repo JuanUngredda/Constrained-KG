@@ -6,7 +6,7 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from continuous_KG import KG
+from Hybrid_continuous_KG import KG
 from bayesian_optimisation import BO
 import pandas as pd
 import os
@@ -83,6 +83,6 @@ def function_caller_new_brannin(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-#function_caller_new_brannin(rep=21)
+function_caller_new_brannin(rep=21)
 
 

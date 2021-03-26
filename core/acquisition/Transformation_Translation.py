@@ -42,8 +42,8 @@ class Translate(OutcomeTransform):
         self._batch_shape = batch_shape
         self._min_stdv = min_stdv
 
-        self.stdvs = torch.tensor(1.0) #Y.std(dim=0, keepdim=True)
-        self.stdvs = torch.tensor(1.0) #self.stdvs.where(self.stdvs >= self._min_stdv, torch.full_like(self.stdvs, 1.0))
+        self.stdvs = Y.std(dim=0, keepdim=True)#torch.tensor(1.0) #
+        self.stdvs = self.stdvs.where(self.stdvs >= self._min_stdv, torch.full_like(self.stdvs, 1.0))#torch.tensor(1.0) #
         self.means = Y.mean(dim=0, keepdim=True)
         print("self.stdvs", self.stdvs , "self.means",self.means, "len Y", len(Y))
 
@@ -64,6 +64,21 @@ class Translate(OutcomeTransform):
             - The transformed outcome observations.
             - The transformed observation noise (if applicable).
         """
+        if self.training:
+            if Y.shape[:-2] != self._batch_shape:
+                raise RuntimeError("wrong batch shape")
+            if Y.size(-1) != self._m:
+                raise RuntimeError("wrong output dimension")
+            stdvs = Y.std(dim=-2, keepdim=True)
+            stdvs = stdvs.where(stdvs >= self._min_stdv, torch.full_like(stdvs, 1.0))
+            means = Y.mean(dim=-2, keepdim=True)
+            if self._outputs is not None:
+                unused = [i for i in range(self._m) if i not in self._outputs]
+                means[..., unused] = 0.0
+                stdvs[..., unused] = 1.0
+            self.means = means
+            self.stdvs = stdvs
+            self._stdvs_sq = stdvs.pow(2)
 
         Y_tf = (Y - self.means) / self.stdvs
         Yvar_tf = Yvar / self._stdvs_sq if Yvar is not None else None
@@ -129,9 +144,9 @@ class Translate(OutcomeTransform):
                 scale_fac = torch.repeat_interleave(scale_fac, reps, dim=-1)
 
         if (
-                not mvn.islazy
-                # TODO: Figure out attribute namming weirdness here
-                or mvn._MultivariateNormal__unbroadcasted_scale_tril is not None
+            not mvn.islazy
+            # TODO: Figure out attribute namming weirdness here
+            or mvn._MultivariateNormal__unbroadcasted_scale_tril is not None
         ):
             # if already computed, we can save a lot of time using scale_tril
             covar_tf = CholLazyTensor(mvn.scale_tril * scale_fac.unsqueeze(-1))

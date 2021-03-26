@@ -61,8 +61,9 @@ class KG(AcquisitionBase):
         Nx = self.model.get_X_values().shape[0]
         if Nx != self.saved_Nx:
             self.saved_Nx = Nx
-            self.Z_samples_obj = np.array([-2.326, -1.282, 0,1.282, -2.326])
-            self.Z_samples_const = np.array([-2.326, -1.282, 0,1.282, -2.326])
+            self.Z_samples_obj = np.array([-3,-2.326, -1.282, 0,1.282, -2.326,3])
+            self.Z_samples_const = np.array([-3,-2.326, -1.282, 0,1.282, -2.326,3])
+            self.nz = len(self.Z_samples_const)
             print("self.Z_samples_obj ",self.Z_samples_obj )
             print("self.Z_samples_const",self.Z_samples_const)
         # print("self.Z_samples_obj",self.Z_samples_obj)
@@ -89,8 +90,9 @@ class KG(AcquisitionBase):
     def _compute_current_max(self):
         def current_func(X_inner):
             mu = self.model.posterior_mean(X_inner)[0]
-            mu = mu.reshape(-1, 1)
-            pf = self.probability_feasibility_multi_gp(X_inner, self.model_c).reshape(-1, 1)
+            mu = mu.reshape(-1)
+            pf = self.probability_feasibility_multi_gp(X_inner, self.model_c).reshape(-1)
+
             return -(mu * pf)
         inner_opt_x, inner_opt_val = self.optimizer.optimize(f=current_func, f_df=None, num_samples=1000,verbose=False)
         # print("inner_opt_x, inner_opt_val",inner_opt_x, inner_opt_val)
@@ -206,6 +208,7 @@ class KG(AcquisitionBase):
 
                 statistics_precision = []
                 for z in range(n_z):
+                    print("Z_samples_obj",Z_samples_obj)
                     Z_obj = Z_samples_obj[z]
                     Z_const = Z_samples_const[z]
 

@@ -66,7 +66,18 @@ class multi_outputGP(object):
         for j in range(0,self.output_dim):
             self.output[j].trainModel(X_all,Y_all[j],None,None)
             
-            
+    def get_kernel(self):
+        f_kernels = []
+        for j in range(0,self.output_dim):
+            f_kernels.append(self.output[j].kernel)
+        return f_kernels[0]
+
+    def get_woodbury(self):
+        woodbury_Mx = []
+        for j in range(0,self.output_dim):
+            woodbury_Mx.append(self.output[j].posterior._woodbury_chol)
+        return woodbury_Mx[0]
+
     def get_hyperparameters_samples(self, n_samples=1):
         hyperparameters = [[None]*self.output_dim]*n_samples
         for j in range(self.output_dim):

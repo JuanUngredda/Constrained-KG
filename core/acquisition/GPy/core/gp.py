@@ -463,6 +463,8 @@ class GP(Model):
         if self.posterior.woodbury_inv.ndim == 3:
             tmp = np.empty(dv_dX.shape + (self.posterior.woodbury_inv.shape[2],))
             tmp[:] = dv_dX[:,:,None]
+            print("self.posterior.woodbury_inv.shape[2]",self.posterior.woodbury_inv.shape[2].shape)
+            raise
             for i in range(self.posterior.woodbury_inv.shape[2]):
                 alpha = -2.*np.dot(kern.K(X, self._predictive_variable), self.posterior.woodbury_inv[:, :, i])
                 tmp[:, :, i] += kern.gradients_X(alpha, X, self._predictive_variable)

@@ -11,13 +11,15 @@ from ... import util
 from ...util.config import config # for assesing whether to use cython
 from paramz.caching import Cache_this
 from paramz.transformations import Logexp
-#import pyximport
-#pyximport.install()
+import time
+from numba import jit
+
 try:
     from . import stationary_cython
+    use_stationary_cython = config.getboolean('cython', 'working')
 except ImportError:
     print('warning in stationary: failed to import cython module: falling back to numpy')
-    config.set('cython', 'working', 'false')
+    use_stationary_cython = False
 
 
 class Stationary(Kern):
@@ -247,6 +249,7 @@ class Stationary(Kern):
         """
         Given the derivative of the objective wrt K (dL_dK), compute the derivative wrt X
         """
+
         if config.getboolean('cython', 'working'):
             return self._gradients_X_cython(dL_dK, X, X2)
         else:
@@ -309,17 +312,37 @@ class Stationary(Kern):
         #return np.ones(X.shape) * d2L_dK * self.variance/self.lengthscale**2 # np.zeros(X.shape)
 
     def _gradients_X_pure(self, dL_dK, X, X2=None):
+
+        # start = time.time()
         invdist = self._inv_dist(X, X2)
+        # stop1 = time.time()
+        # print("time1", stop1-start)
         dL_dr = self.dK_dr_via_X(X, X2) * dL_dK
+        # stop2 = time.time()
+        # print("time2",stop2-start )
         tmp = invdist*dL_dr
         if X2 is None:
             tmp = tmp + tmp.T
             X2 = X
 
         #The high-memory numpy way:
+        # print("X", X.shape)
+        # print("X2", X2.shape)
         d =  X[:, None, :] - X2[None, :, :]
+
         grad = np.sum(tmp[:,:,None]*d,1)/self.lengthscale**2
- 
+        # stop3 = time.time()
+        # print("time3", stop3-start)
+        # print("percentage1", (stop1-start)/(stop3-start))
+        # print("percentage2", (stop2 - start) / (stop3 - start))
+        # print("percentage3", (stop3 - start) / (stop3 - start))
+        # print("X", X.shape)
+        # print("tmp", tmp.shape)
+        # grad = self.grad_X_numba_accelerated(tmp=tmp[:,:,None], X=X[:, None, :], X2=X2[None, :, :], input_dim=self.input_dim, lengthscale=self.lengthscale)
+        # stop4 = time.time()
+        # print("time4", stop4 -start)
+        # print("grad", grad)
+        # raise
         #the lower memory way with a loop
         #grad = np.empty(X.shape, dtype=np.float64)
         #for q in range(self.input_dim):
@@ -327,6 +350,23 @@ class Stationary(Kern):
         #return grad/self.lengthscale**2
         #print(grad/self.lengthscale**2)
         return grad
+
+    @staticmethod
+    @jit(nopython=True)
+    def grad_X_numba_accelerated(tmp, X, input_dim, lengthscale,X2=None):
+        grad = np.empty(X.shape, dtype=np.float64)
+        for q in range(input_dim):
+            for x1 in range(X.shape[0]):
+                for x2 in range(X2.shape[0]):
+                    vect1 = tmp*(X[x1,x2,q]-X2[x1,x2,q])
+            # vect1 = tmp*(X[:,q][:,None]-X2[:,q][None,:])
+            # print("vect1", vect1.shape)
+            # raise
+            # print("np.sum(tmp*(X[:,q][:,None]-X2[:,q][None,:]), axis=1)",np.sum(tmp*(X[:,q][:,None]-X2[:,q][None,:]), axis=1))
+            # grad[:,q] = np.sum(tmp*(X[:,q][:,None]-X2[:,q][None,:]), axis=1)
+                    print(grad / lengthscale ** 2)
+        return grad/lengthscale**2
+
 
     def _gradients_X_cython(self, dL_dK, X, X2=None):
         invdist = self._inv_dist(X, X2)
@@ -354,8 +394,6 @@ class Stationary(Kern):
         reconstructing the full covariance matrix.
         """
         raise NotImplementedError("implement one dimensional variation of kernel")
-
-
 
 
 class Exponential(Stationary):

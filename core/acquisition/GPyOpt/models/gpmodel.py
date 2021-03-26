@@ -184,7 +184,7 @@ class GPModel(BOModel):
         return v
     
     def partial_precomputation_for_covariance(self, X):
-        """
+        """get_woodbury
         Computes the posterior covariance between points.
         :param X1: some input observations
         :param X2: other input observations

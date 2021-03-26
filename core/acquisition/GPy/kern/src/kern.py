@@ -157,6 +157,7 @@ class Kern(Parameterized):
 
             \\frac{\partial L}{\partial X} = \\frac{\partial L}{\partial K}\\frac{\partial K}{\partial X}
         """
+
         raise NotImplementedError
     def gradients_X_X2(self, dL_dK, X, X2):
         return self.gradients_X(dL_dK, X, X2), self.gradients_X(dL_dK.T, X2, X)

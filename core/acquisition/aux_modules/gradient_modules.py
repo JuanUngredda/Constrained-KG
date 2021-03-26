@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import scipy
 from functools import partial
 import warnings
+import itertools
 
 class gradients(object):
     def __init__(self, x_new=None, model=None, xopt =None, Z=None, aux=None, aux2=None, varX=None, dvar_dX=None, test_samples= None, X_inner=None, precompute_grad = False):
@@ -21,30 +22,44 @@ class gradients(object):
             self.dvar_dX = dvar_dX*1
         if X_inner is not None:
             self.cov = self.model.posterior_covariance_between_points_partially_precomputed(X_inner, self.xnew)[:, :, 0]*1
+
             if precompute_grad:
                 self.dcov = self.model.posterior_covariance_gradient_partially_precomputed(X_inner, self.xnew)*1
 
 
     def compute_value_mu_xnew(self, x, m=None):
         if m is None:
+            #computing h(z)
+            aux = self.aux[:,np.newaxis, np.newaxis]
             muX_inner = self.model.posterior_mean(x)
-            cov =  self.cov*1
 
-            func_val = []
-            for j in range(muX_inner.shape[0]):
-                a = muX_inner[j]
-                b = np.sqrt(self.aux[j] * np.square(cov[j]))
-                func_val.append(np.reshape(a + b * self.Z, (len(x), 1)))
+            cov =  self.cov*1
+            cov = cov[:,:,np.newaxis]
+
+            b = np.sqrt(np.multiply(aux, np.square(cov)))
+            a = muX_inner
+            a = a[:,:,np.newaxis]
+
+            Z = np.atleast_2d(self.Z).T
+            Z = Z[:, np.newaxis,:]
+
+            func_val = a + np.multiply(Z, b)
+            func_val = func_val.squeeze()
+            if len(func_val.shape)==1:
+                func_val = func_val[:,np.newaxis]
+
             return func_val
 
         else:
             muX_inner = self.model.output[m].posterior_mean(x)
+
             cov =  self.cov[m]*1
 
             #print("compute_value_mu_xnew", cov, self.cov)
             a = muX_inner
             b = np.sqrt(self.aux[m] * np.square(cov))
-            func_val = np.reshape(a.reshape(-1) + b.reshape(-1) * self.Z, (len(x), 1))
+            func_val = np.reshape(a.reshape(-1) + b.reshape(-1) * self.Z[m], (len(x), 1))
+
             return func_val
 
     def compute_value_mu_xopt(self, xopt, m=None):
@@ -65,28 +80,21 @@ class gradients(object):
             aux = self.aux[m]
             a = muX_inner
             b = np.sqrt(aux * np.square(cov))
-            func_val = np.reshape(a.reshape(-1) + b.reshape(-1)* self.Z, (len(xopt), 1))
+            func_val = np.reshape(a.reshape(-1) + b.reshape(-1)* self.Z[m], (len(xopt), 1))
             return func_val
 
     def compute_gradient_mu_xnew(self,x ,m=None):
 
         if m is None:
+
             dmu_dX_inner = self.model.posterior_mean_gradient(x)
+
             dcov_dX_inner = self.dcov * 1
-            cov = self.cov* 1
 
-            # print("compute_gradient_mu_xnew", cov, self.cov, dcov_dX_inner, self.dcov)
-            b = np.sqrt(self.aux * np.square(cov))
-            for k in range(x.shape[1]):
-
-                dcov_dX_inner[:, :, k] = np.multiply(cov, dcov_dX_inner[:, :, k])
-
-            db_dX_inner = np.tensordot(self.aux, dcov_dX_inner, axes=1)
-
-            db_dX_inner = np.multiply(np.reciprocal(b), db_dX_inner.T).T
-
-            func_gradient = np.reshape(dmu_dX_inner + db_dX_inner * self.Z, x.shape)
-
+            Z = self.inflate_dimensions(self.Z, dmu_dX_inner)
+            aux = self.inflate_dimensions(self.aux, dmu_dX_inner)
+            db_dX_inner = np.sqrt(aux) * dcov_dX_inner
+            func_gradient = np.reshape( dmu_dX_inner + db_dX_inner * Z, (dmu_dX_inner.shape))
             return func_gradient
 
         else:
@@ -104,7 +112,7 @@ class gradients(object):
             dcov_dX_inner = dcov_dX_inner[np.newaxis]
             db_dX_inner = np.tensordot(aux, dcov_dX_inner[:,:,:], axes=1)
             db_dX_inner = np.multiply(np.reciprocal(b), db_dX_inner.T).T
-            func_gradient = np.reshape(dmu_dX_inner.reshape(-1) + db_dX_inner.reshape(-1) * self.Z, x.shape)
+            func_gradient = np.reshape(dmu_dX_inner.reshape(-1) + db_dX_inner.reshape(-1) * self.Z[m], x.shape)
             return func_gradient
 
     def compute_grad_mu_xopt(self, xopt,m=None):
@@ -130,29 +138,73 @@ class gradients(object):
             term3 = (2 * term1 - term2).T
 
             term4 = np.array(self.aux2[m]) * term3
-            term5 = 0.5 * self.Z * np.reciprocal(b)
+            term5 = 0.5 * self.Z[m] * np.reciprocal(b)
             out = np.array(term5 * term4).reshape(-1)
             return out.reshape(1, -1)
 
     def compute_posterior_var_x_new(self, x, m=None):
 
         if m is None:
-            cov = self.cov[m]*1 #self.model.posterior_covariance_between_points_partially_precomputed(x, self.x_new)[:, :, 0]
-            kernel_current = self.model.posterior_variance(x, noise=False)
-            for j in range(cov.shape[0]):
-                b = np.sqrt(self.aux[j] * np.square(cov[j]))
-                b = b[np.newaxis]
-                kernel_new_x = kernel_current[j] - np.dot(np.transpose(b), b)
-                func_val = kernel_new_x
-            return np.array(func_val).reshape(-1)
+
+            # cov = self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :,0] #Numerically unstable
+            cov = self.model.posterior_covariance_between_points(x, self.xnew)[:, :, 0] #self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0] #self.cov*1 #
+            variance = self.model.posterior_variance(x, noise=False) #self.model.posterior_covariance_between_points(x, x)[:, :, :]*1
+
+
+
+            # print("cov", cov, "cov_precom", cov_precomputed)
+            #
+            # print(cov == cov_precomputed)
+            # print("diff", cov-cov_precomputed)
+
+            aux = self.inflate_dimensions(self.aux, cov)
+
+            # print("x", x.shape)
+            # print("cov", cov.shape)
+            # print("aux", aux.shape)
+
+            b_vect = aux * np.square(cov) #np.sqrt(np.multiply(aux, np.square(cov)))
+            func_val = variance - b_vect #kernel_current - b_vect #** 2
+            # print("func_val", func_val.shape)
+
+            if ~ np.all(func_val.reshape(-1)>0):
+                print("x",x.shape)
+                print("X", self.model.get_X_values())
+                func_val = func_val.reshape(-1)
+                variance = variance.reshape(-1)
+                b_vect = b_vect.reshape(-1)
+                # print("X bad", x[func_val<0])
+                print("func val", func_val[func_val<0], "shape", func_val.shape)
+                print("kernel current", variance[func_val<0], "shape", variance.shape)
+                print("b_vect**2",(b_vect[func_val<0]))
+                raise
+            Z = np.atleast_2d(self.Z).T
+            Z = Z[:, np.newaxis,:]
+            Zones = np.ones(Z.shape)
+
+
+            func_val = func_val[:,:,np.newaxis]
+            func_val = func_val * Zones
+
+            func_val = func_val.squeeze()
+            if len(func_val.shape)==1:
+                func_val = func_val[:,np.newaxis]
+
+
+            assert np.all(func_val.reshape(-1)>0); "variance xnew is negative"
+
+            return np.array(func_val)
         else:
             cov = self.cov[m]*1 #self.model.posterior_covariance_between_points_partially_precomputed(x, self.x_new)[:, :, 0]
             kernel_current = self.model.output[m].posterior_variance(x, noise=False)
             aux = self.aux[m]
 
             b = np.sqrt(aux * np.square(cov))
-
-            kernel_new_x = kernel_current.reshape(-1) - (b**2).reshape(-1)
+            # print("individual")
+            # print("b",b.shape)
+            # print("kernel_current", kernel_current.shape)
+            kernel_new_x = kernel_current.reshape(-1)- b.reshape(-1) **2.0
+            # print("kernel_new_x",kernel_new_x.shape)
             func_val = kernel_new_x
             return np.array(func_val).reshape(-1)
 
@@ -169,6 +221,7 @@ class gradients(object):
                 b = b[np.newaxis]
                 kernel_new_x = kernel_current - np.dot(np.transpose(b),b)
                 func_val.append(kernel_new_x)
+
             return np.array(func_val).reshape(-1)
         else:
             cov = self.model.posterior_covariance_between_points(x, self.xnew)[:, :, 0][m]
@@ -183,10 +236,15 @@ class gradients(object):
 
     def compute_gradient_posterior_var_x_new(self, x, m=None):
         if m is None:
-            K_x_x = self.model.posterior_variance_gradient(x)
-            K_x_xnew = self.cov*1 #self.model.posterior_covariance_between_points_partially_precomputed(x, self.x_new)[:, :, 0]
-            grad_K_x_xnew = self.dcov*1 # self.model.posterior_covariance_gradient_partially_precomputed(x, self.x_new)
-            out = K_x_x  - 2* K_x_xnew * grad_K_x_xnew * self.aux
+
+            grad_K_x_x = self.model.posterior_variance_gradient(x)
+            K_x_xnew = self.cov*1 #self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0]#
+            grad_K_x_xnew = self.dcov*1 #self.model.posterior_covariance_gradient_partially_precomputed(x, self.xnew)#
+
+            aux = self.inflate_dimensions(self.aux, grad_K_x_xnew )
+
+            out = grad_K_x_x  - 2* K_x_xnew[:,:,np.newaxis] * grad_K_x_xnew * aux
+
             return out
         else:
             K_x_x = self.model.output[m].posterior_variance_gradient(x)
@@ -195,14 +253,22 @@ class gradients(object):
             out = K_x_x  - 2* K_x_xnew * grad_K_x_xnew * self.aux[m]
             return out
 
+    def inflate_dimensions(self, array_1, array_2):
+        list_dime_expansion = list(range(len(array_1.shape), len(array_2.shape)))
+        out = np.expand_dims(array_1, axis=list_dime_expansion)
+        return out
+
     def compute_gradient_posterior_std_x_new(self,x, m=None):
 
         if m is None:
             posterior_var_xnew = self.compute_posterior_var_x_new(x)
+
             gradient_posterior_var_x_new = self.compute_gradient_posterior_var_x_new(x)
+            posterior_var_xnew = self.inflate_dimensions(posterior_var_xnew,gradient_posterior_var_x_new)
+
             gradient_posterior_std_x_new = (1.0/2) * (posterior_var_xnew) **(- 1.0/2) * gradient_posterior_var_x_new
-            gradient_posterior_std_x_new = gradient_posterior_std_x_new.reshape(-1)
-            return gradient_posterior_std_x_new.reshape(1 , -1)
+
+            return gradient_posterior_std_x_new#.reshape(1 , -1)
         else:
             posterior_var_xnew = self.compute_posterior_var_x_new(x, m=m)
             gradient_posterior_var_x_new = self.compute_gradient_posterior_var_x_new(x, m=m)
@@ -260,62 +326,36 @@ class gradients(object):
     def compute_probability_feasibility_multi_gp(self, x, l=0, gradient_flag = False):
 
         if gradient_flag:
-            Fz = []
-            grad_Fz = []
-            for m in range(self.model.output_dim):
-                mean = self.compute_value_mu_xnew(x=x, m=m)
-                cov = self.compute_posterior_var_x_new(x=x, m=m)
-                Fz.append(self.compute_probability_feasibility( x, self.model.output[m], mean,  cov, l))
-                grad_Fz_aux = self.compute_gradient_probability_feasibility(x, self.model.output[m], mean, cov, m=m)
-                grad_Fz.append(grad_Fz_aux)
 
-            if len(np.array(Fz).reshape(-1)) == 1:
-                Fz = np.array(Fz).reshape(-1)
-                return Fz.reshape(-1,1), np.array(grad_Fz).reshape(-1)
-            else:
-                Fz_aux = np.product(Fz, axis=0)
-                Fz = np.array(Fz).reshape(-1)
-                grad_Fz = np.vstack(grad_Fz)
-                grad_Fz = self.product_gradient_rule(func=np.array(Fz).reshape(-1), grad=np.array(grad_Fz))
-                grad_Fz = np.array(grad_Fz).reshape(-1)
+            # self.cov = self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0]*1
+            # self.dcov = self.model.posterior_covariance_gradient_partially_precomputed(x, self.xnew)*1
+            computed_mean = self.compute_value_mu_xnew(x=x)
+            computed_var = self.compute_posterior_var_x_new(x=x)
+            Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
+            grad_mean = self.compute_gradient_mu_xnew(x)
+            grad_std = self.compute_gradient_posterior_std_x_new(x)
+            grad_Fz = self.compute_gradient_probability_feasibility( mean=computed_mean,  var=computed_var,
+                                                                                grad_mean=grad_mean, grad_std=grad_std)
 
-                return Fz_aux.reshape(-1,1),  grad_Fz.reshape(1, -1)
+            Probability_of_feasibility = np.product(Fz, axis=0)
+            Grad_Probability_of_feasibility = self.product_gradient_rule(func=Fz , grad=grad_Fz)
+            return Probability_of_feasibility,  Grad_Probability_of_feasibility
         else:
-            Fz = []
-            for m in range(self.model.output_dim):
-                mean = self.compute_value_mu_xnew(x=x, m=m)
-                cov = self.compute_posterior_var_x_new(x=x, m=m)
 
-                Fz.append(self.compute_probability_feasibility( x, self.model.output[m], mean,  cov, l))
+            computed_mean = self.compute_value_mu_xnew(x=x)
+            computed_var = self.compute_posterior_var_x_new(x=x)
+
+            Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
+
+            # print("Fz", Fz.shape)
 
             Fz = np.product(Fz,axis=0)
-            Fz = np.array(Fz).reshape(-1)
+            if len(Fz.shape) == 1:
+                Fz = np.atleast_2d(Fz).T
 
-            return Fz.reshape(-1,1)
 
-    def compute_grad_probability_feasibility_multi_gp(self, x, l=0):
+            return Fz
 
-        Fz = []
-        grad_Fz = []
-        for m in range(self.model.output_dim):
-            mean = self.compute_value_mu_xnew(x=x, m=m)
-            cov = self.compute_posterior_var_x_new(x=x, m=m)
-            Fz_aux = self.compute_probability_feasibility( x, self.model.output[m], mean, cov, l)
-            # print("Fz_aux",Fz_aux)
-            grad_Fz_aux = self.compute_gradient_probability_feasibility( x, self.model.output[m], mean, cov,m)
-            Fz.append(Fz_aux)
-            grad_Fz.append(grad_Fz_aux)
-
-        if len(np.array(Fz).reshape(-1))==1:
-            return np.array(grad_Fz).reshape(-1)
-        else:
-            grad_Fz = self.product_gradient_rule(func = np.array(Fz).reshape(-1), grad = np.array(grad_Fz).reshape(-1))
-            grad_Fz = np.array(grad_Fz).reshape(-1)
-            # print("grad_Fz",grad_Fz)
-            return grad_Fz.reshape(1,-1)
-
-    def compute_gradient_func(self, func, grad):
-        return self.product_gradient_rule( func, grad)
 
     def compute_gradient_probability_feasibility_xopt(self, xopt , model, mean=None, var=None, m=None):
 
@@ -342,61 +382,53 @@ class gradients(object):
         grad_Fz = np.array(grad_Fz).reshape(-1)
         return grad_Fz.reshape(1,-1)
 
-    def compute_gradient_probability_feasibility(self, x, model, mean=None, var=None, m=None):
-        model = model.model
+    def compute_gradient_probability_feasibility(self, mean=None, var=None, grad_mean= None, grad_std= None):
 
-        if (mean is None) or (var is None):
-            mean = model.posterior_mean(x)
-            var = model.posterior_variance(x, noise=False)
-        std = np.sqrt(var).reshape(-1, 1)
-
+        std = np.sqrt(var)
         aux_var = np.reciprocal(var)
-        mean = mean.reshape(-1, 1)
-
         fz = scipy.stats.norm.pdf(mean/std)
-        if m is None:
-            grad_mean = self.compute_gradient_mu_xnew(x)
-            grad_std = self.compute_gradient_posterior_std_x_new(x)
-        else:
-            grad_mean = self.compute_gradient_mu_xnew(x,m=m)
-            grad_std = self.compute_gradient_posterior_std_x_new(x,m=m)
-        dims = range(x.shape[1])
-        grad_Fz = []
 
-        for d in dims:
-            grd_mean_d = grad_mean[:, d].reshape(-1, 1)
-            grd_std_d = grad_std[:, d].reshape(-1, 1)
-            grad_func_val = -fz * aux_var * (grd_mean_d * std - mean * grd_std_d )
-            grad_Fz.append(grad_func_val)
-        grad_Fz = np.array(grad_Fz).reshape(-1)
-        return grad_Fz.reshape(1,-1)
+        mean = self.inflate_dimensions(mean, grad_mean)
+        std = self.inflate_dimensions(std, grad_mean)
+        fz = self.inflate_dimensions(fz, grad_mean)
+        aux_var = self.inflate_dimensions(aux_var, grad_mean)
 
-    def compute_probability_feasibility(self, x, model, mean=None, cov=None, l=0):
+        grad_Fz = -fz * aux_var * (grad_mean * std - mean * grad_std)
+        return grad_Fz
 
-        model = model.model
-        # if (mean is None) and (cov is None):
-        #
-        #     mean = model.posterior_mean(x)
-        #     cov = model.posterior_variance(x, noise=False)
+    def compute_probability_feasibility(self,  mean=None, cov=None, l=0):
 
-        std = np.sqrt(cov).reshape(-1, 1)
-
-        mean = mean.reshape(-1, 1)
+        std = np.sqrt(cov)#.reshape(-1, 1)
+        mean = mean#.reshape(-1, 1)
         norm = scipy.stats.norm(mean, std)
         Fz = norm.cdf(l)
-        return Fz.reshape(-1, 1)
+        return Fz#.reshape(-1, 1)
 
     def product_gradient_rule(self, func, grad):
 
-        func = func + np.abs(np.random.normal(0,1e-20))
-        recip = np.reciprocal(func)
-        prod = np.product(func)
-        vect1 = prod * recip
-        vect1 = vect1.reshape(-1)
-        vect1 = vect1.reshape(1,-1)
-        vect2 = grad
-        grad = np.dot(vect1, vect2)
-        return grad
+        func = list(func)
+        values = [list(lst) for lst in itertools.combinations(func, grad.shape[0]-1)]
+        values = np.array(values)
+
+        idx_list = [list(lst) for lst in itertools.combinations(range(len(func)), grad.shape[0]-1)]
+        idx_list = np.array(idx_list)
+
+        Grad = 0
+
+
+        for idx in range(len(idx_list)):
+            bool_idx = ~ np.any(idx_list == idx, axis=1)
+
+            values_idx = np.array(values)[bool_idx]
+
+            product_idx = np.product(values_idx, axis=1).reshape(-1)
+
+
+            grad_idx = grad[idx,:,:]
+
+            Grad += self.inflate_dimensions(product_idx,grad_idx) * grad_idx
+
+        return Grad
 
     def posterior_std(self,x):
         cov = []

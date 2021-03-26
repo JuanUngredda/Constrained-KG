@@ -6,7 +6,7 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from Hybrid_continuous_KG import KG
+from continuous_KG import KG
 from bayesian_optimisation import BO
 import pandas as pd
 import os
@@ -17,7 +17,7 @@ import os
 
 def function_caller_test_func_2(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 0.1, 1.0]:
+    for noise in [1e-10]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -42,7 +42,7 @@ def function_caller_test_func_2(rep):
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
         type_anchor_points_logic = "thompsom_sampling"
-        acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f, model_c=model_c,anchor_points_logic=type_anchor_points_logic)
+        acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f, model_c=model_c)#,anchor_points_logic=type_anchor_points_logic)
         #
         # # --- Initial design
         #initial design
@@ -56,7 +56,7 @@ def function_caller_test_func_2(rep):
                 deterministic=False)
 
 
-        max_iter  = 50
+        max_iter  = 3
         # print("Finished Initialization")
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True)
         print("Code Ended")
@@ -75,7 +75,7 @@ def function_caller_test_func_2(rep):
 
         gen_file = pd.DataFrame.from_dict(data)
         folder = "RESULTS"
-        subfolder = "test_function_2_hybrid_KG_"+str(noise)
+        subfolder = "test_function_2_det_scaled_"+str(noise)
         cwd = os.getcwd()
         print("cwd", cwd)
         path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
@@ -87,6 +87,6 @@ def function_caller_test_func_2(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_test_func_2(rep=21)
+function_caller_test_func_2(rep=21)
 
 

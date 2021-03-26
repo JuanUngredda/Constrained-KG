@@ -84,7 +84,7 @@ def function_caller_new_branin_nEI(rep):
             covar_module = ScaleKernel(RBFKernel(
                     ard_num_dims=train_x.shape[-1]
                 ),)
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)
+            model_obj = FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj), covar_module=covar_module ,outcome_transform=Translate_Object).to(train_x) #SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)
             model_con = FixedNoiseGP(train_x, train_con, train_cvar.expand_as(train_con)).to(train_x)
             # combine into a multi-output GP model
             model = ModelListGP(model_obj, model_con)
@@ -205,7 +205,7 @@ def function_caller_new_branin_nEI(rep):
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
-            subfolder = "new_branin_nEI_" + str(noise)
+            subfolder = "new_branin_nEI_kh_" + str(noise)
             cwd = os.getcwd()
             path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
             if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:

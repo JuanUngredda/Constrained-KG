@@ -103,7 +103,7 @@ def function_caller_test_fun_2_nEI(rep):
             covar_module = ScaleKernel(RBFKernel(
                     ard_num_dims=train_x.shape[-1]
                 ),)
-            model_obj = SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#, train_yvar.expand_as(train_obj)).to(train_x)
+            model_obj = FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj), covar_module=covar_module ,outcome_transform=Translate_Object).to(train_x) #SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#, train_yvar.expand_as(train_obj)).to(train_x)
             model_con1 = FixedNoiseGP(train_x, train_con1, train_cvar.expand_as(train_con1)).to(train_x)
             model_con2= FixedNoiseGP(train_x, train_con2, train_cvar.expand_as(train_con2)).to(train_x)
             model_con3 = FixedNoiseGP(train_x, train_con3, train_cvar.expand_as(train_con3)).to(train_x)
@@ -125,7 +125,7 @@ def function_caller_test_fun_2_nEI(rep):
                 acq_function=acq_func,
                 bounds=bounds,
                 q=BATCH_SIZE,
-                num_restarts=10,
+                num_restarts=20,
                 raw_samples=512,  # used for intialization heuristic
                 options={"batch_limit": 5, "maxiter": 200},
             )
@@ -234,7 +234,7 @@ def function_caller_test_fun_2_nEI(rep):
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
-            subfolder = "test_function_2_nEI_" + str(noise)
+            subfolder = "test_function_2_nEI_kh_" + str(noise)
             cwd = os.getcwd()
             path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
             if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
