@@ -362,7 +362,6 @@ class test_function_2(function2d):
         term2 = (x2 + 2)**2.0
         term3 = -12
         fval = (term1 + term2)*np.exp(-x2**7)+term3
-
         noise = np.random.normal(0, 1e-21, n).reshape(n, 1)
         return np.array(fval.reshape(n,1)).reshape(-1) #+ noise.reshape(-1, 1) #torch.reshape(fval, -1)
 
@@ -399,6 +398,8 @@ class test_function_2(function2d):
         out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
         out = np.array(out).reshape(-1)
         return -out
+
+
 
 
 class test_function_2_torch(function2d):

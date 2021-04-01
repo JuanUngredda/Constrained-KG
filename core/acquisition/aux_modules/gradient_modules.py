@@ -181,16 +181,11 @@ class gradients(object):
             Z = np.atleast_2d(self.Z).T
             Z = Z[:, np.newaxis,:]
             Zones = np.ones(Z.shape)
-
-
             func_val = func_val[:,:,np.newaxis]
             func_val = func_val * Zones
-
             func_val = func_val.squeeze()
             if len(func_val.shape)==1:
                 func_val = func_val[:,np.newaxis]
-
-
             assert np.all(func_val.reshape(-1)>0); "variance xnew is negative"
 
             return np.array(func_val)
@@ -347,12 +342,12 @@ class gradients(object):
 
             Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
 
-            # print("Fz", Fz.shape)
-
-            Fz = np.product(Fz,axis=0)
             if len(Fz.shape) == 1:
                 Fz = np.atleast_2d(Fz).T
-
+            else:
+                Fz = np.product(Fz, axis=0)
+                if len(Fz.shape)==1:
+                    Fz = np.atleast_2d(Fz).T
 
             return Fz
 

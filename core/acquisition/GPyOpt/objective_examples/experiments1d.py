@@ -51,20 +51,35 @@ class Problem01(function1d):
 
 		self.bounds = [(0,5)]
 
-	def f(self,X):
-		X = X.reshape((len(X),1))
+	def f(self,X, true_val=False):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
 		n = X.shape[0]
 		fval = np.sin(X) + np.sin((10.0/3.0)*X) + np.log(X+0.001) -0.84 * X + 3
-		if self.sd ==0:
+		if self.sd ==0 or true_val:
 			noise = np.zeros(n).reshape(n,1)
 		else:
+			print("self.sd",self.sd)
 			noise = np.random.normal(0,self.sd,n).reshape(n,1)
+			print("noise", noise)
 		return fval.reshape(n,1) + noise
 
-	def c(self, X):
-		X = X.reshape((len(X),1))
+	def c1(self, X, true_val=None):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
 		n = X.shape[0]
+
 		fval = np.sin(X*5)*3
+
 		return fval.reshape(n,1)
 
+	def c(self, x, true_val=False):
+		return [self.c1(x)]
 
+	def func_val(self, x):
+		Y = self.f(x, true_val=True)
+		C = self.c(x)
+		out = Y.reshape(-1) * np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+		out = np.array(out).reshape(-1)
+		print("out", out)
+		return -out

@@ -15,11 +15,11 @@ class Sequential(EvaluatorBase):
     def __init__(self, acquisition, batch_size=1):
         super(Sequential, self).__init__(acquisition, batch_size)
 
-    def compute_batch(self, duplicate_manager=None,context_manager=None, re_use = False):
+    def compute_batch(self, duplicate_manager=None,context_manager=None, re_use = False, dynamic_optimisation=False):
 
         """
         Selects the new location to evaluate the objective.
         """
         #print("compute batch")
-        x, _ = self.acquisition.optimize(duplicate_manager=duplicate_manager, re_use = re_use) #previusly just optimize
+        x, _ = self.acquisition.optimize(duplicate_manager=duplicate_manager, re_use = re_use, dynamic_optimisation=dynamic_optimisation) #previusly just optimize
         return x , _

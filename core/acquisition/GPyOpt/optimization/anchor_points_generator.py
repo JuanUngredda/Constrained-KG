@@ -62,6 +62,7 @@ class AnchorPointsGenerator(object):
 
             X = np.concatenate((X[X_sampled_values.shape[0]:],X_sampled_values))
 
+
         scores = self.get_anchor_point_scores(X)
 
         anchor_points = X[np.argsort(scores)[:min(len(scores),num_anchor)], :]

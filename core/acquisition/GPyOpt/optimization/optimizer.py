@@ -3,6 +3,136 @@
 
 import numpy as np
 
+
+class BaseOptimizer:
+    """Base (Stochastic) gradient descent optimizer
+    Parameters
+    ----------
+    params : list, length = len(coefs_) + len(intercepts_)
+        The concatenated list containing coefs_ and intercepts_ in MLP model.
+        Used for initializing velocities and updating params
+    learning_rate_init : float, default=0.1
+        The initial learning rate used. It controls the step-size in updating
+        the weights
+    Attributes
+    ----------
+    learning_rate : float
+        the current learning rate
+    """
+
+    def __init__(self, params, learning_rate_init=0.1):
+        self.params = [param for param in params]
+        self.learning_rate_init = learning_rate_init
+        self.learning_rate = float(learning_rate_init)
+
+    def update_params(self, grads):
+        """Update parameters with given gradients
+        Parameters
+        ----------
+        grads : list, length = len(params)
+            Containing gradients with respect to coefs_ and intercepts_ in MLP
+            model. So length should be aligned with params
+        """
+        updates = self._get_updates(grads)
+        for param, update in zip(self.params, updates):
+            param += update
+
+    def iteration_ends(self, time_step):
+        """Perform update to learning rate and potentially other states at the
+        end of an iteration
+        """
+        pass
+
+    def trigger_stopping(self, msg, verbose):
+        """Decides whether it is time to stop training
+        Parameters
+        ----------
+        msg : str
+            Message passed in for verbose output
+        verbose : bool
+            Print message to stdin if True
+        Returns
+        -------
+        is_stopping : bool
+            True if training needs to stop
+        """
+        if verbose:
+            print(msg + " Stopping.")
+        return True
+
+
+class AdamOptimizer(BaseOptimizer):
+    """Stochastic gradient descent optimizer with Adam
+    Note: All default values are from the original Adam paper
+    Parameters
+    ----------
+    params : list, length = len(coefs_) + len(intercepts_)
+        The concatenated list containing coefs_ and intercepts_ in MLP model.
+        Used for initializing velocities and updating params
+    learning_rate_init : float, default=0.001
+        The initial learning rate used. It controls the step-size in updating
+        the weights
+    beta_1 : float, default=0.9
+        Exponential decay rate for estimates of first moment vector, should be
+        in [0, 1)
+    beta_2 : float, default=0.999
+        Exponential decay rate for estimates of second moment vector, should be
+        in [0, 1)
+    epsilon : float, default=1e-8
+        Value for numerical stability
+    Attributes
+    ----------
+    learning_rate : float
+        The current learning rate
+    t : int
+        Timestep
+    ms : list, length = len(params)
+        First moment vectors
+    vs : list, length = len(params)
+        Second moment vectors
+    References
+    ----------
+    Kingma, Diederik, and Jimmy Ba.
+    "Adam: A method for stochastic optimization."
+    arXiv preprint arXiv:1412.6980 (2014).
+    """
+
+    def __init__(self, params, learning_rate_init=0.001, beta_1=0.9,
+                 beta_2=0.999, epsilon=1e-8):
+        super().__init__(params, learning_rate_init)
+
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
+        self.epsilon = epsilon
+        self.t = 0
+        self.ms = [np.zeros_like(param) for param in params]
+        self.vs = [np.zeros_like(param) for param in params]
+
+    def _get_updates(self, grads):
+        """Get the values used to update params with given gradients
+        Parameters
+        ----------
+        grads : list, length = len(coefs_) + len(intercepts_)
+            Containing gradients with respect to coefs_ and intercepts_ in MLP
+            model. So length should be aligned with params
+        Returns
+        -------
+        updates : list, length = len(grads)
+            The values to add to params
+        """
+        self.t += 1
+        self.ms = [self.beta_1 * m + (1 - self.beta_1) * grad
+                   for m, grad in zip(self.ms, grads)]
+        self.vs = [self.beta_2 * v + (1 - self.beta_2) * (grad ** 2)
+                   for v, grad in zip(self.vs, grads)]
+        self.learning_rate = (self.learning_rate_init *
+                              np.sqrt(1 - self.beta_2 ** self.t) /
+                              (1 - self.beta_1 ** self.t))
+        updates = [-self.learning_rate * m / (np.sqrt(v) + self.epsilon)
+                   for m, v in zip(self.ms, self.vs)]
+
+        return updates
+
 class Optimizer(object):
     """
     Class for a general acquisition optimizer.
@@ -77,11 +207,12 @@ class OptLbfgs(Optimizer):
         :param df: gradient of the function to optimize.
         :param f_df: returns both the function to optimize and its gradient.
         """
+
         import scipy.optimize
         if f_df is None and df is not None:
             f_df = lambda x: float(f(x)), df(x)
 
-
+        # print("self.maxiter", self.maxiter)
         if f_df is None and df is None:
 
             res = scipy.optimize.fmin_l_bfgs_b(f, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.maxiter) #factr=1e4
@@ -91,8 +222,11 @@ class OptLbfgs(Optimizer):
 
         ### --- We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
         if res[2]['task'] == b'ABNORMAL_TERMINATION_IN_LNSRCH':
-            result_x  = np.atleast_2d(x0)
-            result_fx =  np.atleast_2d(f(x0))
+            print("ABNORMAL_TERMINATION_IN_LNSRCH")
+            result_x = np.atleast_2d(res[0])
+            result_fx = np.atleast_2d(res[1])
+            # result_x  = np.atleast_2d(x0)
+            # result_fx =  np.atleast_2d(f(x0))
         else:
             result_x = np.atleast_2d(res[0])
             result_fx = np.atleast_2d(res[1])
@@ -117,13 +251,14 @@ class Nelder_Mead(Optimizer):
         :param df: gradient of the function to optimize.
         :param f_df: returns both the function to optimize and its gradient.
         """
+
         import scipy.optimize
         if f_df is None and df is not None:
             f_df = lambda x: float(f(x)), df(x)
 
         if f_df is None and df is None:
-
-            res = scipy.optimize.minimize(f, x0=x0, bounds=self.bounds,options={ 'maxiter':self.maxiter})  # factr=1e4
+            print("self.maxiter",self.maxiter)
+            res = scipy.optimize.minimize(f, method="nelder-mead",x0=x0, bounds=self.bounds, tol=1e-06, options={ 'maxiter':self.maxiter})  # factr=1e4
         else:
 
             print("Use an optimiser with gradient information")
@@ -138,13 +273,93 @@ class Nelder_Mead(Optimizer):
                 result_x[0, k] = self.bounds[k][1]
         ### --- We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
         if res['message'] == b'ABNORMAL_TERMINATION_IN_LNSRCH':
-            result_x = np.atleast_2d(x0)
-            result_fx = np.atleast_2d(f(x0))
+            # result_x = np.atleast_2d(x0)
+            # result_fx = np.atleast_2d(f(x0))
+            print("ABNORMAL_TERMINATION_IN_LNSRCH")
+            result_x = np.atleast_2d(res["x"])
+            result_fx = np.atleast_2d(res["fun"])
         else:
             result_x = np.atleast_2d(res["x"])
             result_fx = np.atleast_2d(res["fun"])
 
         return result_x, result_fx
+
+
+from scipy import optimize
+from copy import copy, deepcopy
+
+class Adam(Optimizer):
+    def __init__(self, bounds, maxiter=200, iters=100, learning_rate=0.2, av=3, beta_1 = 0.5, beta_2=0.5):
+        super(Adam, self).__init__(bounds)
+        self.maxiter = maxiter
+        self.learning_rate = learning_rate
+        self.beta1 = beta_1
+        self.beta2 = beta_2
+        self.av = av
+        self.iters = iters
+
+    def optimize(self, x0, f=None, df=None, f_df=None):
+        """
+        Adam SGD optimizer.
+        Parameters
+        ----------
+        val_grad: function that returns both fun value and gradient
+        x0: np array, starting point
+        iters: int, number of Adam iterations
+        av: int, number of points to average over to predict f
+        learning_rate : float, default=0.5
+            The initial learning rate used. It controls the step-size in updating
+            the weights
+        beta1 : float, default=0.5
+            Exponential decay rate for estimates of first moment vector, should be
+            in [0, 1)
+        beta2 : float, default=0.5
+            Exponential decay rate for estimates of second moment vector, should be
+            in [0, 1)
+        Returns
+        -------
+        top_x: best observed x value
+        top_fn: best observed output
+        """
+        assert self.iters > self.av, "cannot average over fewer points than iterations!"
+
+        optimizer = AdamOptimizer(params=[x0],
+                                  learning_rate_init=self.learning_rate,
+                                  beta_1=self.beta1,
+                                  beta_2=self.beta2)
+
+        f_hist = []
+        top_f = -np.Inf
+        top_x = 0
+        lb = np.zeros(x0.shape[1])
+        ub = np.zeros(x0.shape[1])
+        for k in range(x0.shape[1]):
+            lb[k] = self.bounds[k][0]
+            ub[k] = self.bounds[k][1]
+
+        for _ in range(self.iters):
+
+            x = optimizer.params[0]
+            f, g = f_df(x)
+
+            f_hist.append(f)
+
+            # update params and (optionally) force x to stay in bounds
+            optimizer.update_params([-g])
+
+            optimizer.params[0] = np.clip(
+                a=optimizer.params[0], a_min=lb, a_max=ub)
+
+
+            if self.iters > self.av:
+                pred_f = np.mean(f_hist[-self.av:])
+
+            # of course this is stochastic but ohwell!
+            if pred_f > top_f:
+                top_f = copy(pred_f)
+                top_x = copy(x)
+
+        return top_x, top_f
 
 
 class OptDirect(Optimizer):
@@ -333,20 +548,28 @@ def choose_optimizer(optimizer_name, bounds):
         Selects the type of local optimizer
         """          
         if optimizer_name == 'lbfgs':
+
             optimizer = OptLbfgs(bounds)
         
         elif optimizer_name == 'sgd':
+
             optimizer = OptSgd(bounds)
 
         elif optimizer_name == 'DIRECT':
+
             optimizer = OptDirect(bounds)
 
         elif optimizer_name == 'CMA':
+
             optimizer = OptCma(bounds)
 
         elif optimizer_name == 'Nelder_Mead':
+
             optimizer = Nelder_Mead(bounds)
 
+        elif optimizer_name == "Adam":
+
+            optimizer = Adam(bounds)
         else:
             raise InvalidVariableNameError('Invalid optimizer selected.')
 

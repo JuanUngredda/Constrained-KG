@@ -61,19 +61,25 @@ class AcquisitionBase(object):
 
         return -f_acqu*self.space.indicator_constraints(x), -df_acq_cost*self.space.indicator_constraints(x)
 
-    def optimize(self, duplicate_manager=None, re_use=False):
+    def optimize(self, duplicate_manager=None, re_use=False, dynamic_optimisation=False):
         """
         Optimizes the acquisition function (uses a flag from the model to use gradients or not).
         """
 
         if not self.analytical_gradient_acq:
-            out = self.optimizer.optimize(f=self.acquisition_function, duplicate_manager=duplicate_manager, re_use=re_use,
-                                          dynamic_parameter_function=self.generate_random_vectors)
+            if dynamic_optimisation:
+                out = self.optimizer.optimize(f=self.acquisition_function, duplicate_manager=duplicate_manager, re_use=re_use,
+                                              dynamic_parameter_function=self.generate_random_vectors)
+            else:
+                out = self.optimizer.optimize(f=self.acquisition_function, duplicate_manager=duplicate_manager, re_use=re_use)
         else:
-
-            out = self.optimizer.optimize(f=self.acquisition_function, f_df=self.acquisition_function_withGradients,
-                                          duplicate_manager=duplicate_manager, re_use=re_use,
-                                          dynamic_parameter_function=self.generate_random_vectors)
+            if dynamic_optimisation:
+                out = self.optimizer.optimize(f=self.acquisition_function, f_df=self.acquisition_function_withGradients,
+                                              duplicate_manager=duplicate_manager, re_use=re_use,
+                                              dynamic_parameter_function=self.generate_random_vectors)
+            else:
+                out = self.optimizer.optimize(f=self.acquisition_function, f_df=self.acquisition_function_withGradients,
+                                              duplicate_manager=duplicate_manager, re_use=re_use)
 
         print("out", out)
         return out
