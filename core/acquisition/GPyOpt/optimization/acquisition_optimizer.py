@@ -116,6 +116,9 @@ class AcquisitionOptimizer(object):
                 optimized_points = []
                 anchor_points_ls = self.optimize_final_evaluation()
                 for a in anchor_points_ls:
+                    if 'dynamic_parameter_function' in self.kwargs:
+                        self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
+                                                        fixed_discretisation=None)  # discretisation)
                     optimised_anchor_point = apply_optimizer(self.optimizer, a.flatten(), f=f, df=None,
                                                              f_df=f_df,
                                                              duplicate_manager=duplicate_manager,
@@ -199,7 +202,24 @@ class AcquisitionOptimizer(object):
         print("optimised points", optimized_points)
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
         self.outer_anchor_points = x_min
-        print("x_min, fx_min",x_min, fx_min)
+
+        if np.sum(fx_min) == 0:
+            if 'dynamic_parameter_function' in self.kwargs:
+                self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
+                                                fixed_discretisation=None)  # discretisation)
+                optimized_points = []
+                anchor_points_ls = self.optimize_final_evaluation()
+                for a in anchor_points_ls:
+                    optimised_anchor_point = apply_optimizer(self.optimizer, a.flatten(), f=f, df=None,
+                                                             f_df=f_df,
+                                                             duplicate_manager=duplicate_manager,
+                                                             context_manager=self.context_manager,
+                                                             space=self.space)
+                    optimized_points.append(optimised_anchor_point)
+                x_min, fx_min = min(optimized_points, key=lambda t: t[1])
+                print(" x_min, fx_min", x_min, fx_min)
+            return x_min, fx_min
+
         return x_min, fx_min
 
     def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, reuse=False, num_samples=1000):

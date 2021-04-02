@@ -166,6 +166,9 @@ class gradients(object):
             b_vect = aux * np.square(cov) #np.sqrt(np.multiply(aux, np.square(cov)))
             func_val = variance - b_vect #kernel_current - b_vect #** 2
             # print("func_val", func_val.shape)
+            func_val = np.clip(func_val, 1e-10, np.inf)
+            # print("func_val", func_val.shape)
+            # func_val[variance < 1e-10] = 0
 
             if ~ np.all(func_val.reshape(-1)>0):
                 print("x",x.shape)
@@ -174,6 +177,7 @@ class gradients(object):
                 variance = variance.reshape(-1)
                 b_vect = b_vect.reshape(-1)
                 # print("X bad", x[func_val<0])
+                print("problematic x", x[func_val<0])
                 print("func val", func_val[func_val<0], "shape", func_val.shape)
                 print("kernel current", variance[func_val<0], "shape", variance.shape)
                 print("b_vect**2",(b_vect[func_val<0]))

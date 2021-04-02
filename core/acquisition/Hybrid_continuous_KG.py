@@ -105,6 +105,7 @@ class KG(AcquisitionBase):
 
             self.fixed_discretisation = True
             self.X_Discretisation =fixed_discretisation
+            self.X_fixed_Discretisation = fixed_discretisation
         else:
             self.fixed_discretisation = False
             self.X_Discretisation =None
@@ -254,11 +255,13 @@ class KG(AcquisitionBase):
 
         xnew = np.atleast_2d(xnew)
         # print("Xd shape", Xd, "xnew", xnew)
+        if self.fixed_discretisation is not True:
+            Xd = np.concatenate((Xd, self.X_fixed_Discretisation))
         Xd = np.concatenate((Xd, xnew))
         Xd = np.concatenate((Xd, self.current_max_xopt))
-
+        # print("Xd", Xd.shape)
+        # print("Zc", Zc.shape)
         out = []
-
         for Zc_partition in np.array_split(Zc, 1):
             # print("computing gradients")
             grad_c = gradients(x_new=xnew, model=self.model_c, Z=Zc_partition, aux=aux_c,
@@ -339,7 +342,7 @@ class KG(AcquisitionBase):
         max_a_index = np.argmax(a)
         n_elems = len(a)
 
-        if np.all(np.abs(b) < 0.000000001):
+        if np.all(np.abs(b) < 0.0000000001):
             return 0#index, 0, np.zeros(a.shape), np.zeros(b.shape)
 
         # order by ascending b and descending a
@@ -390,9 +393,17 @@ class KG(AcquisitionBase):
         cdf = norm.cdf(x)
 
         KG = np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))
-        KG -= self.bases_value[index]
+        KG -= np.max(a)#self.bases_value[index]
 
 
+        if KG<-1e-5:
+            print("KG cant be negative")
+            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
+            print("self.bases_value[index]",np.max(a))
+            print("KG", KG)
+            raise
+
+        KG = np.clip(KG, 0, np.inf)
         # gradients of KG
         # grad_a = np.zeros((n_elems))
         # grad_a[max_a_index] = -1
@@ -402,11 +413,12 @@ class KG(AcquisitionBase):
         # grad_b[order] = -pdf[1:] + pdf[:-1]
         if np.isnan(KG):
             print("KG", KG)
-            print("self.bases_value[index]",self.bases_value[index])
+            print("self.bases_value[index]",max_a_index)
             print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
             raise
 
         # print("a",len(a), a)
+        # print("KG", KG)
         # if len(a)<4:
         #     if self.fixed_discretisation==False:
         #         self.n_base_points +=10
