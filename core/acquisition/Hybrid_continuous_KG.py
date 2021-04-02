@@ -75,7 +75,7 @@ class KG(AcquisitionBase):
     def generate_random_vectors(self, optimize_discretization=True, optimize_random_Z=False, fixed_discretisation=None, ):
 
         self.base_marg_points = 40
-        self.n_marginalisation_points = np.array([-2.64,  -0.67, 0 , 0.67, 2.64])
+        self.n_marginalisation_points = np.array([-3.24, -2.64,-1.67 , -0.67, 0 , 0.67, 1.67, 2.64, 3.24])
         self.optimise_discretisation = optimize_discretization
         if optimize_random_Z:
             print("updating random Z")

@@ -342,8 +342,11 @@ class gradients(object):
 
             Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
 
+            # print("Fz", Fz.shape)
             if len(Fz.shape) == 1:
                 Fz = np.atleast_2d(Fz).T
+            elif len(Fz.shape) == 2:
+                return Fz
             else:
                 Fz = np.product(Fz, axis=0)
                 if len(Fz.shape)==1:
