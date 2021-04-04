@@ -181,7 +181,6 @@ class KG(AcquisitionBase):
         for z in range(self.n_base_points):
 
             Z_obj  = self.Z_obj[z]
-            Z_const = self.Z_const[z]
 
             # inner function of maKG acquisition function.
             def inner_func(X_inner):
@@ -191,13 +190,17 @@ class KG(AcquisitionBase):
                                      X_inner=X_inner)  # , test_samples = self.test_samples)
                 mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
 
+                Z_const = self.Z_const[z]
+                if len(Z_const.shape)==1:
+                    Z_const = np.atleast_2d(Z_const)
+
                 grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c,
                                    X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
 
                 Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
 
                 # print("mu_xnew",mu_xnew.shape, "Fz.shape", Fz.shape)
-                func_val = mu_xnew * Fz #- self.control_variate
+                func_val = mu_xnew* Fz #- self.control_variate
 
                 return -func_val.reshape(-1)  # mu_xnew , Fz
 

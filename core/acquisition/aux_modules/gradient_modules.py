@@ -40,9 +40,10 @@ class gradients(object):
             a = muX_inner
             a = a[:,:,np.newaxis]
 
+            # print("self.Z", self.Z.shape)
             Z = np.atleast_2d(self.Z).T
             Z = Z[:, np.newaxis,:]
-
+            # print("Z", Z.shape)
             func_val = a + np.multiply(Z, b)
             func_val = func_val.squeeze()
             if len(func_val.shape)==1:
@@ -340,22 +341,30 @@ class gradients(object):
             Grad_Probability_of_feasibility = self.product_gradient_rule(func=Fz , grad=grad_Fz)
             return Probability_of_feasibility,  Grad_Probability_of_feasibility
         else:
-
+            # print("x", x.shape)
             computed_mean = self.compute_value_mu_xnew(x=x)
             computed_var = self.compute_posterior_var_x_new(x=x)
 
-            Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
 
+            if self.model.output_dim==1:
+                if len(computed_mean.shape)==2:
+                    computed_mean = computed_mean[np.newaxis,:,:]
+                    computed_var = computed_var[np.newaxis,:,:]
+                elif len(computed_mean.shape)==1:
+                    computed_mean = computed_mean[np.newaxis,:]
+                    computed_var = computed_var[np.newaxis,:]
+
+
+            # print("mu", computed_mean.shape)
+            Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
             # print("Fz", Fz.shape)
             if len(Fz.shape) == 1:
                 Fz = np.atleast_2d(Fz).T
-            elif len(Fz.shape) == 2:
-                return Fz
             else:
                 Fz = np.product(Fz, axis=0)
                 if len(Fz.shape)==1:
                     Fz = np.atleast_2d(Fz).T
-
+                # print("Fz", Fz.shape)
             return Fz
 
 

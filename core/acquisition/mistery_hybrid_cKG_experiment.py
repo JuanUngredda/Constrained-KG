@@ -17,7 +17,7 @@ import os
 print("mistery activate")
 def function_caller_mistery(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 0.1, 1.0]:
+    for noise in [1e-6,  1.0]:
         # func2 = dropwave()
         mistery_f =mistery(sd=np.sqrt(noise))
 
@@ -37,7 +37,7 @@ def function_caller_mistery(rep):
                                                                                               5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f, normalizer=True)
+        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
         model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-10] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
@@ -57,7 +57,7 @@ def function_caller_mistery(rep):
                 deterministic=False)
 
 
-        max_iter  = 30
+        max_iter  = 100
         # print("Finished Initialization")
         subfolder = "test_mistery_hybrid_KG_" + str(noise)
         folder = "RESULTS"

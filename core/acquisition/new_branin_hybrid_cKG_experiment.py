@@ -17,7 +17,7 @@ import os
 print("mistery activate")
 def function_caller_new_branin(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 0.1, 1.0]:
+    for noise in [1e-6,  1.0]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
@@ -35,7 +35,7 @@ def function_caller_new_branin(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f, normalizer=True)
+        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
         model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-10] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
@@ -55,7 +55,7 @@ def function_caller_new_branin(rep):
                 deterministic=False)
 
 
-        max_iter  = 45
+        max_iter  = 100
         # print("Finished Initialization")
         subfolder = "new_brannin_hybrid_KG_" + str(noise)
         folder = "RESULTS"

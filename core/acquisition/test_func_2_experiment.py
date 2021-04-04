@@ -17,7 +17,7 @@ import os
 print("test_fun_2 activate")
 def function_caller_test_func_2(rep):
     np.random.seed(rep)
-    for noise in [1e-6, 0.1, 1.0]:
+    for noise in [1e-06, 1.0]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -57,7 +57,7 @@ def function_caller_test_func_2(rep):
                 deterministic=False)
 
 
-        max_iter  = 50
+        max_iter  = 100
         # print("Finished Initialization")
         subfolder = "test_function_2_hybrid_KG_" + str(noise)
         folder = "RESULTS"
@@ -71,6 +71,6 @@ def function_caller_test_func_2(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_test_func_2(rep=4)
+# function_caller_test_func_2(rep=12)
 
 
