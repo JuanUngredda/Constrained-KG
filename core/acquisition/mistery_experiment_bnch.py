@@ -15,7 +15,7 @@ from time import time as time
 # --- Function to optimize
 
 def function_caller_mistery_EI(rep):
-    for noise in [1e-21]:
+    for noise in [1e-06]:
         np.random.seed(rep)
         # func2 = dropwave()
         mistery_f =mistery(sd=np.sqrt(noise))
@@ -34,7 +34,7 @@ def function_caller_mistery_EI(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)#, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
 
@@ -52,7 +52,7 @@ def function_caller_mistery_EI(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design)
 
 
-        max_iter  = 30
+        max_iter  = 100
         # print("Finished Initialization")
         X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
         print("Code Ended")

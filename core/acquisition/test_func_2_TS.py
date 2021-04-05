@@ -16,7 +16,7 @@ import os
 
 def function_caller_test_func_2_TS(rep):
     np.random.seed(rep)
-    for noise in [1e-21]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -46,40 +46,25 @@ def function_caller_test_func_2_TS(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
+
         nz=1
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=False)
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                tag_last_evaluation  =True,
+                deterministic=False)
 
 
-        max_iter  = 25
+        max_iter  = 100
         # print("Finished Initialization")
-        X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+        subfolder = "test_mistery_TS_" + str(noise)
+        folder = "RESULTS"
+        cwd = os.getcwd()
+        path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
         print("Code Ended")
 
-        C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-        data = {}
-        print("C",C)
-        print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
-        print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
-        print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
-        data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
-        data["Y"] = np.array(Y).reshape(-1)
-        data["C_bool"] = np.array(C_bool).reshape(-1)
-
-        gen_file = pd.DataFrame.from_dict(data)
-        folder = "RESULTS"
-        subfolder = "test_function_2_scaled_det_TS"+str(noise)
-        cwd = os.getcwd()
-        print("cwd", cwd)
-        path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-        if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
-            os.makedirs(cwd + "/" + folder +"/"+ subfolder)
-
-        gen_file.to_csv(path_or_buf=path)
-
         print("X",X,"Y",Y, "C", C)
-
 
 #function_caller_test_func_2_TS(rep=21)
 
