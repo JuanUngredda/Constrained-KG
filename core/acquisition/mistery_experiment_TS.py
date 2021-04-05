@@ -59,7 +59,7 @@ def function_caller_mistery_TS(rep):
 
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "test_mistery_TS_" + str(noise)
+        subfolder = "mistery_TS_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'

@@ -16,7 +16,7 @@ import os
 
 def function_caller_new_brannin_TS(rep):
     np.random.seed(rep)
-    for noise in [1e-21]:
+    for noise in [1e-06]:
 
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
@@ -54,7 +54,7 @@ def function_caller_new_brannin_TS(rep):
 
         max_iter = 100
         # print("Finished Initialization")
-        subfolder = "test_mistery_TS_" + str(noise)
+        subfolder = "new_brannin_TS_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path = cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'

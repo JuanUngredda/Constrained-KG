@@ -22,14 +22,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_experiment_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_experiment_TS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_experiment_bnch.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_experiment_bnch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_TS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_TS.py" afterDir="false" />
-    </list>
+    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -213,7 +206,7 @@
       <workItem from="1614950527909" duration="54031000" />
       <workItem from="1616189082534" duration="56101000" />
       <workItem from="1617016105265" duration="86083000" />
-      <workItem from="1617231973124" duration="39116000" />
+      <workItem from="1617231973124" duration="39417000" />
     </task>
     <servers />
   </component>
