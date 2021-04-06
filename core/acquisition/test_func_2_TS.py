@@ -16,7 +16,7 @@ import os
 
 def function_caller_test_func_2_TS(rep):
     np.random.seed(rep)
-    for noise in [1e-06]:
+    for noise in [1.0]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 

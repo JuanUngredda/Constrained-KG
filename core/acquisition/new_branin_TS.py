@@ -16,7 +16,7 @@ import os
 
 def function_caller_new_brannin_TS(rep):
     np.random.seed(rep)
-    for noise in [1e-06]:
+    for noise in [1.0]:
 
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
