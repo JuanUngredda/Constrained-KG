@@ -22,7 +22,7 @@ from gpytorch.constraints import LessThan
 import warnings
 from Transformation_Translation import Translate
 from Last_Step import Constrained_Mean_Response
-
+from scipy.stats import norm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
@@ -33,12 +33,12 @@ def function_caller_test_fun_2_nEI(rep):
 
         torch.manual_seed(rep)
         NOISE_SE = noise
-        N_BATCH = 50
+        N_BATCH = 100
         initial_points = 10
-        MC_SAMPLES = 500
+        MC_SAMPLES = 250
 
 
-        problem_class = test_function_2_torch(sd=np.sqrt(0.0))
+        problem_class = test_function_2_torch(sd=0)#noise included in the loop
         bounds = torch.tensor([[0.0, 0.0], [1.0, 1.0] ], device=device, dtype=dtype)
         input_dim = problem_class.input_dim
 
@@ -64,7 +64,7 @@ def function_caller_test_fun_2_nEI(rep):
             return objective_function(X) * c
 
         #train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
-        train_cvar = torch.tensor(0.0, device=device, dtype=dtype)
+        train_cvar = torch.tensor(1e-10, device=device, dtype=dtype)
         def obj_callable(Z):
             return Z[..., 0]
 
@@ -98,12 +98,43 @@ def function_caller_test_fun_2_nEI(rep):
             best_observed_value = weighted_obj(train_x).max().item()
             return train_x, train_obj, train_con1, train_con2, train_con3, best_observed_value
 
+        def recommended_value(X, model):
+            posterior_means  = model.posterior(X).mean
+            posterior_var = model.posterior(X).variance
+
+            posterior_means = posterior_means.detach().numpy()
+            posterior_var = posterior_var.detach().numpy()
+
+            pf = probability_feasibility_multi_gp(mu=posterior_means[:,1:], var=posterior_var[:,1:])
+
+            objective_mean = posterior_means[:,0]
+            predicted_fit = objective_mean.reshape(-1) * pf.reshape(-1)
+
+            return predicted_fit
+
+        def probability_feasibility_multi_gp(mu, var):
+            Fz = []
+            print("mu.shape[1]", mu.shape[1])
+            for m in range(mu.shape[1]):
+                Fz.append(probability_feasibility(mu[:,m], var[:,m]))
+            Fz = np.product(Fz, axis=0)
+            return Fz
+
+        def probability_feasibility(mean=None, var=None, l=0):
+
+            std = np.sqrt(var).reshape(-1, 1)
+            mean = mean.reshape(-1, 1)
+            norm_dist = norm(mean, std)
+            Fz = norm_dist.cdf(l)
+            return Fz
+
+
         def initialize_model(train_x, train_obj, train_con1,train_con2,train_con3, state_dict=None):
             # define models for objective and constraint
             covar_module = ScaleKernel(RBFKernel(
                     ard_num_dims=train_x.shape[-1]
                 ),)
-            model_obj = FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj), covar_module=covar_module ,outcome_transform=Translate_Object).to(train_x) #SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#, train_yvar.expand_as(train_obj)).to(train_x)
+            model_obj = FixedNoiseGP(train_x, train_obj, train_cvar.expand_as(train_obj), covar_module=covar_module).to(train_x) #SingleTaskGP(train_x, train_obj, outcome_transform=Translate_Object, covar_module=covar_module)#, train_yvar.expand_as(train_obj)).to(train_x)
             model_con1 = FixedNoiseGP(train_x, train_con1, train_cvar.expand_as(train_con1)).to(train_x)
             model_con2= FixedNoiseGP(train_x, train_con2, train_cvar.expand_as(train_con2)).to(train_x)
             model_con3 = FixedNoiseGP(train_x, train_con3, train_cvar.expand_as(train_con3)).to(train_x)
@@ -210,19 +241,24 @@ def function_caller_test_fun_2_nEI(rep):
             last_x_nei, last_obj_nei, last_con1_nei, last_con2_nei, last_con3_nei = optimize_acqf_and_get_observation(Last_Step)
 
             # update progress
-            best_value_nei = weighted_obj(train_x_nei).max().item()
-            best_value_last_step = weighted_obj(last_x_nei).max().item()
+            stats_x_nei = torch.cat([train_x_nei, last_x_nei])
+            recommended_Y = recommended_value(stats_x_nei, model_nei)
 
-            best_value = np.max([best_value_nei, best_value_last_step])
+            stats_x_nei = stats_x_nei.detach().numpy()
+            last_x_nei = stats_x_nei[np.argmax(recommended_Y)]
+            last_x_nei = torch.Tensor(last_x_nei)
+            best_value = weighted_obj(last_x_nei)
 
             t1 = time.time()
 
             if verbose:
-                print(
-                    f"\niteration {iteration:>2}: best_value (qNEI) = "
-                    f"({best_value:>4.2f}), "
-                    f"time = {t1 - t0:>4.2f}.", end=""
-                )
+
+                print("best_value", best_value)
+                # print(
+                #     f"\niteration {iteration:>2}: best_value (qNEI) = "
+                #     f"({best_value:>4.2f}), "
+                #     f"time = {t1 - t0:>4.2f}.", end=""
+                # )
             else:
                 print(".", end="")
 
@@ -234,14 +270,13 @@ def function_caller_test_fun_2_nEI(rep):
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
-            subfolder = "test_function_2_nEI_kh_" + str(noise)
+            subfolder = "test_function_2_nEI_" + str(noise)
             cwd = os.getcwd()
             path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
             if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
                 os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
             gen_file.to_csv(path_or_buf=path)
-
 
 # function_caller_test_fun_2_nEI(rep=2)
 

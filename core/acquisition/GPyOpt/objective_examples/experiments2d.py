@@ -423,8 +423,11 @@ class test_function_2_torch(function2d):
         term2 = -(x1 - 1)**2.0
         term3 = -(x2  - 0.5 )** 2.0
         fval = term2 + term3
-
-        return torch.reshape(-fval, (-1,)) #torch.reshape(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1), -1)
+        # if self.sd == 0 or true_val:
+        #     noise = np.zeros(n).reshape(n, 1)
+        # else:
+        #     noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+        return torch.reshape(-fval, (-1,))  #torch.reshape(-(fval.reshape(n,1))+ noise.reshape(-1, 1), -1) ##
 
     def c1(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -563,9 +566,7 @@ class mistery_torch(function2d):
         term5 = 7 * torch.sin(0.5 * x1) * torch.sin(0.7 * x1 * x2)
         fval = term1 + term2 + term3 + term4 + term5
 
-        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-
-        return torch.reshape(-fval, (-1,) )  #np.array(-(fval.reshape(n, 1) + offset) + noise.reshape(-1, 1)).reshape(-1)
+        return torch.reshape(-fval, (-1,) ) #np.array(-(fval.reshape(n, 1)) + noise.reshape(-1, 1)).reshape(-1) #torch.reshape(-fval, (-1,) )  #
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:
@@ -666,8 +667,7 @@ class new_brannin_torch(function2d):
         term2 = -(x2 - 15)**2.0
         fval = term1 + term2
 
-        # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return torch.reshape(-fval, (-1,))  #np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
+        return torch.reshape(-fval, (-1,)) #np.array(-(fval.reshape(n,1))+ noise.reshape(-1, 1)).reshape(-1) #torch.reshape(-fval, (-1,))  #np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:
