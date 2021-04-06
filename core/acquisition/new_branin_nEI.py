@@ -28,7 +28,7 @@ print("device: ", device)
 dtype = torch.double
 
 def function_caller_new_branin_nEI(rep):
-    for noise in [ 1e-04, 1.0 ]:
+    for noise in [ 1e-03, 1.0 ]:
 
         torch.manual_seed(rep)
         NOISE_SE = noise
@@ -211,7 +211,7 @@ def function_caller_new_branin_nEI(rep):
         # raise
         # call helper functions to generate initial training data and initialize model
         train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei = generate_initial_data(n=initial_points)
-        Translate_Object = Translate(m=1, Y=train_obj_nei)
+        # Translate_Object = Translate(m=1, Y=train_obj_nei)
         # train_x_ei, train_obj_ei, train_con_ei, best_observed_value_ei =train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei
         mll_nei, model_nei = initialize_model(train_x_nei, train_obj_nei, train_con_nei)
         best_observed_nei.append(best_observed_value_nei)

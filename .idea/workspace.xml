@@ -23,13 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Constrained-KG.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Constrained-KG.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/objective_examples/experiments2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/objective_examples/experiments2d.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_experiment_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_experiment_TS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_nEI.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_nEI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_function_2_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_function_2_nEI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +70,7 @@
       <recent name="$PROJECT_DIR$/core/acquisition" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.KG_control">
+  <component name="RunManager" selected="Python.new_branin_nEI">
     <configuration name="KG_control" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Constrained-KG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -185,8 +183,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.KG_control" />
         <item itemvalue="Python.new_branin_nEI" />
+        <item itemvalue="Python.KG_control" />
         <item itemvalue="Python.mistery_nEI" />
         <item itemvalue="Python.test_function_2_nEI" />
         <item itemvalue="Python.mistery_experiment_TS" />
@@ -214,7 +212,8 @@
       <workItem from="1614950527909" duration="54031000" />
       <workItem from="1616189082534" duration="56101000" />
       <workItem from="1617016105265" duration="86083000" />
-      <workItem from="1617231973124" duration="46953000" />
+      <workItem from="1617231973124" duration="47686000" />
+      <workItem from="1617718902245" duration="2508000" />
     </task>
     <servers />
   </component>
@@ -248,7 +247,7 @@
     <SUITE FILE_PATH="coverage/Constrained_KG$experiments2d.coverage" NAME="experiments2d Coverage Results" MODIFIED="1599039715657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition/GPyOpt/objective_examples" />
     <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_experiment.coverage" NAME="new_branin_experiment Coverage Results" MODIFIED="1617365457769" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_experiment_TS.coverage" NAME="mistery_experiment_TS Coverage Results" MODIFIED="1617645325188" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$KG_control.coverage" NAME="KG_control Coverage Results" MODIFIED="1617565667312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$KG_control.coverage" NAME="KG_control Coverage Results" MODIFIED="1617702752321" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$Hybrid_continuous_KG.coverage" NAME="Hybrid_continuous_KG Coverage Results" MODIFIED="1615215858984" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$main_file.coverage" NAME="main_file Coverage Results" MODIFIED="1614952401092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_hybrid_cKG_experiment.coverage" NAME="mistery_hybrid_cKG_experiment Coverage Results" MODIFIED="1617564847262" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
@@ -257,6 +256,6 @@
     <SUITE FILE_PATH="coverage/Constrained_KG$bayesian_optimisation.coverage" NAME="bayesian_optimisation Coverage Results" MODIFIED="1614893950794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$test_func_1D_experiment.coverage" NAME="test_func_1D_experiment Coverage Results" MODIFIED="1617218509635" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_experiment_continuous.coverage" NAME="test_func_2_experiment_continuous Coverage Results" MODIFIED="1616775238411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_nEI.coverage" NAME="new_branin_nEI Coverage Results" MODIFIED="1617702208082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_nEI.coverage" NAME="new_branin_nEI Coverage Results" MODIFIED="1617721481476" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
   </component>
 </project>
