@@ -62,11 +62,13 @@ class AnchorPointsGenerator(object):
 
             X = np.concatenate((X[X_sampled_values.shape[0]:],X_sampled_values))
 
-
+        # print("X", X.shape)
         scores = self.get_anchor_point_scores(X)
+        # print("scores", scores.shape)
 
         anchor_points = X[np.argsort(scores)[:min(len(scores),num_anchor)], :]
-        # print("anchor_points",anchor_points)
+        # print("anchor_points",anchor_points.shape)
+        # raise
         # print("np.argsort(scores)[:min(len(scores),num_anchor)]",np.sort(scores)[:min(len(scores),num_anchor)])
 
         return anchor_points
@@ -126,8 +128,10 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         self.objective = objective
 
     def get_anchor_point_scores(self, X):
-
-        return np.array(self.objective(X)).flatten()
+        # print("X", X.shape)
+        out = np.array(self.objective(X)).flatten()
+        # print("out", out.shape)
+        return out
 
 
 class RandomAnchorPointsGenerator(AnchorPointsGenerator):

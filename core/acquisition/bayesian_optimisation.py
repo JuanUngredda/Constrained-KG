@@ -134,7 +134,7 @@ class BO(object):
     #     return argmax
     #
     #
-    def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, path = None, evaluations_file = None):
+    def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -150,6 +150,7 @@ class BO(object):
             raise InvalidConfigError("Cannot run the optimization loop without the objective function")
 
         # --- Save the options to print and save the results
+        self.KG_dynamic_optimisation = KG_dynamic_optimisation
         self.verbosity = verbosity
         self.evaluations_file = evaluations_file
         self.context = context
@@ -717,7 +718,7 @@ class BO(object):
         else:
             # try:
                 # self.acquisition.generate_random_vectors(optimize_discretization=True, optimize_random_Z=True)
-            aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use, dynamic_optimisation=True)
+            aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use, dynamic_optimisation=self.KG_dynamic_optimisation)
             # except:
             #     aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use)
 
