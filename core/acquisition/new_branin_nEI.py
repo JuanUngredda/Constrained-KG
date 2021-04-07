@@ -258,9 +258,6 @@ def function_caller_new_branin_nEI(rep):
             best_value_nei = weighted_obj(train_x_nei).max().item()
             best_observed_nei.append(best_value_nei)
 
-            # reinitialize the models so they are ready for fitting on next iteration
-            # use the current state dict to speed up fitting
-
             mll_nei, model_nei = initialize_model(
                 train_x_nei,
                 train_obj_nei,
@@ -277,23 +274,22 @@ def function_caller_new_branin_nEI(rep):
             last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
 
             # update progress
-            stats_x_nei = torch.cat([train_x_nei, last_x_nei])
-            recommended_Y = recommended_value(stats_x_nei, model_nei)
+            value_recommended_design = weighted_obj(last_x_nei)
 
-            stats_x_nei = stats_x_nei.detach().numpy()
-            last_x_nei = stats_x_nei[np.argmax(recommended_Y)]
-            last_x_nei = torch.Tensor(last_x_nei)
-            best_value = weighted_obj(last_x_nei)
+            if value_recommended_design == 0:
+                recommended_Y = recommended_value(train_x_nei, model_nei)
+                last_x_nei = train_x_nei[np.argmax(recommended_Y)]
+                best_value = weighted_obj(last_x_nei)
+            else:
+                best_value = value_recommended_design
 
             t1 = time.time()
 
             if verbose:
+                print("last_x_nei, last_obj_nei, last_con_nei",last_x_nei, last_obj_nei, last_con_nei)
+                print("new_x_nei, new_obj_nei, new_con_nei",new_x_nei, new_obj_nei, new_con_nei)
                 print("best value", best_value)
-                # print(
-                #     f"\niteration {iteration:>2}: best_value (qNEI) = "
-                #     f"({best_value:>4.2f}), "
-                #     f"time = {t1 - t0:>4.2f}.", end=""
-                # )
+
             else:
                 print(".", end="")
 

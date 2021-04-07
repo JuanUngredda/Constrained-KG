@@ -281,13 +281,14 @@ def function_caller_mistery_nEI(rep):
             last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics = False)
 
             # update progress
-            stats_x_nei = torch.cat([train_x_nei, last_x_nei])
-            recommended_Y = recommended_value(stats_x_nei, model_nei)
+            value_recommended_design = weighted_obj(last_x_nei)
 
-            stats_x_nei = stats_x_nei.detach().numpy()
-            last_x_nei = stats_x_nei[np.argmax(recommended_Y)]
-            last_x_nei = torch.Tensor(last_x_nei)
-            best_value = weighted_obj(last_x_nei)
+            if value_recommended_design == 0:
+                recommended_Y = recommended_value(train_x_nei, model_nei)
+                last_x_nei = train_x_nei[np.argmax(recommended_Y)]
+                best_value = weighted_obj(last_x_nei)
+            else:
+                best_value = value_recommended_design
 
             t1 = time.time()
 
