@@ -15,6 +15,7 @@ import os
 # --- Function to optimize
 
 def function_caller_test_func_2_TS(rep):
+    rep = rep+50
     np.random.seed(rep)
     for noise in [1.0]:
         # func2 = dropwave()

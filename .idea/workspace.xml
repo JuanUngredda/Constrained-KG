@@ -23,11 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Constrained-KG.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Constrained-KG.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_nEI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +209,7 @@
       <workItem from="1616189082534" duration="56101000" />
       <workItem from="1617016105265" duration="86083000" />
       <workItem from="1617231973124" duration="47686000" />
-      <workItem from="1617718902245" duration="2508000" />
+      <workItem from="1617718902245" duration="4911000" />
     </task>
     <servers />
   </component>
