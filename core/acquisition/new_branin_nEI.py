@@ -22,13 +22,14 @@ from Transformation_Translation import Translate
 from Last_Step import Constrained_Mean_Response
 import warnings
 from scipy.stats import norm
+# from botorch.models.transforms import Standardize
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 dtype = torch.double
 
 def function_caller_new_branin_nEI(rep):
-    for noise in [ 1e-03, 1.0 ]:
+    for noise in [ 1.0 ]:
 
         torch.manual_seed(rep)
         NOISE_SE = noise
@@ -54,7 +55,7 @@ def function_caller_new_branin_nEI(rep):
 
         # train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
         train_cvar = torch.tensor(1e-10, device=device, dtype=dtype)
-        train_yvar = torch.tensor(noise, device=device, dtype=dtype)
+        train_yvar = torch.tensor(noise**2, device=device, dtype=dtype)
 
         def obj_callable(Z):
             return Z[..., 0]
@@ -76,9 +77,12 @@ def function_caller_new_branin_nEI(rep):
             train_x = torch.rand(n, input_dim, device=device, dtype=dtype) * delta + lb
             exact_obj = objective_function(train_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
-            train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
+            train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj, dtype=dtype)
             train_con = exact_con
             best_observed_value = weighted_obj(train_x).max().item()
+            print("X", train_x)
+            print("train_obj", train_obj)
+            print("train_con", train_con)
             return train_x, train_obj, train_con, best_observed_value
 
         def recommended_value(X, model):
@@ -220,7 +224,7 @@ def function_caller_new_branin_nEI(rep):
         Last_Step = Constrained_Mean_Response(
             model=model_nei,
             best_f=0.0,  # dummy variable really, doesnt do anything since I only take max/min of posterior mean
-            objective=constrained_obj
+            objective=constrained_obj,dtype=dtype
         )
 
         last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)

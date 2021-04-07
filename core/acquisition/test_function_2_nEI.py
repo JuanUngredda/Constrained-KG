@@ -29,7 +29,7 @@ print("device: ", device)
 dtype = torch.double
 
 def function_caller_test_fun_2_nEI(rep):
-    for noise in [ 1e-6, 1.0 ]:
+    for noise in [ 1.0 ]:
 
         torch.manual_seed(rep)
         NOISE_SE = noise
