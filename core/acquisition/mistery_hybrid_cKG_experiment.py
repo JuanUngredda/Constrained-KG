@@ -63,7 +63,10 @@ def function_caller_mistery(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  path=path,
+                                                                                  evaluations_file=subfolder,
+                                                                                  KG_dynamic_optimisation=True)
         print("Code Ended")
 
         print("X",X,"Y",Y, "C", C)

@@ -11,7 +11,7 @@ import scipy
 import time
 import matplotlib.pyplot as plt
 from pyDOE import *
-from pathos.multiprocessing import ProcessingPool as Pool
+# from pathos.multiprocessing import ProcessingPool as Pool
 # from multiprocessing import Pool
 from itertools import permutations, product
 import numpy as np

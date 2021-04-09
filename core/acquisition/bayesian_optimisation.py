@@ -247,11 +247,10 @@ class BO(object):
 
 
             self._update_model()
-            self.optimize_final_evaluation()
+
+            self.optimize_final_evaluation(self.KG_dynamic_optimisation)
             print("maKG optimizer")
             start = time.time()
-
-
 
 
             self.suggested_sample = self._compute_next_evaluations()
@@ -263,9 +262,6 @@ class BO(object):
 
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
-
-
-
 
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
@@ -453,7 +449,7 @@ class BO(object):
         plt.yscale("log")
         plt.show()
 
-    def optimize_final_evaluation(self):
+    def optimize_final_evaluation(self, KG_dynamic_optimisation):
 
 
 
@@ -465,48 +461,38 @@ class BO(object):
 
 
         start = time.time()
+        if KG_dynamic_optimisation:
+            #Saving original variables
+            self.original_X = self.X.copy()
+            self.original_Y = self.Y.copy()
+            self.original_C = self.C.copy()
+
+            self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
+            out = self.acquisition.optimizer.optimize_inner_func(f=self.expected_improvement, duplicate_manager=None,
+                                                                 num_samples=100)
+
+            print("best expected improvement found", out)
+            self.suggested_sample = self.space.zip_inputs(out[0])
+            self.X = np.vstack((self.X, self.suggested_sample))
+
+            self.evaluate_objective()
+            self._update_model()
+
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-        out = self.acquisition.optimizer.optimize_inner_func(f=self.expected_improvement, duplicate_manager=None,  num_samples=100)
+        out = self.acquisition.optimizer.optimize_inner_func(f=self.aggregated_posterior, duplicate_manager=None,  num_samples=100)
+        print("best sample found from Posterior GP", out)
 
-        suggested_sample =  self.space.zip_inputs(out[0])
-        self.final_suggested_sample = suggested_sample
-        stop = time.time()
-        # axs[0, 0].scatter(suggested_sample[:, 0], suggested_sample[:, 1], color="red")
-        # plt.show()
-        print("time EI", stop - start)
-        # print("self.suggested_sample",suggested_sample)
-        # --- Evaluate *f* in X, augment Y and update cost function (if needed)
+        suggested_final_sample =  self.space.zip_inputs(out[0])
 
-        if self.deterministic:
-            raise
-            Y, _ = self.objective.evaluate(suggested_sample, true_val=True)
-            # print("Y",Y)
-            C, _ = self.constraint.evaluate(suggested_sample, true_val=True)
-            bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-            func_val = Y * bool_C.reshape(-1, 1)
+        Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
+        C_true, _ = self.constraint.evaluate(suggested_final_sample, true_val=True)
+        # print("C_true", C_true)
+        bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
 
-            Y_true, cost_new = self.objective.evaluate(self.X ,true_val=True)
-            C_true, C_cost_new = self.constraint.evaluate(self.X ,true_val=True)
-
-            feasable_Y_data = np.array(Y_true).reshape(-1) * np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-            feasable_point = bool_C
-
-            Y_aux = np.concatenate((func_val.reshape(-1), np.array(feasable_Y_data).reshape(-1)))
-
-            if self.expensive:
-                self.Opportunity_Cost.append(np.array(np.abs(np.max(Y_aux))).reshape(-1))
-            else:
-                self.true_best_value()
-                optimum = np.max(self.true_best_stats["true_best"])
-                print("optimum", optimum)
-                self.Opportunity_Cost.append(optimum - np.array(np.max(Y_aux)).reshape(-1))
-
-        else:
-            # print("self.X,suggested_sample",self.X,suggested_sample)
-
-            samples = np.concatenate((self.X, suggested_sample))
+        if bool_C_true==0:
+            samples = self.X
             # print("samples", samples)
-            Y= self.model.posterior_mean(samples)
+            Y = self.model.posterior_mean(samples)
             # print("Y",Y)
             pf = self.probability_feasibility_multi_gp(samples, model=self.model_c)
 
@@ -516,7 +502,7 @@ class BO(object):
             # print("Y", Y, "pf", pf, "func_val", func_val)
             suggested_final_sample = samples[np.argmax(func_val)]
             suggested_final_sample = np.array(suggested_final_sample).reshape(-1)
-            suggested_final_sample = np.array(suggested_final_sample).reshape(1,-1)
+            suggested_final_sample = np.array(suggested_final_sample).reshape(1, -1)
             # print("suggested_final_sample", suggested_final_sample, "val",np.max(func_val) )
             Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
 
@@ -524,46 +510,31 @@ class BO(object):
             # print("C_true", C_true)
             bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
 
-            if bool_C_true==0:
-                samples = self.X
-                # print("samples", samples)
-                Y = self.model.posterior_mean(samples)
-                # print("Y",Y)
-                pf = self.probability_feasibility_multi_gp(samples, model=self.model_c)
+        func_val_true = Y_true * bool_C_true.reshape(-1, 1)
 
-                # print("pf", pf)
-                func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+        # print("func_val_true",func_val_true)
+        self.X = self.original_X.copy()
+        self.Y = self.original_Y.copy()
+        self.C = self.original_C.copy()
+        self._update_model()
 
-                # print("Y", Y, "pf", pf, "func_val", func_val)
-                suggested_final_sample = samples[np.argmax(func_val)]
-                suggested_final_sample = np.array(suggested_final_sample).reshape(-1)
-                suggested_final_sample = np.array(suggested_final_sample).reshape(1, -1)
-                # print("suggested_final_sample", suggested_final_sample, "val",np.max(func_val) )
-                Y_true, _ = self.objective.evaluate(suggested_final_sample, true_val=True)
-
-                C_true, _ = self.constraint.evaluate(suggested_final_sample, true_val=True)
-                # print("C_true", C_true)
-                bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-
-            func_val_true = Y_true * bool_C_true.reshape(-1, 1)
-            print("recommended final sample", suggested_sample, "val", func_val_true)
-
-            # print("func_val_true",func_val_true)
-
-            if self.expensive:
-                raise
-                self.Opportunity_Cost.append(np.array(np.abs(np.max(func_val_true))).reshape(-1))
-            else:
-                self.true_best_value()
-                optimum = np.max(self.true_best_stats["true_best"])
-                self.recommended_value.append(np.max(func_val_true).reshape(-1))
-                self.underlying_optimum.append(optimum.reshape(-1))
-                print("OC", optimum - np.max(func_val_true),"optimum", optimum, "func_val recommended", np.max(func_val_true))
-                self.Opportunity_Cost.append(optimum - np.max(func_val_true))
+        self.true_best_value()
+        optimum = np.max(self.true_best_stats["true_best"])
+        self.recommended_value.append(np.max(func_val_true).reshape(-1))
+        self.underlying_optimum.append(optimum.reshape(-1))
+        print("OC", optimum - np.max(func_val_true),"optimum", optimum, "func_val recommended", np.max(func_val_true))
+        self.Opportunity_Cost.append(optimum - np.max(func_val_true))
 
 
+    def aggregated_posterior(self, X):
+        mu = self.model.posterior_mean(X)
+        mu = mu.reshape(-1, 1)
+        pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1, 1)
+        pf = np.array(pf).reshape(-1)
+        mu = np.array(mu).reshape(-1)
+        return -(mu * pf).reshape(-1)
 
-    def expected_improvement(self, X, offset=1e-4):
+    def expected_improvement(self, X):
         '''
         Computes the EI at points X based on existing samples X_sample
         and Y_sample using a Gaussian process surrogate model.
@@ -579,51 +550,39 @@ class BO(object):
             Expected improvements at points X.
         '''
 
-        if self.deterministic:
-            raise
-            #print("DETERMINISTIC LAST STEP")
-            mu = self.model.posterior_mean(X)
-            sigma = self.model.posterior_variance(X, noise=False)
+        mu = self.model.posterior_mean(X)
+        sigma = self.model.posterior_variance(X, noise=False)
 
-            sigma = np.sqrt(sigma).reshape(-1, 1)
-            mu = mu.reshape(-1,1)
-            # Needed for noise-based model,
-            # otherwise use np.max(Y_sample).
-            # See also section 2.4 in [...]
-            bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
-            func_val = self.Y * bool_C.reshape(-1, 1)
-            mu_sample_opt = np.max(func_val) - offset
+        sigma = np.sqrt(sigma).reshape(-1, 1)
+        mu = mu.reshape(-1,1)
 
-            with np.errstate(divide='warn'):
-                imp = mu - mu_sample_opt
-                Z = imp / sigma
-                ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
-                ei[sigma == 0.0] = 0.0
-            pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
-            pf = np.array(pf).reshape(-1)
-            ei = np.array(ei).reshape(-1)
-            return -(ei *pf ).reshape(-1)
-        else:
+        bool_C = np.product(np.concatenate(self.C, axis=1) < 0, axis=1)
+        func_val = self.model.posterior_mean(self.model.get_X_values()).reshape(-1)* bool_C.reshape(-1)
+        mu_sample_opt = np.max(func_val)
 
-            mu = self.model.posterior_mean(X)
-            mu = mu.reshape(-1, 1)
-            pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1, 1)
-            pf = np.array(pf).reshape(-1)
-            mu = np.array(mu).reshape(-1)
-            return -(mu * pf).reshape(-1)
+        with np.errstate(divide='warn'):
+            imp = mu - mu_sample_opt
+            Z = imp / sigma
+            ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
+            ei[sigma == 0.0] = 0.0
+        pf = self.probability_feasibility_multi_gp(X,self.model_c).reshape(-1,1)
+        pf = np.array(pf).reshape(-1)
+        ei = np.array(ei).reshape(-1)
+        return -(ei *pf ).reshape(-1)
 
 
-    def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, grad=False, l=0):
+
+    def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, l=0):
         # print("model",model.output)
         x = np.atleast_2d(x)
 
         Fz = []
         for m in range(model.output_dim):
-            Fz.append(self.probability_feasibility( x, model.output[m], grad, l))
+            Fz.append(self.probability_feasibility( x, model.output[m], l))
         Fz = np.product(Fz,axis=0)
         return Fz
 
-    def probability_feasibility(self, x, model, mean=None, cov=None, grad=False, l=0):
+    def probability_feasibility(self, x, model, l=0):
 
         model = model.model
         # kern = model.kern
@@ -632,43 +591,15 @@ class BO(object):
         var = model.posterior_variance(x, noise=False)
         # print("mean",mean,"var",var)
         std = np.sqrt(var).reshape(-1, 1)
-        # print("std",std)
-        aux_var = np.reciprocal(var)
+
         mean = mean.reshape(-1, 1)
 
         norm_dist = norm(mean, std)
 
-        fz = norm_dist.pdf(l)
+
         Fz = norm_dist.cdf(l)
 
-        if grad == True:
-            grad_mean , grad_var = model.predictive_gradients(x)
-            grad_std = (1/2.0)*grad_var
-
-            # cov = kern.K(X, X) + np.eye(X.shape[0]) * 1e-3
-            # L = scipy.linalg.cholesky(cov, lower=True)
-            # u = scipy.linalg.solve(L, np.eye(X.shape[0]))
-            # Ainv = scipy.linalg.solve(L.T, u)
-
-            dims = range(x.shape[1])
-            grad_Fz = []
-
-            for d in dims:
-                # K1 = np.diag(np.dot(np.dot(kern.dK_dX(x, X, d), Ainv), kern.dK_dX2(X, x, d)))
-                # K2 = np.diag(kern.dK2_dXdX2(x, x, d, d))
-                # var_grad = K2 - K1
-                # var_grad = var_grad.reshape(-1, 1)
-                grd_mean_d = grad_mean[:, d].reshape(-1, 1)
-                grd_std_d = grad_std[:, d].reshape(-1, 1)
-                # print("grd_mean ",grd_mean_d, "var_grad ",grd_std_d )
-                # print("std",std)
-                # print("aux_var", aux_var)
-                # print("fz",fz)
-                grad_Fz.append(fz * aux_var * (mean * grd_std_d - grd_mean_d * std))
-            grad_Fz = np.stack(grad_Fz, axis=1)
-            return Fz.reshape(-1, 1), grad_Fz[:, :, 0]
-        else:
-            return Fz.reshape(-1, 1)
+        return Fz.reshape(-1, 1)
 
 
     def evaluate_objective(self):
@@ -676,7 +607,7 @@ class BO(object):
         Evaluates the objective
         """
         print(1)
-        print(self.suggested_sample)
+            # print(self.suggested_sample)
         self.Y_new, cost_new = self.objective.evaluate(self.suggested_sample)
         self.C_new, C_cost_new = self.constraint.evaluate(self.suggested_sample)
         self.cost.update_cost_model(self.suggested_sample, cost_new)   
@@ -724,6 +655,18 @@ class BO(object):
 
         return self.space.zip_inputs(aux_var[0])
         #return initial_design('random', self.space, 1)
+
+
+    def _update_fantasised_model(self, X, Y, C):
+
+        if (self.num_acquisitions % self.model_update_interval) == 0:
+            ### --- input that goes into the model (is unziped in case there are categorical variables)
+            X_inmodel = self.space.unzip_inputs(X)
+            Y_inmodel = list(Y)
+            C_inmodel = list(C)
+
+            self.model.updateModel(X_inmodel, Y_inmodel)
+            self.model_c.updateModel(X_inmodel, C_inmodel)
 
     def _update_model(self):
         """
