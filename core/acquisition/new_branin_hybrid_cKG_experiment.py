@@ -16,9 +16,9 @@ import os
 # --- Function to optimize
 print("mistery activate")
 def function_caller_new_branin(rep):
-    rep = rep+30
+    rep = rep+40
     np.random.seed(rep)
-    for noise in [ 1e-06]:
+    for noise in [ 1.0]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
