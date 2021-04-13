@@ -262,6 +262,7 @@ class KG(AcquisitionBase):
             Xd = np.concatenate((Xd, self.X_fixed_Discretisation))
         Xd = np.concatenate((Xd, xnew))
         Xd = np.concatenate((Xd, self.current_max_xopt))
+        # print("self.current_max_xopt",self.current_max_xopt)
         # print("Xd", Xd.shape)
         # print("Zc", Zc.shape)
         out = []
@@ -284,31 +285,12 @@ class KG(AcquisitionBase):
 
             self.bases_value = np.max(self.c_MM ,axis=0)
 
-            # print("entering pool")
-            # print("self.parallel_KG",self.parallel_KG)
-            # print("list(range(Zc_partition.shape[0] ))",list(range(Zc_partition.shape[0] )))
-            # start = time.time()
-            # pool = Pool(8)
-            # marginal_KG = pool.map(self.parallel_KG, list(range(Zc_partition.shape[0])))
-            # pool.close()
-            # stop = time.time()
-            # print("time",stop-start)
-            # pool.close()
-            # pool.join()
-            # start = time.time()
             marginal_KG = []
             for idx in list(range(Zc_partition.shape[0])):
                 marginal_KG.append(self.parallel_KG(idx))
-            # stop = time.time()
-            # print("time", stop-start)
-
-            # marginal_KG = pool.map(self.parallel_KG, list(range(Zc_partition.shape[0] )))
-            # pool.close()
-            # pool.join()
             out.append(marginal_KG )
 
         KG_value = np.mean(out)
-
         assert ~np.isnan(KG_value); "KG cant be nan"
         return KG_value
 
@@ -398,7 +380,7 @@ class KG(AcquisitionBase):
         KG = np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))
         KG -= np.max(a)#self.bases_value[index]
 
-
+        # print("np.max(a)",np.max(a))
         if KG<-1e-5:
             print("KG cant be negative")
             print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
@@ -407,27 +389,12 @@ class KG(AcquisitionBase):
             raise
 
         KG = np.clip(KG, 0, np.inf)
-        # gradients of KG
-        # grad_a = np.zeros((n_elems))
-        # grad_a[max_a_index] = -1
-        # grad_a[order] = grad_a[order] + cdf[1:] - cdf[:-1]
-        #
-        # grad_b = np.zeros((n_elems))
-        # grad_b[order] = -pdf[1:] + pdf[:-1]
+
         if np.isnan(KG):
             print("KG", KG)
             print("self.bases_value[index]",max_a_index)
             print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
             raise
-
-        # print("a",len(a), a)
-        # print("KG", KG)
-        # if len(a)<4:
-        #     if self.fixed_discretisation==False:
-        #         self.n_base_points +=10
-        #         self.n_base_points = np.min([self.n_base_points, self.max_n_points])
-        #         print("number of base points used now", self.n_base_points)
-        #         print("INCREASE NUMBER OF X*")
 
         return KG #=index, KGCB, grad_a, grad_b
 

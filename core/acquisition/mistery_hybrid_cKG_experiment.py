@@ -7,6 +7,7 @@ from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
 from Hybrid_continuous_KG import KG
+from nEI import nEI
 from bayesian_optimisation import BO
 import pandas as pd
 import os
@@ -16,9 +17,9 @@ import os
 # --- Function to optimize
 print("mistery activate")
 def function_caller_mistery(rep):
-    rep = rep + 40
+    rep = rep
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06, 1.0]:
         # func2 = dropwave()
         mistery_f =mistery(sd=np.sqrt(noise))
 
@@ -52,15 +53,19 @@ def function_caller_mistery(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
                 deterministic=False)
 
 
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "test_mistery_hybrid_KG_" + str(noise)
+        subfolder = "mistery_hybrid_KG_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
@@ -68,11 +73,9 @@ def function_caller_mistery(rep):
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
+
         print("Code Ended")
-
         print("X",X,"Y",Y, "C", C)
-
-
 # function_caller_mistery(rep=4)
 
 

@@ -56,11 +56,13 @@ class GPModel(BOModel):
         # --- define kernel
         self.input_dim = X.shape[1]
         if self.kernel is None:
-            kern = GPy.kern.RBF(self.input_dim, variance=1.)
+            kern = GPy.kern.RBF(self.input_dim, variance=1., ARD=True)
         else:
             kern = self.kernel
             self.kernel = None
 
+        # print("self.input_dim ",self.input_dim )
+        # raise
         # nu = np.mean(Y)
         # Y = Y - nu
         # --- define model

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import scipy
 from Hybrid_continuous_KG import KG
 from bayesian_optimisation import BO
+from nEI import nEI
 import pandas as pd
 import os
 
@@ -16,9 +17,9 @@ import os
 # --- Function to optimize
 print("test_fun_2 activate")
 def function_caller_test_func_2(rep):
-    rep = rep+40
+    rep = rep
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06, 1.0]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -52,8 +53,12 @@ def function_caller_test_func_2(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
                 deterministic=False)
 
@@ -69,9 +74,8 @@ def function_caller_test_func_2(rep):
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 
+        print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-
-
 # function_caller_test_func_2(rep=12)
 
 

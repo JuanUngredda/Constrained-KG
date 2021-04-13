@@ -43,7 +43,7 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,  tag_last_evaluation  =True,expensive=False,Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,ls_evaluator=None, ls_acquisition=None, tag_last_evaluation  =True,expensive=False,Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -51,8 +51,10 @@ class BO(object):
         self.objective = objective
         self.constraint = constraint
         self.acquisition = acquisition
+        self.ls_acquisition = ls_acquisition
         self.utility = acquisition.utility
         self.evaluator = evaluator
+        self.ls_evaluator = ls_evaluator
         self.normalize_Y = normalize_Y
         self.model_update_interval = model_update_interval
         self.X = X_init
@@ -467,12 +469,27 @@ class BO(object):
             self.original_Y = self.Y.copy()
             self.original_C = self.C.copy()
 
-            self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            out = self.acquisition.optimizer.optimize_inner_func(f=self.expected_improvement, duplicate_manager=None,
-                                                                 num_samples=100)
+            out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
 
+            design_plot = initial_design('random', self.space, 1000)
+
+
+            # EI_plot = self.ls_acquisition._compute_acq(design_plot)
+
+            # print("max sampled", np.max(EI_plot), "min sampled", np.min(EI_plot))
             print("best expected improvement found", out)
             self.suggested_sample = self.space.zip_inputs(out[0])
+            print("model hypers", self.model.get_model_parameters())
+            # import matplotlib.pyplot as plt
+            # import matplotlib
+            # plt.title("KG")
+            # plt.scatter(design_plot[:, 0], design_plot[:, 1],
+            #                   c=np.array(EI_plot).reshape(-1))
+            # plt.scatter(self.suggested_sample[:, 0], self.suggested_sample[:, 1], color="red",
+            #                   label="KG suggested")
+            # plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
+            # plt.legend()
+            # plt.show()
             self.X = np.vstack((self.X, self.suggested_sample))
 
             self.evaluate_objective()
@@ -569,8 +586,6 @@ class BO(object):
         pf = np.array(pf).reshape(-1)
         ei = np.array(ei).reshape(-1)
         return -(ei *pf ).reshape(-1)
-
-
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, l=0):
         # print("model",model.output)
