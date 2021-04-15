@@ -17,9 +17,9 @@ import os
 # --- Function to optimize
 print("mistery activate")
 def function_caller_new_branin(rep):
-    rep = rep
+    rep = rep + 50
     np.random.seed(rep)
-    for noise in [ 1e-06, 1.0]:
+    for noise in [ 1.0]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
@@ -73,7 +73,6 @@ def function_caller_new_branin(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-
 # function_caller_new_branin(rep=4)
 
 
