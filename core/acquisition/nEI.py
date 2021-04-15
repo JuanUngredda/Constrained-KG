@@ -43,7 +43,7 @@ class nEI(AcquisitionBase):
         self.true_func = true_func
         self.saved_Nx = -10
         self.n_base_points = nz
-        self.name = "Constrained_KG"
+        self.name = "noisy Expected Improvement"
         self.fixed_discretisation = None
 
         self.Z_obj = np.array([-3.24, -2.64, -1.67, -0.67, 0, 0.67, 1.67, 2.64, 3.24])

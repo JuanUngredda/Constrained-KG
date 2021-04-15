@@ -34,7 +34,7 @@ class EI(AcquisitionBase):
         self.Z_samples_const = None
         self.true_func = true_func
         self.saved_Nx = -10
-        self.name = "Constrained_KG"
+        self.name = "Expected Improvement"
         super(EI, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
@@ -61,13 +61,9 @@ class EI(AcquisitionBase):
         C = self.model_c.get_Y_values()
         Y = self.model.get_Y_values()
 
-        # print("C", C)
-        # print("Y", Y)
-
         bool_C = np.product(np.concatenate(C, axis=1) < 0, axis=1)
         func_val = Y * bool_C.reshape(-1, 1)
         mu_sample_opt = np.max(func_val)
-        # print("mu_sample_opt",mu_sample_opt)
 
         with np.errstate(divide='warn'):
             imp = mu - mu_sample_opt
@@ -78,7 +74,6 @@ class EI(AcquisitionBase):
         pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1, 1)
         pf = np.array(pf).reshape(-1)
         ei = np.array(ei).reshape(-1)
-        # print("ei", ei.shape)
         return (ei * pf).reshape(-1,1)
 
 
@@ -141,39 +136,16 @@ class EI(AcquisitionBase):
 
         """
         marginal_acqX = np.zeros((X.shape[0],1))
-        # if self.MCMC:
-        #     n_h = 10 # Number of GP hyperparameters samples.
-        #     gp_hyperparameters_samples_obj = self.model.get_hyperparameters_samples(n_h)
-        #     gp_hyperparameters_samples_const = self.model_c.get_hyperparameters_samples(n_h)
-        # else:
-        #     n_h = 1
-        #     gp_hyperparameters_samples_obj  = self.model.get_model_parameters()
-        #
-        #     gp_hyperparameters_samples_const  = self.model_c.get_model_parameters()
-        #     if len(gp_hyperparameters_samples_const)>1:
-        #         gp_hyperparameters_samples_const = [gp_hyperparameters_samples_const]
-        # print("gp_hyperparameters_samples_obj", gp_hyperparameters_samples_obj)
-        # print("gp_hyperparameters_samples_const", gp_hyperparameters_samples_const)
+
         n_h=1
-        # print("gp_hyperparameters_samples_obj",gp_hyperparameters_samples_obj)
-        # print("gp_hyperparameters_samples_const",gp_hyperparameters_samples_const)
-        n_z= self.nz # Number of samples of Z.
+        n_z= self.nz
 
         Z_samples_obj = self.Z_samples_obj
         Z_samples_const = self.Z_samples_const
 
-        # print("nz", n_z)
-        # print("Z_samples_obj",Z_samples_obj)
-        # print("Z_samples_const",Z_samples_const)
-
         for h in range(n_h):
-
-            # self.model.set_hyperparameters(gp_hyperparameters_samples_obj[h])
-            # self.model_c.set_hyperparameters(gp_hyperparameters_samples_const[h])
-            # print("after for loop self.model_c.get_model_parameters()[0]",self.model_c.get_model_parameters())
             varX_obj = self.model.posterior_variance(X, noise=True)
             varX_c = self.model_c.posterior_variance(X, noise=True)
-
 
             for i in range(0,len(X)):
                 x = np.atleast_2d(X[i])

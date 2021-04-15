@@ -24,9 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,7 +214,7 @@
       <workItem from="1618229232447" duration="16787000" />
       <workItem from="1618386583161" duration="599000" />
       <workItem from="1618432433088" duration="744000" />
-      <workItem from="1618478082836" duration="1854000" />
+      <workItem from="1618478082836" duration="4265000" />
     </task>
     <servers />
   </component>

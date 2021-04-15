@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import scipy
 from Hybrid_continuous_KG import KG
 from nEI import nEI
+from EI import EI
 from bayesian_optimisation import BO
 import pandas as pd
 import os
@@ -19,7 +20,7 @@ print("mistery activate")
 def function_caller_new_branin(rep):
     rep = rep + 50
     np.random.seed(rep)
-    for noise in [ 1.0]:
+    for noise in [ 1e-06]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
@@ -51,7 +52,13 @@ def function_caller_new_branin(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+
+        if noise<1e-3:
+            print("EI final step")
+            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        else:
+            print("nEI final step")
+            Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
         last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
