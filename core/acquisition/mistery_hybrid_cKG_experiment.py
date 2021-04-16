@@ -18,7 +18,7 @@ import os
 # --- Function to optimize
 print("mistery activate")
 def function_caller_mistery(rep):
-    rep = rep +50
+    rep = rep
     np.random.seed(rep)
     for noise in [1e-06]:
         # func2 = dropwave()

@@ -18,9 +18,9 @@ import os
 # --- Function to optimize
 print("test_fun_2 activate")
 def function_caller_test_func_2(rep):
-    rep = rep + 50
+    rep = rep
     np.random.seed(rep)
-    for noise in [1e-06]:
+    for noise in [1e-06, 1.0]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
