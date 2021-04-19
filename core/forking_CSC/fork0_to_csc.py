@@ -118,7 +118,7 @@ ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
 #U = [0,2,3,4,5,6,7,8]
 #python fork0_to_csc.py /home/rawsys/matjiu/BOPL_Cornell-Warwick/experiments/control.py 14 --first_fork adobo --basedir /home/maths/phrnaj/MCBO_results/ --conda TFgpu
 
-U =   [0,1, 3, 5, 6, 7, 8, 9,11,12,14,15,16,17,18,19,20] #15,16
+U =   [0,1, 3, 5, 6, 7, 8, 9,11,12,14,15,16,18,19,20] #15,16
 
 CSC_NAMES = [ALL_CSC_NAMES[i] for i in U]
 
