@@ -345,7 +345,8 @@ class gradients(object):
             computed_mean = self.compute_value_mu_xnew(x=x)
             computed_var = self.compute_posterior_var_x_new(x=x)
 
-
+            # print("computed_mean",computed_mean)
+            # print("computed_var",computed_var)
             if self.model.output_dim==1:
                 if len(computed_mean.shape)==2:
                     computed_mean = computed_mean[np.newaxis,:,:]

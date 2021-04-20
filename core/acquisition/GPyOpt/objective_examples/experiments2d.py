@@ -336,7 +336,7 @@ class test_function_2(function2d):
         self.sd = sd
         self.name = 'test_function_2'
 
-    def f(self, x, offset=0, true_val=False):
+    def f(self, x, offset=-10, true_val=False):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
         n = x.shape[0]

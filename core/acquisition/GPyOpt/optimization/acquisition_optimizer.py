@@ -222,7 +222,7 @@ class AcquisitionOptimizer(object):
 
         return x_min, fx_min
 
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, reuse=False, num_samples=1000):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, extra_point =None ,reuse=False, num_samples=1000):
         """
         Optimizes the input function.
 
@@ -251,6 +251,8 @@ class AcquisitionOptimizer(object):
         ## -- Select the anchor points (with context)
 
         anchor_points = anchor_points_generator.get(num_anchor=1,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
+        if extra_point is not None:
+            anchor_points = np.concatenate((anchor_points, extra_point))
 
         # if self.inner_anchor_points is not None:
         #     # print("self.inner_anchor_points, anchor_points",self.inner_anchor_points, anchor_points)
@@ -261,7 +263,7 @@ class AcquisitionOptimizer(object):
         optimized_points = [apply_optimizer(self.inner_optimizer, a.flatten(), f=f, df=None, f_df=f_df, duplicate_manager=duplicate_manager, context_manager=self.context_manager, space = self.space) for a in anchor_points]
         x_min, fx_min = min(optimized_points, key=lambda t:t[1])
         self.inner_anchor_points = x_min
-
+        # print("optimized_points",optimized_points)
         # import matplotlib
         # discretisation = initial_design("latin",self.space, 1000)
         # fvals = f(discretisation)

@@ -75,33 +75,43 @@ class KG(AcquisitionBase):
     def generate_random_vectors(self, optimize_discretization=True, optimize_random_Z=False, fixed_discretisation=None, ):
 
         self.base_marg_points = 40
-        self.n_marginalisation_points = np.array([-3.24, -2.64,-1.67 , -0.67, 0 , 0.67, 1.67, 2.64, 3.24])
+        self.n_marginalisation_points = np.array([ -2.64, -0.67, 0 , 0.67,  2.64,0])
         self.optimise_discretisation = optimize_discretization
         if optimize_random_Z:
             print("updating random Z")
 
-            self.update_current_best()
-            #lhd = lhs(self.dim - 1, samples=self.n_marginalisation_points)  # ** dim)
-            perm = product(self.n_marginalisation_points, repeat= self.dim-1)
-            self.Z_cdKG = np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
-
-            perm = product(self.n_marginalisation_points, repeat = self.dim) # Pseudo-random number generation to compute expectation constrainted discrete kg
-            perm = np.array(list(perm))
-            self.max_n_points = perm.shape[0]
-            index = np.random.choice(range(perm.shape[0]),self.n_base_points, replace=False)
+            # self.update_current_best()
+            lhd = lhs(self.dim - 1, samples=self.n_base_points ** (self.dim-1))
+            # print("lhd", lhd.shape)
+            # perm = product(self.n_marginalisation_points, repeat= self.dim-1)
+            self.Z_cdKG = norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
+            # print("self.Z_cdKG",self.Z_cdKG.shape)
+            # perm = product(self.n_marginalisation_points, repeat = self.dim) # Pseudo-random number generation to compute expectation constrainted discrete kg
+            # perm = np.array(list(perm))
+            # self.max_n_points = perm.shape[0]
+            # index = np.random.choice(range(perm.shape[0]),self.n_base_points, replace=False)
             # lhd = lhs(self.dim, samples=self.n_base_points)  # ** dim)
             # lhd = norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation
 
-            self.Z_obj = np.array(list(perm))[index, :1] # self.n_marginalisation_points #
-            self.Z_const = np.array(list(perm))[index, 1:]
-
+            self.Z_obj = self.n_marginalisation_points #np.array(list(perm))[index, :1] # self.n_marginalisation_points #
+            self.Z_const = self.Z_cdKG[:len(self.Z_obj) , :]# np.array(list(perm))[index, 1:]
+            self.Z_const = np.concatenate((self.Z_const, np.zeros((1, self.dim-1))))
+            # print(self.Z_const)
+            # print("len", len(self.Z_obj))
+            # print(self.Z_obj.shape)
+            # print(self.Z_const.shape)
+            # raise
             # print("self.Z_obj", self.Z_obj)
 
         if fixed_discretisation is not None:
-            self.update_current_best()
+            # self.update_current_best()
             #lhd = lhs(self.dim - 1, samples=self.n_marginalisation_points)  # ** dim)
             perm = product(self.n_marginalisation_points, repeat= self.dim-1)
-            self.Z_cdKG = np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
+            lhd = lhs(self.dim - 1, samples=self.n_base_points ** (self.dim-1))
+            # perm = product(self.n_marginalisation_points, repeat= self.dim-1)
+            self.Z_cdKG = norm(loc=0, scale=1).ppf(lhd)
+
+            # print("self.Z_cdKG ",self.Z_cdKG.shape)
 
             self.fixed_discretisation = True
             self.X_Discretisation =fixed_discretisation
@@ -110,20 +120,24 @@ class KG(AcquisitionBase):
             self.fixed_discretisation = False
             self.X_Discretisation =None
 
-
-    def _marginal_acq(self, X):
+    def _marginal_acq(self, X, test_mode=False):
         # print("_marginal_acq")
         """
 
         """
         #Initialise marginal acquisition variables
-        acqX = np.zeros((X.shape[0], 1))
+
 
         #Precompute posterior pariance at vector points X. These are the same through every cKG loop.
 
         varX_obj = self.model.posterior_variance(X, noise=True)
         varX_c = self.model_c.posterior_variance(X, noise=True)
 
+        if test_mode:
+            X = self.model.get_X_values()
+            self.X_test_mode = X
+            print("X", X)
+        acqX = np.zeros((X.shape[0], 1))
 
         for i in range(0, len(X)):
             x = np.atleast_2d(X[i])
@@ -137,32 +151,29 @@ class KG(AcquisitionBase):
             self.model_c.partial_precomputation_for_covariance_gradient(x)
 
             # Precompute aux_obj and aux_c for computational efficiency.
+
             aux_obj = np.reciprocal(varX_obj[:, i])
             aux_c = np.reciprocal(varX_c[:, i])
-
 
             #Create discretisation for discrete KG.
             start = time.time()
             # print("self.fixed_discretisation",self.fixed_discretisation)
             # print("self.optimise_discretisation",self.optimise_discretisation)
+            # if test_mode:
+            #     self.X_Discretisation = self.Discretisation_X(index=i, X=X, aux_obj=aux_obj, aux_c=aux_c)
             if self.fixed_discretisation is False:
                 if self.optimise_discretisation:
                     print("optimise_discretisation", self.optimise_discretisation)
                     self.X_Discretisation = self.Discretisation_X(index=i, X=X, aux_obj =aux_obj , aux_c =aux_c)
                     print("updated discretisation")
                     self.optimise_discretisation = False
-            stop = time.time()
-            # print("time generate disc", stop-start)
-            # print("xnew",x,"X_discretisation", self.X_Discretisation, "shape", self.X_Discretisation.shape)
-            start = time.time()
+            # print("x", x)
             kg_val = self.discrete_KG(Xd = self.X_Discretisation , xnew = x, Zc=self.Z_cdKG, aux_obj =aux_obj ,
                                                  aux_c =aux_c )
-
+            # print("kg",  kg_val)
             acqX[i,:] = kg_val
-            # print("x",x, kg_val)
-            # print("acqX",acqX)
-            stop = time.time()
-            # print("time solve KG", stop-start)
+
+        # print("acqX",acqX)
 
         return acqX.reshape(-1)
 
@@ -180,9 +191,13 @@ class KG(AcquisitionBase):
         self.new_anchors_flag = True
         for z in range(self.n_base_points):
 
-            Z_obj  = self.Z_obj[z]
 
+            Z_obj  = self.Z_obj[z]
+            Z_const = self.Z_const[z]
             # inner function of maKG acquisition function.
+
+            # inner_opt_x,inner_opt_val = self._compute_current_max(x=x, Z_const=Z_const, aux_c=aux_c)
+
             def inner_func(X_inner):
                 X_inner = np.atleast_2d(X_inner)
                 # X_inner = X_inner.astype("int")
@@ -199,8 +214,7 @@ class KG(AcquisitionBase):
 
                 Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
 
-                # print("mu_xnew",mu_xnew.shape, "Fz.shape", Fz.shape)
-                func_val = mu_xnew* Fz #- self.control_variate
+                func_val = mu_xnew* Fz #- inner_opt_val
 
                 return -func_val.reshape(-1)  # mu_xnew , Fz
 
@@ -236,12 +250,16 @@ class KG(AcquisitionBase):
             # self.gradient_sanity_check_2D(inner_func,inner_func_with_gradient)
             start = time.time()
             # print("Zobj", Z_obj, "Zc", Z_const)
+
+            # if False:
+            #     vals = inner_func(self.X_test_mode)
+            #     print("vals", vals)
+
             inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=inner_func,
-                                                                            f_df=None, reuse=self.new_anchors_flag)
+                                                                            f_df=None)
             stop=time.time()
             # print("time inner", stop-start)
-
-
+            # print("inner_opt_x, inner_opt_val",inner_opt_x, inner_opt_val)
             statistics_precision.append(inner_opt_val)
             # if ~ np.any(np.all(X_discretisation==inner_opt_x.reshape(-1),axis=1)):
             X_discretisation[z] = inner_opt_x.reshape(-1)
@@ -254,18 +272,104 @@ class KG(AcquisitionBase):
         # print("discretisation", X_discretisation)
         return X_discretisation
 
-    def discrete_KG(self,Xd, xnew, Zc, aux_obj , aux_c  ):
+
+
+    def probability_feasibility_multi_gp(self, x, model, l=0):
+        # print("model",model.output)
+        x = np.atleast_2d(x)
+        Fz = []
+        for m in range(model.output_dim):
+            Fz.append(self.probability_feasibility(x, model.output[m], l))
+        Fz = np.product(Fz, axis=0)
+        return Fz
+
+    def probability_feasibility(self, x, model, l=0):
+
+        mean = model.posterior_mean(x)
+        var = model.posterior_variance(x, noise=False)
+        std = np.sqrt(var).reshape(-1, 1)
+
+        mean = mean.reshape(-1, 1)
+
+        norm_dist = norm(mean, std)
+        Fz = norm_dist.cdf(l)
+
+        return Fz.reshape(-1, 1)
+
+    def _compute_acq_withGradients(self, X):
+        """
+        """
+        # print("_compute_acq_withGradients")
+
+        raise
+        X = np.atleast_2d(X)
+
+        marginal_acqX, marginal_dacq_dX = self._marginal_acq_with_gradient(X)
+
+        acqX = np.reshape(marginal_acqX,(X.shape[0], 1))
+        dacq_dX = np.reshape(marginal_dacq_dX , X.shape)
+        KG = acqX
+        return np.array(KG).reshape(-1), np.array(dacq_dX).reshape(-1)
+
+    def _marginal_acq_with_gradient(self, X):
+        # print("_marginal_acq")
+        """
+
+        """
+        # Initialise marginal acquisition variables
+
+        # Precompute posterior pariance at vector points X. These are the same through every cKG loop.
+
+        varX_obj = self.model.posterior_variance(X, noise=True)
+        varX_c = self.model_c.posterior_variance(X, noise=True)
+        acqX = np.zeros((X.shape[0], 1))
+        dacq_dX = np.zeros((X.shape[0], X.shape[1], 1))
+
+        for i in range(0, len(X)):
+            x = np.atleast_2d(X[i])
+
+            # For each x new precompute covariance matrices for
+
+            self.model.partial_precomputation_for_covariance(x)
+            self.model.partial_precomputation_for_covariance_gradient(x)
+
+            self.model_c.partial_precomputation_for_covariance(x)
+            self.model_c.partial_precomputation_for_covariance_gradient(x)
+
+            # Precompute aux_obj and aux_c for computational efficiency.
+
+            aux_obj = np.reciprocal(varX_obj[:, i])
+            aux_c = np.reciprocal(varX_c[:, i])
+
+            # Create discretisation for discrete KG.
+            start = time.time()
+            # print("self.fixed_discretisation",self.fixed_discretisation)
+            # print("self.optimise_discretisation",self.optimise_discretisation)
+            # if test_mode:
+            #     self.X_Discretisation = self.Discretisation_X(index=i, X=X, aux_obj=aux_obj, aux_c=aux_c)
+            if self.fixed_discretisation is False:
+                if self.optimise_discretisation:
+                    print("optimise_discretisation", self.optimise_discretisation)
+                    self.X_Discretisation = self.Discretisation_X(index=i, X=X, aux_obj=aux_obj, aux_c=aux_c)
+                    print("updated discretisation")
+                    self.optimise_discretisation = False
+            # print("x", x)
+            kg_val, kg_grad = self.discrete_KG(Xd=self.X_Discretisation, xnew=x, Zc=self.Z_cdKG, aux_obj=aux_obj,
+                                      aux_c=aux_c, grad=True)
+            # print("kg",  kg_val)
+            acqX[i, :] = kg_val
+            dacq_dX[i, :, 0] = kg_grad
+        # print("acqX",acqX)
+
+        return acqX.reshape(-1), dacq_dX
+
+    def discrete_KG(self, Xd, xnew, Zc, aux_obj, aux_c, grad=False):
 
         xnew = np.atleast_2d(xnew)
-        # print("Xd shape", Xd, "xnew", xnew)
-        if self.fixed_discretisation is not True:
-            Xd = np.concatenate((Xd, self.X_fixed_Discretisation))
         Xd = np.concatenate((Xd, xnew))
-        Xd = np.concatenate((Xd, self.current_max_xopt))
-        # print("self.current_max_xopt",self.current_max_xopt)
-        # print("Xd", Xd.shape)
-        # print("Zc", Zc.shape)
+        self.grad = grad
         out = []
+        gradout = []
         for Zc_partition in np.array_split(Zc, 1):
             # print("computing gradients")
             grad_c = gradients(x_new=xnew, model=self.model_c, Z=Zc_partition, aux=aux_c,
@@ -283,16 +387,26 @@ class KG(AcquisitionBase):
             self.c_SS = np.abs(SS) * Fz
             self.c_MM = MM * Fz
 
-            self.bases_value = np.max(self.c_MM ,axis=0)
+            self.bases_value = np.max(self.c_MM, axis=0)
 
             marginal_KG = []
+            marginal_gradKG = []
             for idx in list(range(Zc_partition.shape[0])):
-                marginal_KG.append(self.parallel_KG(idx))
-            out.append(marginal_KG )
+                if grad:
+                    # KG, gradKG = self.parallel_KG(idx)
+                    # marginal_KG.append(KG)
+                    # marginal_gradKG.append(gradKG)
+                    1==1
+                else:
+                    marginal_KG.append(self.parallel_KG(idx))
+            out.append(marginal_KG)
+            gradout.append(marginal_gradKG)
 
         KG_value = np.mean(out)
-        assert ~np.isnan(KG_value); "KG cant be nan"
-        return KG_value
+        # gradKG_value = np.mean(gradout, axis=?)
+        assert ~np.isnan(KG_value);
+        "KG cant be nan"
+        return KG_value#, gradKG_value
 
     def parallel_KG(self, index):
         """
@@ -315,8 +429,8 @@ class KG(AcquisitionBase):
         grad_b
             dKGCB/db, vector
         """
-        a = np.array(self.c_MM[:,index]).reshape(-1)
-        b = np.array(self.c_SS[:,index]).reshape(-1)
+        a = np.array(self.c_MM[:, index]).reshape(-1)
+        b = np.array(self.c_SS[:, index]).reshape(-1)
         a = np.array(a).reshape(-1)
         b = np.array(b).reshape(-1)
         assert len(a) > 0, "must provide slopes"
@@ -328,7 +442,7 @@ class KG(AcquisitionBase):
         n_elems = len(a)
 
         if np.all(np.abs(b) < 0.0000000001):
-            return 0#index, 0, np.zeros(a.shape), np.zeros(b.shape)
+            return 0  # index, 0, np.zeros(a.shape), np.zeros(b.shape)
 
         # order by ascending b and descending a
         order = np.lexsort((-a, b))
@@ -378,13 +492,12 @@ class KG(AcquisitionBase):
         cdf = norm.cdf(x)
 
         KG = np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))
-        KG -= np.max(a)#self.bases_value[index]
-
-        # print("np.max(a)",np.max(a))
-        if KG<-1e-5:
+        KG -= np.max(a)
+        if KG < -1e-5:
             print("KG cant be negative")
-            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
-            print("self.bases_value[index]",np.max(a))
+            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",
+                  np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
+            print("self.bases_value[index]", np.max(a))
             print("KG", KG)
             raise
 
@@ -392,65 +505,23 @@ class KG(AcquisitionBase):
 
         if np.isnan(KG):
             print("KG", KG)
-            print("self.bases_value[index]",max_a_index)
-            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
+            print("self.bases_value[index]", max_a_index)
+            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",
+                  np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
             raise
 
-        return KG #=index, KGCB, grad_a, grad_b
+        if self.grad:
+            # gradients of KG
+            grad_a = np.zeros((n_elems))
+            grad_a[max_a_index] = -1
+            grad_a[order] = grad_a[order] + cdf[1:] - cdf[:-1]
 
+            grad_b = np.zeros((n_elems))
+            grad_b[order] = -pdf[1:] + pdf[:-1]
 
-    def probability_feasibility_multi_gp(self, x, model, l=0):
-        # print("model",model.output)
-        x = np.atleast_2d(x)
-        Fz = []
-        for m in range(model.output_dim):
-            Fz.append(self.probability_feasibility(x, model.output[m], l))
-        Fz = np.product(Fz, axis=0)
-        return Fz
-
-    def probability_feasibility(self, x, model, l=0):
-
-        mean = model.posterior_mean(x)
-        var = model.posterior_variance(x, noise=False)
-        std = np.sqrt(var).reshape(-1, 1)
-
-        mean = mean.reshape(-1, 1)
-
-        norm_dist = norm(mean, std)
-        Fz = norm_dist.cdf(l)
-
-        return Fz.reshape(-1, 1)
-
-    def _compute_acq_withGradients(self, X):
-        """
-        """
-        # print("_compute_acq_withGradients")
-
-
-        X = np.atleast_2d(X)
-        # X = X.astype("int")
-
-        # self.update_current_best()
-        # self.update_current_best()
-        # Compute marginal aquisition function and its gradient for every value of the utility function's parameters samples,
-
-        # if self.Z_samples_obj is None:
-        #
-        #     np.random.seed(X.shape[0])
-
-        marginal_acqX, marginal_dacq_dX = self._marginal_acq_with_gradient(X)
-
-        acqX = np.reshape(marginal_acqX,(X.shape[0], 1))
-        dacq_dX = np.reshape(marginal_dacq_dX , X.shape)
-        # print("self.Z_samples_obj", self.Z_samples_obj, "self.Z_samples_const", self.Z_samples_const)
-        KG = acqX #-self.current_max_value
-        #KG[KG < 0.0] = 0.0
-        # print("acqX",acqX, "self.current_max_value",self.current_max_value,"KG",KG,"dacq_dX",dacq_dX)
-        # print("self.current_max_value", self.current_max_value)
-        # print("KG", KG)
-        #print("self.Z_samples_obj ",self.Z_samples_obj ,"self.Z_samples_const",self.Z_samples_const)
-        #print("X", X, "acqX", np.array(acqX).reshape(-1), "grad", np.array(dacq_dX).reshape(-1))
-        return np.array(KG).reshape(-1), np.array(dacq_dX).reshape(-1)
+            return KG , grad_a, grad_b
+        else:
+            return KG
 
     def run_inner_func_vals(self,f ):
         X = initial_design('random', self.space, 1000)
@@ -470,14 +541,17 @@ class KG(AcquisitionBase):
             self.current_max_xopt, self.current_max_value = self._compute_current_max()
         assert self.current_max_value.reshape(-1) is not np.inf; "error ocurred updating current best"
 
-    def _compute_current_max(self):
+    def _compute_current_max(self,x, Z_const, aux_c):
         def current_func(X_inner):
+            X_inner = np.atleast_2d(X_inner)
             mu = self.model.posterior_mean(X_inner)[0]
-            mu = mu.reshape(-1, 1)
-            pf = self.probability_feasibility_multi_gp(X_inner, self.model_c).reshape(-1, 1)
             mu = np.array(mu).reshape(-1)
-            pf = np.array(pf).reshape(-1)
-            return -(mu * pf).reshape(-1)
+            grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c,
+                               X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
+
+            Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0).reshape(-1)
+
+            return -(mu * Fz).reshape(-1)
         inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=current_func, f_df=None, num_samples=1000)
-        print("inner_opt_x, inner_opt_val",inner_opt_x, inner_opt_val)
+        # print("inner_opt_x, inner_opt_val",inner_opt_x, inner_opt_val)
         return inner_opt_x,-inner_opt_val

@@ -254,7 +254,9 @@ class BO(object):
             print("maKG optimizer")
             start = time.time()
 
-
+            print("X", self.X)
+            print("Y", self.Y)
+            print("C", np.product(np.array(self.C)<0,axis=0))
             self.suggested_sample = self._compute_next_evaluations()
 
             finish = time.time()
@@ -278,7 +280,7 @@ class BO(object):
             C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
             data = {}
 
-            print("C", C)
+
             print("np.array(Opportunity_cost).reshape(-1)", np.array(Opportunity_cost).reshape(-1))
             print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
             print("np.array(C_bool).reshape(-1)", np.array(C_bool).reshape(-1))
@@ -432,17 +434,6 @@ class BO(object):
         axs[1, 1].legend()
 
 
-        #axs[2, 1].legend()
-        # import os
-        # folder = "IMAGES"
-        # subfolder = "new_branin"
-        # cwd = os.getcwd()
-        # print("cwd", cwd)
-        # time_taken = time.time()
-        # path = cwd + "/" + folder + "/" + subfolder + '/im_' +str(time_taken) +str(self.X.shape[0]) + '.pdf'
-        # if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
-        #     os.makedirs(cwd + "/" + folder + "/" + subfolder)
-        # plt.savefig(path)
         plt.show()
 
         print("self.Opportunity_Cost plot", self.Opportunity_Cost)
@@ -480,16 +471,7 @@ class BO(object):
             print("best expected improvement found", out)
             self.suggested_sample = self.space.zip_inputs(out[0])
             print("model hypers", self.model.get_model_parameters())
-            # import matplotlib.pyplot as plt
-            # import matplotlib
-            # plt.title("KG")
-            # plt.scatter(design_plot[:, 0], design_plot[:, 1],
-            #                   c=np.array(EI_plot).reshape(-1))
-            # plt.scatter(self.suggested_sample[:, 0], self.suggested_sample[:, 1], color="red",
-            #                   label="KG suggested")
-            # plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
-            # plt.legend()
-            # plt.show()
+
             self.X = np.vstack((self.X, self.suggested_sample))
 
             self.evaluate_objective()
@@ -542,6 +524,22 @@ class BO(object):
         print("OC", optimum - np.max(func_val_true),"optimum", optimum, "func_val recommended", np.max(func_val_true))
         self.Opportunity_Cost.append(optimum - np.max(func_val_true))
 
+        # X = initial_design('random', self.space, 10000)
+        #
+        # fval = self.func_val(X)
+        #
+        # anchor_point = np.array(X[np.argmin(fval)]).reshape(-1)
+        # anchor_point = anchor_point.reshape(1, -1)
+        # from scipy.optimize import minimize
+        # best_design = minimize(self.func_val, anchor_point, method='nelder-mead', tol=1e-8).x
+        #
+        # value_best_design  = -self.func_val(best_design)
+        # print("best design", best_design, "value_best_design", value_best_design)
+        # self.acquisition.generate_random_vectors(optimize_discretization=True, optimize_random_Z=True)
+        # acq_recomm = self.acquisition._compute_acq(self.suggested_sample)
+        # acq = self.acquisition._compute_acq(best_design)
+        # print("VoI true best design", acq)
+        # print("VoI recommended design", acq_recomm)
 
     def aggregated_posterior(self, X):
         mu = self.model.posterior_mean(X)
@@ -717,6 +715,9 @@ class BO(object):
 
         value_best_design  = -self.func_val(best_design)
         print("best design", best_design, "value_best_design", value_best_design)
+
+
+
 
         self.true_best_stats["true_best"].append(value_best_design)
         self.true_best_stats["mean_gp"].append(self.model.posterior_mean(best_design))

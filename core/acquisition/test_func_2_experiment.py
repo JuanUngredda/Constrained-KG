@@ -52,7 +52,7 @@ def function_caller_test_func_2(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz = 60 # (n_c+1)
+        nz = 5 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
         if noise < 1e-3:
             Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
