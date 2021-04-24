@@ -18,7 +18,7 @@ class AnchorPointsGenerator(object):
     def get_anchor_point_scores(self, X):
         raise NotImplementedError("get_anchor_point_scores is not implemented in the parent class.")
 
-    def get(self, num_anchor=3, X_sampled_values=None,duplicate_manager=None, unique=False, context_manager=None):
+    def get(self, num_anchor=3, X_sampled_values=None,duplicate_manager=None, unique=False, context_manager=None, verbose=False):
         ## --- We use the context handler to remove duplicates only over the non-context variables
         #if context_manager and not self.space._has_bandit():
             #space_configuration_without_context = [self.space.config_space_expanded[idx] for idx in context_manager.nocontext_index_obj]
@@ -70,7 +70,10 @@ class AnchorPointsGenerator(object):
         # print("anchor_points",anchor_points.shape)
         # raise
         # print("np.argsort(scores)[:min(len(scores),num_anchor)]",np.sort(scores)[:min(len(scores),num_anchor)])
-
+        if verbose:
+            import matplotlib.pyplot as plt
+            plt.plot(X[np.argsort(scores)], np.sort(scores))
+            plt.show()
         return anchor_points
 
 

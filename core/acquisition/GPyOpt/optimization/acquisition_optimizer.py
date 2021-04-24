@@ -78,14 +78,13 @@ class AcquisitionOptimizer(object):
 
         if 'dynamic_parameter_function' in self.kwargs:
             print("Optimising Hybrid KG")
-
             self.optimizer = choose_optimizer("Nelder_Mead", self.context_manager.noncontext_bounds)
         else:
             self.optimizer = choose_optimizer(self.optimizer_name, self.context_manager.noncontext_bounds)
 
         if 'dynamic_parameter_function' in self.kwargs:
             print("setting fix discretisation for anchor points")
-            discretisation = initial_design("latin",self.space, 1000)
+            discretisation = self.generate_points_pf(N=50) #initial_design("latin",self.space, 1000)
             self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
                                             fixed_discretisation=discretisation)
 
@@ -103,22 +102,38 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-            anchor_points = anchor_points_generator.get(num_anchor=2,X_sampled_values=self.model.get_X_values() ,duplicate_manager=duplicate_manager, context_manager=self.context_manager)
 
-            anchor_points_vals = f(anchor_points)
-            print("anchor points", anchor_points)
-            print("anchor points values", anchor_points_vals)
-            # print("no points found that may have good values")
-            # anchor_points_generator = ThompsonSamplingAnchorPointsGenerator(self.space, random_design_type, self.model,
-            #                                                                 self.model_c)
+            if ('dynamic_parameter_function' in self.kwargs): #
+                print("random sampling failed, changed to feasable sols")
 
+                feasable_samples = self.generate_points_pf(N=100)
+                # print("feasable_samples",feasable_samples.shape)
+                scores = f(feasable_samples)
+                # plt.scatter(feasable_samples.reshape(-1),-scores.reshape(-1) )
+                # plt.show()
+                # raise
+                num_anchor = 7
+                anchor_points = feasable_samples[np.argsort(scores)[:min(len(scores), num_anchor)], :]
+                anchor_points_vals = np.sort(scores)[:min(len(scores), num_anchor)]
+
+            else:
+                anchor_points = anchor_points_generator.get(num_anchor=2, X_sampled_values=self.model.get_X_values(),
+                                                            duplicate_manager=duplicate_manager,
+                                                            context_manager=self.context_manager)
+
+                anchor_points_vals = f(anchor_points)
+            # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
             if np.sum(anchor_points_vals)==0:
+                print("feasible points failed, changed to best posterior mean")
                 optimized_points = []
                 anchor_points_ls = self.optimize_final_evaluation()
                 for a in anchor_points_ls:
                     if 'dynamic_parameter_function' in self.kwargs:
+
                         self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
                                                         fixed_discretisation=None)  # discretisation)
+
+
                     optimised_anchor_point = apply_optimizer(self.optimizer, a.flatten(), f=f, df=None,
                                                              f_df=f_df,
                                                              duplicate_manager=duplicate_manager,
@@ -127,6 +142,7 @@ class AcquisitionOptimizer(object):
                     optimized_points.append(optimised_anchor_point)
                 x_min, fx_min = min(optimized_points, key=lambda t: t[1])
                 print(" x_min, fx_min", x_min, fx_min)
+
                 return x_min, fx_min
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
@@ -135,59 +151,26 @@ class AcquisitionOptimizer(object):
         #     # print("self.inner_anchor_points, anchor_points", self.inner_anchor_points, anchor_points)
         #     anchor_points = np.concatenate((self.outer_anchor_points, anchor_points))
 
-
         print("optimising anchor points....")
 
         if 'dynamic_parameter_function' in self.kwargs:
-            start = time.time()
             optimized_points = []
-            tol = 1e-5
-            maxiter = 1
             for a in anchor_points:
                 optimised_anchor_point_x = a*1
-                history_optimisation = []
-                it = 0
-                dif = 1
-                start = time.time()
-                while (dif > tol) and (it<maxiter):
 
-                    it +=1
-                    if 'dynamic_parameter_function' in self.kwargs:
-                        self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
-                                                        fixed_discretisation=None)  # discretisation)
-                    # print("optimiser type", self.optimizer_name)
-                    optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,
-                                                            duplicate_manager=duplicate_manager, context_manager=self.context_manager,
-                                                            space = self.space)
+                if 'dynamic_parameter_function' in self.kwargs:
 
-                    optimised_anchor_point_x = optimised_anchor_point[0]
-                    optimised_anchor_point_fval = optimised_anchor_point[1]
+                    self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
+                                                    fixed_discretisation=None)  # discretisation)
+                # print("optimiser type", self.optimizer_name)
 
-                    if len(history_optimisation)>0:
-                        dif= np.abs(optimised_anchor_point_fval - history_optimisation[-1])
-                        history_optimisation.append(optimised_anchor_point_fval)
-                    else:
-                        history_optimisation.append(optimised_anchor_point_fval)
-
-                    print("plotting.....")
-
-                    # X_plot = initial_design("latin",self.space, 1000)
-                    # fval_plot = f(X_plot)
-
-                    # anchor_val = optimised_anchor_point_fval
-                    # import matplotlib
-                    # plt.scatter(X_plot[:,0], X_plot[:,1], norm=matplotlib.colors.LogNorm(),c=np.array(-fval_plot).reshape(-1))
-                    # plt.scatter(optimised_anchor_point_x[:,0],optimised_anchor_point_x[:,1],  color="red")
-                    # plt.show()
-                    #
-                    # plt.title("convergence")
-                    # plt.plot(np.array(history_optimisation).reshape(-1))
-                    # plt.show()
-
-
-                print("a",a,"optimised_anchor_point",optimised_anchor_point)
+                optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,
+                                                        duplicate_manager=duplicate_manager, context_manager=self.context_manager,
+                                                     space = self.space)
 
                 optimized_points.append(optimised_anchor_point)
+            print("anchor_points",anchor_points)
+            print("optimised_anchor_point",optimized_points)
         else:
             optimized_points = []
             for a in anchor_points:
@@ -312,6 +295,22 @@ class AcquisitionOptimizer(object):
             Fz.append(self.probability_feasibility( x, model.output[m], l))
         Fz = np.product(Fz,axis=0)
         return Fz
+
+
+    def generate_points_pf(self, N):
+
+        proposed_points = []
+        n = 0
+        while n<N:
+            X = initial_design("latin",self.space, 100)
+            pf = self.probability_feasibility_multi_gp(X, self.model_c).reshape(-1)
+
+            n += len(X[pf.reshape(-1) > 0.1])
+            proposed_points.append(X[pf.reshape(-1) > 0.1])
+
+        return np.vstack(proposed_points)[:N, :]
+
+
 
     def probability_feasibility(self, x, model, mean=None, cov=None, grad=False, l=0):
 

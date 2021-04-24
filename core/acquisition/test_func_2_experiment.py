@@ -40,7 +40,7 @@ def function_caller_test_func_2(rep):
         n_f = 1
         n_c = 3
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-10]*n_c, exact_feval=[True]*n_c)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-06]*n_c, exact_feval=[True]*n_c)
 
 
         # --- Aquisition optimizer
@@ -52,7 +52,7 @@ def function_caller_test_func_2(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz = 5 # (n_c+1)
+        nz = 8 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
         if noise < 1e-3:
             Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
@@ -76,10 +76,11 @@ def function_caller_test_func_2(rep):
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
-                                                                                  KG_dynamic_optimisation=True)
+                                                                                  KG_dynamic_optimisation=True )
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
+
 # function_caller_test_func_2(rep=12)
 
 

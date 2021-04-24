@@ -329,15 +329,20 @@ class gradients(object):
 
             # self.cov = self.model.posterior_covariance_between_points_partially_precomputed(x, self.xnew)[:, :, 0]*1
             # self.dcov = self.model.posterior_covariance_gradient_partially_precomputed(x, self.xnew)*1
-            computed_mean = self.compute_value_mu_xnew(x=x)
-            computed_var = self.compute_posterior_var_x_new(x=x)
+            print("x", x.shape)
+            computed_mean = np.atleast_1d(self.compute_value_mu_xnew(x=x))
+            computed_var = np.atleast_1d(self.compute_posterior_var_x_new(x=x))
+            print("computed_mean",computed_mean, computed_mean.shape, "computed_var", computed_var,computed_var.shape)
             Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
             grad_mean = self.compute_gradient_mu_xnew(x)
             grad_std = self.compute_gradient_posterior_std_x_new(x)
             grad_Fz = self.compute_gradient_probability_feasibility( mean=computed_mean,  var=computed_var,
                                                                                 grad_mean=grad_mean, grad_std=grad_std)
 
+            print("Fz", Fz.shape)
             Probability_of_feasibility = np.product(Fz, axis=0)
+            print("Fz", Fz.shape)
+            print("grad_Fz",grad_Fz.shape)
             Grad_Probability_of_feasibility = self.product_gradient_rule(func=Fz , grad=grad_Fz)
             return Probability_of_feasibility,  Grad_Probability_of_feasibility
         else:
@@ -450,43 +455,47 @@ class gradients(object):
         out = np.array(cov).reshape(-1)
         return out
 
-    def compute_b(self,xopt, x_new = None, m=None):
+    def compute_b(self,xopt, x_new = None, m=None, verbose=False):
         # print("computing b")
         # print("self.xnew ", self.xnew, "self.varX", self.varX, "self.dvar_dX ", self.dvar_dX, "self.aux",
         #       self.aux,
         #       "self.aux2", self.aux2, "xopt", xopt, "cov_opt", self.model.posterior_covariance_between_points(xopt, self.xnew)[:, 0, 0][m])
 
         if m is None:
-
+            # print("self.model.posterior_covariance_between_points(xopt, self.xnew)",self.model.posterior_covariance_between_points(xopt, self.xnew).shape)
             if x_new is None:
-                cov_opt = self.model.posterior_covariance_between_points(xopt, self.xnew)[:, 0, 0]
-
+                cov_opt = self.model.posterior_covariance_between_points_partially_precomputed(xopt, self.xnew)[:, :, 0]
 
                 b = np.matmul(np.sqrt(self.aux),cov_opt)
 
+                assert len(np.array(b).reshape(-1)) == len(np.array(xopt).reshape(-1));
+                "Bug computing cross covariance in b"
             else:
-                cov_opt = self.model.posterior_covariance_between_points(xopt, x_new)[:, 0, 0]
+                cov_opt = self.model.posterior_covariance_between_points_partially_precomputed(xopt, x_new)[:, :, 0]
+                b = np.matmul(np.sqrt(self.aux), cov_opt)
+                assert len(np.array(b).reshape(-1)) == len(np.array(xopt).reshape(-1));
+                "Bug computing cross covariance in b"
 
+            assert len(np.array(b).reshape(-1)) == len(np.array(cov_opt).reshape(-1));
+            "dim problem in b"
 
-                b = np.matmul(np.sqrt(self.aux),cov_opt)
-
-
-
+            # print("xopt", xopt, "x_new", self.xnew)
+            # print("cov_opt",self.model.posterior_covariance_between_points(xopt, self.xnew))
+            # print("kernel + noise", np.reciprocal(self.aux))
             return np.array(b).reshape(-1)
         else:
             if x_new is None:
-                cov_opt = self.model.posterior_covariance_between_points(xopt, self.xnew)[:, 0, 0][m]
+                cov_opt = self.model.posterior_covariance_between_points_partially_precomputed(xopt, self.xnew)[:, :, 0][m]
                 cov_opt = np.array(cov_opt).reshape(-1)
                 aux = np.array([self.aux[m]])
-
                 b = np.matmul(np.sqrt(aux),cov_opt) #np.sqrt(self.aux[m] *np.square(cov_opt))
-
+                assert len(np.array(b).reshape(-1)) == len(np.array(xopt).reshape(-1));
             else:
-                cov_opt = self.model.posterior_covariance_between_points(xopt, x_new)[:, 0, 0][m]
+                cov_opt = self.model.posterior_covariance_between_points_partially_precomputed(xopt, x_new)[:, :, 0][m]
                 cov_opt = np.array(cov_opt).reshape(-1)
                 aux = np.array([self.aux[m]])
                 b = np.matmul(np.sqrt(aux),cov_opt)
-
+                assert len(np.array(b).reshape(-1)) == len(np.array(xopt).reshape(-1));
             return np.array(b).reshape(-1)
 
     def compute_grad_b(self, xopt, m=None):
@@ -506,22 +515,6 @@ class gradients(object):
             term2 = -(1.0/2) * self.varX**(-3.0/2.0) * self.dvar_dX * cov_opt
             grad_b = term1.reshape(-1) +term2.reshape(-1) #
 
-            ##fuck this shit. Estimated, at least for now
-            # delta = 1e-4
-            # dim = xopt.shape[1]
-            # delta_matrix = np.identity(dim)
-            # x = self.xnew*1
-            # x = x.reshape(1, -1)
-            # f_delta = []
-            # for i in range(dim):
-            #     one_side = np.array(self.trial_compute_b_xopt(x + delta_matrix[i] * delta)).reshape(-1)
-            #     two_side = np.array(self.trial_compute_b_xopt(x - delta_matrix[i] * delta)).reshape(-1)
-            #     f_delta.append(one_side - two_side)
-            #
-            # self.xnew = x* 1
-            # f_delta = np.array(f_delta).reshape(-1)
-            # grad_b = np.array(f_delta / (2 * delta)).reshape(-1)
-
             return np.array(grad_b).reshape(-1)
         else:
             cov_opt = self.model.posterior_covariance_between_points(xopt, self.xnew)[:, 0, 0][m]
@@ -536,20 +529,6 @@ class gradients(object):
             term2 = -(1.0 / 2) * (self.varX[m])** (-3.0 / 2.0) * self.dvar_dX[m] * cov_opt
             grad_b = term1.reshape(-1) + term2.reshape(-1)
 
-            # delta = 1e-4
-            # dim = xopt.shape[1]
-            # delta_matrix = np.identity(dim)
-            # x = self.xnew*1
-            # x = x.reshape(1, -1)
-            # f_delta = []
-            # for i in range(dim):
-            #     one_side = np.array(self.trial_compute_b_xopt(x + delta_matrix[i] * delta, m=m)).reshape(-1)
-            #     two_side = np.array(self.trial_compute_b_xopt(x - delta_matrix[i] * delta, m=m)).reshape(-1)
-            #     f_delta.append(one_side - two_side)
-            #
-            # self.xnew = x* 1
-            # f_delta = np.array(f_delta).reshape(-1)
-            # grad_b = np.array(f_delta / (2 * delta)).reshape(-1)
             return np.array(grad_b).reshape(-1)
 
     def compute_grad_sigma_xopt(self, xopt, m=None):

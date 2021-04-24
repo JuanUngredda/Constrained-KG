@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import scipy
 from Hybrid_continuous_KG import KG
 from bayesian_optimisation import BO
+from nEI import nEI
+from EI import EI
 import pandas as pd
 import os
 
@@ -17,7 +19,7 @@ import os
 
 def function_caller_test_func_2(rep):
     np.random.seed(rep)
-    for noise in [0.1, 1.0]:
+    for noise in [0.1]:
         # func2 = dropwave()
         test_function_2_f = Problem01(sd=np.sqrt(noise))
 
@@ -36,7 +38,7 @@ def function_caller_test_func_2(rep):
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-10]*n_c, exact_feval=[True]*n_c)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c) # dont reduce the noise further than 10^{-10} numerical errors appear.
 
 
         # --- Aquisition optimizer
@@ -48,10 +50,17 @@ def function_caller_test_func_2(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz = 5#**2
+        nz = 8#**2
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        if noise < 1e-3:
+            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        else:
+            Last_Step_acq = nEI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
                 deterministic=False)
 
@@ -62,8 +71,10 @@ def function_caller_test_func_2(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
-        print("Code Ended")
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=True,
+                                                                                  path=path,
+                                                                                  evaluations_file=subfolder,
+                                                                                  KG_dynamic_optimisation=True )
 
 
 

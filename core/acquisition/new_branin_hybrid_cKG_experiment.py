@@ -20,7 +20,7 @@ print("mistery activate")
 def function_caller_new_branin(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [ 1e-06]:
+    for noise in [ 1e-06, 1.0]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
@@ -39,7 +39,7 @@ def function_caller_new_branin(rep):
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-10] * n_c, exact_feval=[True] * n_c)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-06] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -74,7 +74,7 @@ def function_caller_new_branin(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True, path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 

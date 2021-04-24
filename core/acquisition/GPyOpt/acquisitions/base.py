@@ -51,6 +51,9 @@ class AcquisitionBase(object):
     def generate_random_vectors(self, optimize_discretization=True, optimize_random_Z=False):
         raise NotImplementedError()
 
+    def _plots(self, test_samples):
+        raise NotImplementedError()
+
     def acquisition_function_withGradients(self, x):
 
         """
