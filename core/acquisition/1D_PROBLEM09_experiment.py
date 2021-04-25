@@ -7,7 +7,7 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from continuous_KG import KG
+from Hybrid_continuous_KG import KG
 from bayesian_optimisation import BO
 import pandas as pd
 import os
@@ -20,9 +20,17 @@ import os
 def function_caller_1DGP(rep):
     np.random.seed(rep)
 
-    function = Problem01(sd = 1e-3)
+    function = Problem01(sd = 0)
     GP_test_f = function.f
-    GP_test_c = function.c
+    GP_test_c = function.c1
+
+    # x = np.linspace(0,5,100).reshape(-1,1)
+    # y = GP_test_f(x, true_val=True)
+    # c = GP_test_c(x)
+    # print("c",c)
+    # func_val = y.reshape(-1)#*np.array(np.array(c).reshape(-1)<0).reshape(-1)
+    # plt.plot(x, func_val)
+    # plt.show()
 
     # --- Attributes
     #repeat same objective function to solve a 1 objective problem
@@ -38,8 +46,8 @@ def function_caller_1DGP(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)}])#  , {'name': 'var_2', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-4]*n_f, exact_feval=[True]*n_f)
-    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-6]*n_f, exact_feval=[True]*n_f)
+    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
 
 
     # --- Aquisition optimizer
