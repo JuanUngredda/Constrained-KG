@@ -80,6 +80,6 @@ def function_caller_mistery_bnch_1(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_mistery(rep=4)
+# function_caller_mistery_bnch_1(rep=4)
 
 

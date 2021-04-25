@@ -65,7 +65,7 @@ def function_caller_new_branin_bnch_2(rep):
                 ls_evaluator=last_step_evaluator,
                 ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100

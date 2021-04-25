@@ -56,6 +56,7 @@ class Problem01(function1d):
 			X = X.reshape(1, -1)
 		n = X.shape[0]
 		fval = np.sin(X) + np.sin((10.0/3.0)*X) + np.log(X+0.001) -0.84 * X + 3
+		fval = fval/5
 		if self.sd ==0 or true_val:
 			noise = np.zeros(n).reshape(n,1)
 		else:
@@ -69,7 +70,7 @@ class Problem01(function1d):
 			X = X.reshape(1, -1)
 		n = X.shape[0]
 
-		fval = np.sin(X*5)*3
+		fval = -0.1*X + 2.15858184*0.1
 
 		return fval.reshape(n,1)
 

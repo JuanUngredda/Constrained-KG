@@ -80,6 +80,6 @@ def function_caller_test_func_2_bnch_1(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_test_func_2(rep=12)
+# function_caller_test_func_2_bnch_1(rep=12)
 
 

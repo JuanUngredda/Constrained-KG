@@ -190,16 +190,7 @@ class KG(AcquisitionBase):
                                      X_inner=X_inner)  # , test_samples = self.test_samples)
                 mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
 
-                # Z_const = self.Z_const[z]
-                # if len(Z_const.shape)==1:
-                #     Z_const = np.atleast_2d(Z_const)
 
-                # grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c,
-                #                    X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
-
-                #Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
-
-                # print("mu_xnew",mu_xnew.shape, "Fz.shape", Fz.shape)
                 func_val = mu_xnew#* Fz #- self.control_variate
 
                 return -func_val.reshape(-1)  # mu_xnew , Fz
@@ -274,8 +265,8 @@ class KG(AcquisitionBase):
         inv_sd = np.asarray(np.sqrt(aux_obj)).reshape(())
 
         SS = SS_Xd * inv_sd
-        MM = MM.reshape(-1)[:, np.newaxis]
-        SS = SS.reshape(-1)[:, np.newaxis]
+        MM = MM.reshape(-1)
+        SS = SS.reshape(-1)
 
         self.c_SS = np.abs(SS) #* Fz
         self.c_MM = MM #* Fz
@@ -312,8 +303,8 @@ class KG(AcquisitionBase):
         grad_b
             dKGCB/db, vector
         """
-        a = np.array(self.c_MM[:,index]).reshape(-1)
-        b = np.array(self.c_SS[:,index]).reshape(-1)
+        a = np.array(self.c_MM[:]).reshape(-1)
+        b = np.array(self.c_SS[:]).reshape(-1)
         a = np.array(a).reshape(-1)
         b = np.array(b).reshape(-1)
         assert len(a) > 0, "must provide slopes"

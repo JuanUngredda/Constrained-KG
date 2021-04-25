@@ -351,8 +351,15 @@ class KG(AcquisitionBase):
         varX_c = self.model_c.posterior_variance(test_samples, noise=True)
 
         colors = ["magenta", "green", "red", "blue", "orange"]
-        Z_obj = np.array([  -2.64, -0.67, 0, 0.67, 2.64]) #np.array([-2.64, -1.64, -0.67, 0, 0.67, 1.64, 2.64])
-        Z_const = np.array([-2.64,  0, 2.64])
+        Z_obj =  np.array([ -3, -1.64, -2.64, -0.67, 0, 0.67, 1.64, 2.64, 3])
+        Z_const =  np.array([ -3, -1.64, -2.64, -0.67, 0, 0.67, 1.64, 2.64, 3])
+
+        optimums_objs = []
+        optimums_const = []
+        optimiser_objs = []
+        optimiser_const =[ ]
+        future_means_const = []
+        future_means_objs = []
         for i in range(0, len(test_samples)):
             x = np.atleast_2d(test_samples[i])
             # For each x new precompute covariance matrices for
@@ -427,6 +434,7 @@ class KG(AcquisitionBase):
                         grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj[zo], aux=aux_obj,
                                              X_inner=X_inner)
                         mu_xnew = self.model.predict(X_inner)[0].reshape(-1)
+                        # var_xnew = self.model.predict(X_inner)[1].reshape(-1)
                         var_xnew = grad_obj.compute_b(xopt=X_inner)
 
                         grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const[zc], aux=aux_c,
@@ -455,8 +463,8 @@ class KG(AcquisitionBase):
                         individual_maxgraph.append(-next_inner_opt_val)
                         maxgraph.append(-next_inner_opt_val)
                         plt.plot(plot_samples, mean_n1, color="pink")
-                        plt.plot(plot_samples, mean_n1 + 1.96 * varn_n1, color="pink", alpha=0.3)
-                        plt.plot(plot_samples, mean_n1 - 1.96 * varn_n1, color="pink", alpha=0.3)
+                        plt.plot(plot_samples, mean_n1 + 2.64 * varn_n1, color="pink", alpha=0.3)
+                        plt.plot(plot_samples, mean_n1 - 2.64 * varn_n1, color="pink", alpha=0.3)
                         plt.fill_between(plot_samples.reshape(-1), mean_n1 - 1.96 * varn_n1,
                                          mean_n1 + 1.96 * varn_n1, color="pink", alpha=0.2)
 
@@ -469,28 +477,73 @@ class KG(AcquisitionBase):
                         plt.scatter(x, [0], color="magenta")
 
                     else:
-                        current_test_samples_mean = -current_func(X_inner=plot_samples, Z_const=Z_const[zc], aux_c=aux_c)
-                        next_test_samples_mean = -inner_func(plot_samples)
-                        mean_n1, varn_n1 = inner_func_predict(plot_samples)
 
-                        current_inner_opt_x, current_inner_opt_val = self._compute_current_max(x, Z_const[zc], aux_c)
+                        next_test_samples_mean = -inner_func(plot_samples)
                         next_inner_opt_x, next_inner_opt_val = self.optimizer.optimize_inner_func(f=inner_func,
                                                                                         f_df=None)
                         individual_maxgraph.append(-next_inner_opt_val)
                         maxgraph.append(-next_inner_opt_val)
-                        plt.plot(plot_samples, mean_n1, color="pink")
-                        plt.plot(plot_samples, mean_n1 + 1.95*varn_n1, color="pink", alpha=0.3)
-                        plt.plot(plot_samples, mean_n1 - 1.95 * varn_n1, color="pink", alpha=0.3)
-                        plt.fill_between(plot_samples.reshape(-1), mean_n1 - 1.95 *varn_n1, mean_n1 + 1.95*varn_n1, color="pink", alpha=0.2)
 
-                        plt.plot(plot_samples, current_test_samples_mean, color = "grey")
-                        plt.plot(plot_samples, next_test_samples_mean, color="grey", linestyle='dashed')
-                        plt.scatter(current_inner_opt_x, current_inner_opt_val , color="grey")
-                        plt.scatter(next_inner_opt_x, -next_inner_opt_val, color="grey")
-                        plt.scatter(x, [0], color="magenta")
+                        if Z_obj[zo]==0:
+                            future_means_const.append(next_test_samples_mean)
+                            optimums_const.append(-next_inner_opt_val)
+                            optimiser_const.append(next_inner_opt_x)
+                            if Z_const[zc]==0:
+                                current_mean_const = next_test_samples_mean
+                                current_optimums_const = -next_inner_opt_val
+                                current_optimiser_const = next_inner_opt_x
 
-                plt.show()
+                        if Z_const[zc]==0:
+                            future_means_objs.append(next_test_samples_mean)
+                            optimums_objs.append(-next_inner_opt_val )
+                            optimiser_objs.append(next_inner_opt_x)
+                            if Z_obj[zo]==0:
+                                current_mean_objs = next_test_samples_mean
+                                current_optimums_objs = -next_inner_opt_val
+                                current_optimiser_objs = next_inner_opt_x
 
+
+            ####plot Zy
+            plt.plot(plot_samples, current_mean_objs , color="black", linestyle="dashed", zorder=0)
+            plt.plot(plot_samples, np.array(future_means_objs).T, alpha=0.4, color="grey", zorder=0)
+            plt.fill_between(plot_samples.reshape(-1), np.min(future_means_objs, axis=0), np.max(future_means_objs, axis=0), color="pink",
+                             alpha=0.7, zorder=0)
+
+
+            plt.scatter(np.array(optimiser_objs).reshape(-1), np.array(optimums_objs).reshape(-1), color="red",
+                        label="$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$", edgecolors='black', zorder=1)
+            plt.scatter(np.array(current_optimiser_objs).reshape(-1), np.array(current_optimums_objs).reshape(-1),
+                        color="green", zorder=2,  edgecolors='black')
+            plt.xlim(1.2,4)
+            plt.ylim(-0.2,0.90)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            plt.legend(loc="upper left")
+            plt.savefig(
+                "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/Zy_change.jpg",
+                bbox_inches="tight")
+            plt.show()
+
+            #PLOTS Zc
+            plt.plot(plot_samples, current_mean_const , color="black", linestyle="dashed", zorder=0)
+            plt.plot(plot_samples, np.array(future_means_const).T, alpha=0.4, color="grey", zorder=0)
+            plt.fill_between(plot_samples.reshape(-1), np.min(future_means_const, axis=0), np.max(future_means_const, axis=0), color="pink",
+                             alpha=0.7, zorder=0)
+
+
+            plt.scatter(np.array(optimiser_const).reshape(-1), np.array(optimums_const).reshape(-1), color="red",
+                        label="$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$", zorder=1, edgecolors='black')
+            plt.scatter(np.array(current_optimiser_const).reshape(-1), np.array(current_optimums_const).reshape(-1),
+                        color="green", zorder=2,  edgecolors='black')
+            plt.legend(loc="upper left")
+            plt.xlim(1.2,4)
+            plt.ylim(-0.2,0.90)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            plt.savefig(
+                "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/Zc_change.jpg",
+                bbox_inches="tight")
+            plt.show()
 
             Zo, Zc = np.meshgrid(Z_obj, Z_const)
             maxvals = np.array(maxgraph).reshape(Zo.shape)
@@ -498,12 +551,15 @@ class KG(AcquisitionBase):
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
-            ax.plot_surface(Zc,Zo, maxvals)
-            ax.set_ylabel('$Z_{y}$')
-            ax.set_xlabel('$Z_{c}$')
-            ax.set_zlabel('$max_{j} \mu$')
-            plt.show()
+            ax.plot_wireframe(Zc,Zo, maxvals, color="red")
+            ax.set_ylabel('$Z_{y}$', fontsize=15)
+            ax.set_xlabel('$Z_{c}$', fontsize=15)
+            ax.set_title('$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$', fontsize=15)
 
+            plt.savefig(
+                "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/epigraph.jpg",
+                bbox_inches="tight")
+            plt.show()
 
             # plt.plot(plot_samples, np.array(feasibility_graph).T)
             # plt.title("feasible region")

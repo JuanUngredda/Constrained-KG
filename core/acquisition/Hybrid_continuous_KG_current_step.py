@@ -198,7 +198,7 @@ class KG(AcquisitionBase):
                 grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c,
                                    X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
 
-                Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
+                Fz = self.probability_feasibility_multi_gp(x=X_inner, model=self.model_c)
 
                 # print("mu_xnew",mu_xnew.shape, "Fz.shape", Fz.shape)
                 func_val = mu_xnew* Fz #- self.control_variate
@@ -269,17 +269,16 @@ class KG(AcquisitionBase):
         out = []
         for Zc_partition in np.array_split(Zc, 1):
             # print("computing gradients")
-            grad_c = gradients(x_new=xnew, model=self.model_c, Z=Zc_partition, aux=aux_c,
-                               X_inner=Xd)  # , test_samples = initial_design('random', self.space, 1000))
-            Fz = grad_c.compute_probability_feasibility_multi_gp(x=Xd, l=0)
 
+            Fz = self.probability_feasibility_multi_gp(x=Xd, model=self.model_c)
+            Fz = Fz.reshape(-1)
             MM = self.model.predict(Xd)[0].reshape(-1)  # move up
             SS_Xd = self.model.posterior_covariance_between_points_partially_precomputed(Xd, xnew)[:, :, 0]
             inv_sd = np.asarray(np.sqrt(aux_obj)).reshape(())
 
             SS = SS_Xd * inv_sd
-            MM = MM.reshape(-1)[:, np.newaxis]
-            SS = SS.reshape(-1)[:, np.newaxis]
+            MM = MM.reshape(-1)#[:, np.newaxis]
+            SS = SS.reshape(-1)#[:, np.newaxis]
 
             self.c_SS = np.abs(SS) * Fz
             self.c_MM = MM * Fz
@@ -288,6 +287,7 @@ class KG(AcquisitionBase):
 
             marginal_KG = []
             for idx in list(range(Zc_partition.shape[0])):
+
                 marginal_KG.append(self.parallel_KG(idx))
             out.append(marginal_KG )
 
@@ -316,8 +316,8 @@ class KG(AcquisitionBase):
         grad_b
             dKGCB/db, vector
         """
-        a = np.array(self.c_MM[:,index]).reshape(-1)
-        b = np.array(self.c_SS[:,index]).reshape(-1)
+        a = np.array(self.c_MM[:]).reshape(-1)
+        b = np.array(self.c_SS[:]).reshape(-1)
         a = np.array(a).reshape(-1)
         b = np.array(b).reshape(-1)
         assert len(a) > 0, "must provide slopes"

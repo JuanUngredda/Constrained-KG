@@ -64,7 +64,7 @@ def function_caller_test_func_2_bnch_2(rep):
                 ls_evaluator=last_step_evaluator,
                 ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100
@@ -80,6 +80,6 @@ def function_caller_test_func_2_bnch_2(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_test_func_2(rep=12)
+# function_caller_test_func_2_bnch_2(rep=12)
 
 
