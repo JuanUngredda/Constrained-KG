@@ -283,12 +283,12 @@ def function_caller_mistery_nEI(rep):
             # update progress
             value_recommended_design = weighted_obj(last_x_nei)
 
-            if value_recommended_design == 0:
-                recommended_Y = recommended_value(train_x_nei, model_nei)
-                last_x_nei = train_x_nei[np.argmax(recommended_Y)]
-                best_value = weighted_obj(last_x_nei)
-            else:
-                best_value = value_recommended_design
+            # if value_recommended_design == 0:
+            #     recommended_Y = recommended_value(train_x_nei, model_nei)
+            #     last_x_nei = train_x_nei[np.argmax(recommended_Y)]
+            #     best_value = weighted_obj(last_x_nei)
+            # else:
+            best_value = value_recommended_design
 
             t1 = time.time()
 

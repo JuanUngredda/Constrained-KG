@@ -14,10 +14,11 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 
+print("test fun TS activate")
 def function_caller_test_func_2_TS(rep):
-    rep = rep+50
+    rep = rep
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         test_function_2_f = test_function_2(sd=np.sqrt(noise))
 
@@ -53,7 +54,7 @@ def function_caller_test_func_2_TS(rep):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100
@@ -62,11 +63,13 @@ def function_caller_test_func_2_TS(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  path=path, evaluations_file=subfolder,
+                                                                                  KG_dynamic_optimisation=False)
         print("Code Ended")
 
         print("X",X,"Y",Y, "C", C)
 
-#function_caller_test_func_2_TS(rep=21)
+# function_caller_test_func_2_TS(rep=21)
 
 

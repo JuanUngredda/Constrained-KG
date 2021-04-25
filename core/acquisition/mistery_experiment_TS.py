@@ -13,12 +13,12 @@ import os
 
 #ALWAYS check cost in
 # --- Function to optimize
-
+print("mistery TS activate")
 def function_caller_mistery_TS(rep):
-    rep = rep+50
+    rep = rep
     np.random.seed(rep)
 
-    for noise in [1.0]:
+    for noise in [1e-06]:
         # func2 = dropwave()
 
         mistery_f =mistery(sd=np.sqrt(noise))
@@ -56,7 +56,7 @@ def function_caller_mistery_TS(rep):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100
@@ -65,40 +65,17 @@ def function_caller_mistery_TS(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,evaluations_file=subfolder)
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  path=path, evaluations_file=subfolder,
+                                                                                  KG_dynamic_optimisation=False)
         print("Code Ended")
-
-        print("X",X,"Y",Y, "C", C)
-
-        # C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-        # data = {}
-        # # print("C", C)
-        # # print("np.array(Opportunity_cost).reshape(-1)", np.array(Opportunity_cost).reshape(-1))
-        # # print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
-        # # print("np.array(C_bool).reshape(-1)", np.array(C_bool).reshape(-1))
-        # data["X1"] = np.array(X[:,0]).reshape(-1)
-        # data["X2"] = np.array(X[:,1]).reshape(-1)
-        # data["Opportunity_cost"] = np.concatenate((np.zeros(10), np.array(Opportunity_cost).reshape(-1)))
-        # data["Y"] = np.array(Y).reshape(-1)
-        # data["C_bool"] = np.array(C_bool).reshape(-1)
-        # gen_file = pd.DataFrame.from_dict(data)
-        # folder = "RESULTS"
-        # subfolder = "mistery_scaled_det_TS_"+str(noise)
-        # cwd = os.getcwd()
-        #
-        # path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-        # print("path", path)
-        # if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
-        #     os.makedirs(cwd + "/" + folder +"/"+ subfolder)
-        #
-        # gen_file.to_csv(path_or_buf=path)
 
         print("X",X,"Y",Y, "C", C)
 
 
 # function_caller_mistery_TS(rep=21)
 # for i in range(40):
-#function_caller_mistery_TS(rep=21)
+# function_caller_mistery_TS(rep=21)
 
 
 

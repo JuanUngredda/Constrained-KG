@@ -14,10 +14,10 @@ import os
 
 #ALWAYS check cost in
 # --- Function to optimize
-print("mistery activate")
+print("new branin cEI activate")
 def function_caller_new_branin(rep):
     np.random.seed(rep)
-    for noise in [1e-6]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
 
@@ -36,7 +36,7 @@ def function_caller_new_branin(rep):
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-10] * n_c, exact_feval=[True] * n_c)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-06] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -52,7 +52,7 @@ def function_caller_new_branin(rep):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100

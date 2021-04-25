@@ -14,9 +14,10 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 
+print("new branin TS activate")
 def function_caller_new_brannin_TS(rep):
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06, 1.0]:
 
         # func2 = dropwave()
         new_brannin_f = new_brannin(sd=np.sqrt(noise))
@@ -50,7 +51,7 @@ def function_caller_new_brannin_TS(rep):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation=True,
-                deterministic=False)
+                deterministic=True)
 
         max_iter = 100
         # print("Finished Initialization")
@@ -59,12 +60,13 @@ def function_caller_new_brannin_TS(rep):
         cwd = os.getcwd()
         path = cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
-                                                                                  path=path, evaluations_file=subfolder)
+                                                                                  path=path, evaluations_file=subfolder,
+                                                                                  KG_dynamic_optimisation=False)
         print("Code Ended")
 
         print("X", X, "Y", Y, "C", C)
 
 
-#function_caller_new_brannin_TS(rep=15)
+# function_caller_new_brannin_TS(rep=15)
 
 

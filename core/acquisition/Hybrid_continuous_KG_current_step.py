@@ -111,7 +111,6 @@ class KG(AcquisitionBase):
             self.fixed_discretisation = False
             self.X_Discretisation =None
 
-
     def _marginal_acq(self, X):
         # print("_marginal_acq")
         """

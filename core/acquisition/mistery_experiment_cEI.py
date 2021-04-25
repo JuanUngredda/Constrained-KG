@@ -13,9 +13,9 @@ import os
 
 #ALWAYS check cost in
 # --- Function to optimize
-
-def function_caller_mistery_TS(rep):
-    rep = rep+50
+print("mistery cEI activate")
+def function_caller_mistery_cEI(rep):
+    rep = rep
     np.random.seed(rep)
 
     for noise in [1e-06]:
@@ -56,7 +56,7 @@ def function_caller_mistery_TS(rep):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation  =True,
-                deterministic=False)
+                deterministic=True)
 
 
         max_iter  = 100
