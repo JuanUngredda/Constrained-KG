@@ -24,20 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/acquisitions/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/acquisitions/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/anchor_points_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/anchor_points_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_hybrid_KG_1.0/it_12.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_hybrid_KG_1.0/it_12.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_hybrid_KG_1e-06/it_12.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_hybrid_KG_1e-06/it_12.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/aux_modules/gradient_modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/aux_modules/gradient_modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_1D_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_1D_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,7 +218,7 @@
       <workItem from="1618508264346" duration="2220000" />
       <workItem from="1618566489264" duration="390000" />
       <workItem from="1618666006933" duration="1435000" />
-      <workItem from="1618695014022" duration="96360000" />
+      <workItem from="1618695014022" duration="97544000" />
     </task>
     <servers />
   </component>
