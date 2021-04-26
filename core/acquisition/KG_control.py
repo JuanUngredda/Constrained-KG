@@ -8,14 +8,14 @@ import argparse
 # from mistery_hybrid_cKG_experiment import function_caller_mistery
 # from new_branin_hybrid_cKG_experiment import function_caller_new_branin
 
-from test_func_2_experiment_bnch_1 import function_caller_test_func_2_bnch_1
+# from test_func_2_experiment_bnch_1 import function_caller_test_func_2_bnch_1
 from test_func_2_experiment_bnch_2 import function_caller_test_func_2_bnch_2
 
-from mistery_bnch_1 import function_caller_mistery_bnch_1
+# from mistery_bnch_1 import function_caller_mistery_bnch_1
 from mistery_bnch_2 import function_caller_mistery_bnch_2
 
-from new_branin_bnch_1 import function_caller_new_branin_bnch_1
-from new_branin_bnch_2 import function_caller_new_branin_bnch_2
+# from new_branin_bnch_1 import function_caller_new_branin_bnch_1
+# from new_branin_bnch_2 import function_caller_new_branin_bnch_2
 
 
 # from test_func_2_TS import function_caller_test_func_2_TS

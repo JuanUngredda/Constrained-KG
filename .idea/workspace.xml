@@ -22,9 +22,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -66,8 +64,8 @@
       <recent name="$PROJECT_DIR$/core/acquisition" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_func_2_experiment_bnch_2">
-    <configuration name="mistery_bnch_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.KG_control">
+    <configuration name="KG_control" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Constrained-KG" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -80,7 +78,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/core/acquisition/mistery_bnch_1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/core/acquisition/KG_control.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -179,11 +177,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.KG_control" />
         <item itemvalue="Python.test_func_2_experiment_bnch_2" />
         <item itemvalue="Python.new_branin_bnch_1" />
         <item itemvalue="Python.new_branin_bnch_2" />
         <item itemvalue="Python.mistery_bnch_2" />
-        <item itemvalue="Python.mistery_bnch_1" />
       </list>
     </recent_temporary>
   </component>
@@ -218,7 +216,7 @@
       <workItem from="1618508264346" duration="2220000" />
       <workItem from="1618566489264" duration="390000" />
       <workItem from="1618666006933" duration="1435000" />
-      <workItem from="1618695014022" duration="128744000" />
+      <workItem from="1618695014022" duration="129147000" />
     </task>
     <servers />
   </component>
