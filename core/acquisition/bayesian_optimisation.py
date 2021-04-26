@@ -263,15 +263,15 @@ class BO(object):
 
             if verbosity:
                 print("self.suggested_sample", self.suggested_sample)
-                self.acquisition._plots(self.suggested_sample)
-                raise
+                # self.acquisition._plots(self.suggested_sample)
+                # raise
                 # print("using discretisation")
                 # discretisation = initial_design('random', self.space, 1000)
                 # self.acquisition._plots(np.array([4.375]), discretisation)
                 # print("optimised points")
                 # self.acquisition._plots(np.array([4.375]))
 
-                # self.verbosity_plot_2D()
+                self.verbosity_plot_2D()
 
 
             print("self.suggested_sample",self.suggested_sample)

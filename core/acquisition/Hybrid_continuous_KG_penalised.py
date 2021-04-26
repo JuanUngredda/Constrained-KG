@@ -77,13 +77,14 @@ class KG(AcquisitionBase):
         self.base_marg_points = 40
         self.n_marginalisation_points = np.array([-3.24, -2.64,-1.67 , -0.67, 0 , 0.67, 1.67, 2.64, 3.24])
         self.optimise_discretisation = optimize_discretization
+        self.n_base_points = len(self.n_marginalisation_points)
         if optimize_random_Z:
             print("updating random Z")
 
             self.update_current_best()
             #lhd = lhs(self.dim - 1, samples=self.n_marginalisation_points)  # ** dim)
             perm = product(self.n_marginalisation_points, repeat= self.dim-1)
-            self.Z_cdKG = np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
+            self.Z_cdKG = np.zeros((1, self.dim-1))#np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
 
             perm = product(self.n_marginalisation_points, repeat = self.dim) # Pseudo-random number generation to compute expectation constrainted discrete kg
             perm = np.array(list(perm))
@@ -92,8 +93,12 @@ class KG(AcquisitionBase):
             # lhd = lhs(self.dim, samples=self.n_base_points)  # ** dim)
             # lhd = norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation
 
-            self.Z_obj = np.array(list(perm))[index, :1] # self.n_marginalisation_points #
-            self.Z_const = np.array(list(perm))[index, 1:]
+            self.Z_obj = self.n_marginalisation_points #np.array(list(perm))[index, :1] # self.n_marginalisation_points #
+            self.Z_const = np.repeat(np.zeros((1, self.dim-1)), len(self.n_marginalisation_points )) #np.array(list(perm))[index, 1:]
+
+            # print("self.Z_obj ",self.Z_obj )
+            # print("self.Z_const",self.Z_const)
+            # print("self.Z_cdKG",self.Z_cdKG)
 
             # print("self.Z_obj", self.Z_obj)
 
@@ -101,7 +106,7 @@ class KG(AcquisitionBase):
             self.update_current_best()
             #lhd = lhs(self.dim - 1, samples=self.n_marginalisation_points)  # ** dim)
             perm = product(self.n_marginalisation_points, repeat= self.dim-1)
-            self.Z_cdKG = np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
+            self.Z_cdKG = np.zeros((1, self.dim-1)) #np.array(list(perm))#norm(loc=0, scale=1).ppf(lhd)  # Pseudo-random number generation to compute expectation constrainted discrete kg
 
             self.fixed_discretisation = True
             self.X_Discretisation =fixed_discretisation
@@ -179,7 +184,10 @@ class KG(AcquisitionBase):
         # efficiency = 0
         self.new_anchors_flag = True
         for z in range(self.n_base_points):
-
+            # print("")
+            # print("self.Z_obj",self.Z_obj)
+            # print("z", z)
+            # print("self.Z_obj[z]",self.Z_obj[z])
             Z_obj  = self.Z_obj[z]
 
             # inner function of maKG acquisition function.

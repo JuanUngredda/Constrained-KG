@@ -97,6 +97,10 @@ class KG(AcquisitionBase):
             self.Z_const = np.repeat(np.zeros((1, self.dim-1)), len(self.n_marginalisation_points )) #np.array(list(perm))[index, 1:]
 
             # print("self.Z_obj", self.Z_obj)
+            # print("self.Z_obj ",self.Z_obj )
+            # print("self.Z_const",self.Z_const)
+            # print("self.Z_cdKG",self.Z_cdKG)
+            # raise
 
         if fixed_discretisation is not None:
             self.update_current_best()

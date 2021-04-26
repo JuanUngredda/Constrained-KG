@@ -103,7 +103,7 @@ class AcquisitionOptimizer(object):
         else:
 
 
-            if ('dynamic_parameter_function' in self.kwargs): #
+            if False: #('dynamic_parameter_function' in self.kwargs): #
                 print("random sampling failed, changed to feasable sols")
 
                 feasable_samples = self.generate_points_pf(N=100)
@@ -117,13 +117,14 @@ class AcquisitionOptimizer(object):
                 anchor_points_vals = np.sort(scores)[:min(len(scores), num_anchor)]
 
             else:
+
                 anchor_points = anchor_points_generator.get(num_anchor=2, X_sampled_values=self.model.get_X_values(),
                                                             duplicate_manager=duplicate_manager,
                                                             context_manager=self.context_manager)
 
                 anchor_points_vals = f(anchor_points)
             # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
-            if np.sum(anchor_points_vals)==0:
+            if False:#np.sum(anchor_points_vals)==0:
                 print("feasible points failed, changed to best posterior mean")
                 optimized_points = []
                 anchor_points_ls = self.optimize_final_evaluation()
