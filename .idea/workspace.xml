@@ -22,19 +22,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_current_step.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_current_step.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_penalised.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_penalised.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_penalised_hybrid_KG_1e-06/it_12.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_penalised_hybrid_KG_1e-06/it_12.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_bnch_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_bnch_1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_bnch_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_bnch_2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_bnch_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_bnch_1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_bnch_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_bnch_2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment_bnch_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment_bnch_2.py" afterDir="false" />
-    </list>
+    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -228,7 +216,7 @@
       <workItem from="1618508264346" duration="2220000" />
       <workItem from="1618566489264" duration="390000" />
       <workItem from="1618666006933" duration="1435000" />
-      <workItem from="1618695014022" duration="127205000" />
+      <workItem from="1618695014022" duration="128101000" />
     </task>
     <servers />
   </component>
@@ -287,6 +275,6 @@
     <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_bnch_2.coverage" NAME="new_branin_bnch_2 Coverage Results" MODIFIED="1619433395058" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$gradient_modules.coverage" NAME="gradient_modules Coverage Results" MODIFIED="1613751544007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition/aux_modules" />
     <SUITE FILE_PATH="coverage/Constrained_KG$Generate_PLots.coverage" NAME="Generate_PLots Coverage Results" MODIFIED="1603826163749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_experiment_bnch_2.coverage" NAME="test_func_2_experiment_bnch_2 Coverage Results" MODIFIED="1619437832104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_experiment_bnch_2.coverage" NAME="test_func_2_experiment_bnch_2 Coverage Results" MODIFIED="1619438026400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
   </component>
 </project>
