@@ -38,6 +38,43 @@ def function_caller_new_brannin(rep):
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
 
+        # x = np.linspace(-5,10,300)
+        # y = np.linspace(0,15,300)
+        # X,Y = np.meshgrid(x,y)
+        # fval = []
+        # data = np.zeros((2,1))
+        # best_fval = -100
+        # for i in x:
+        #     for j in y:
+        #
+        #         data = np.array([[i,j]])
+        #         yval, _ = f.evaluate(data)
+        #         cval,_ = c.evaluate(data)
+        #         val= np.array(yval).reshape(-1)* np.array(np.array(cval)<0).reshape(-1)
+        #         fval.append(val)
+        #         # if val > best_fval:
+        #         #     best_fval = val
+        #         #     best_sol = np.array([i,j])
+        #
+        # fval = np.ma.masked_where(np.array(fval).reshape(Y.shape) == 0, np.array(fval).reshape(Y.shape))
+        # cmap = plt.cm.inferno
+        # cmap.set_bad(color='black')
+        # fig, ax = plt.subplots()
+        # ax.contourf(X, Y,fval.T, shading='auto',cmap=cmap, zorder=0)
+        #
+        # plt.scatter( [3.26],[0.05], color="green", marker="x" ,s=100, label="optimum", linewidths=3,zorder=1)
+        # plt.scatter([0], [0], label="infeasible area", color='lightgray')
+        # ax.tick_params(axis="x", labelsize=15)
+        # ax.tick_params(axis="y", labelsize=15)
+        # ax.set_facecolor('lightgray')
+        # plt.legend(loc="upper left")
+        # plt.savefig(
+        #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/branin_function.jpg",
+        #     bbox_inches="tight")
+        # plt.show()
+        #
+        # raise
+
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
         acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model=model_f, model_c=model_c)

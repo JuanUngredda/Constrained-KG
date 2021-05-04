@@ -8,31 +8,8 @@ import argparse
 # from mistery_hybrid_cKG_experiment import function_caller_mistery
 # from new_branin_hybrid_cKG_experiment import function_caller_new_branin
 
-# from test_func_2_experiment_bnch_1 import function_caller_test_func_2_bnch_1
-from test_func_2_experiment_bnch_2 import function_caller_test_func_2_bnch_2
-
-# from mistery_bnch_1 import function_caller_mistery_bnch_1
-from mistery_bnch_2 import function_caller_mistery_bnch_2
-
-# from new_branin_bnch_1 import function_caller_new_branin_bnch_1
-# from new_branin_bnch_2 import function_caller_new_branin_bnch_2
-
-
-# from test_func_2_TS import function_caller_test_func_2_TS
-# from new_branin_TS import function_caller_new_brannin_TS
-# from mistery_experiment_TS import function_caller_mistery_TS
-
-# from new_branin_cEI_experiment import function_caller_new_branin
-# from test_func_2_cEI import function_caller_test_func_2_cEI
-# from mistery_experiment_cEI import function_caller_mistery_cEI
-
-# from test_func_2_TS import function_caller_test_func_2_TS
-# from new_branin_TS import function_caller_new_brannin_TS
-# from mistery_experiment_TS import function_caller_mistery_TS
-# from new_branin_nEI import function_caller_new_branin_nEI
-# from mistery_nEI import function_caller_mistery_nEI
-# from test_function_2_nEI import function_caller_test_fun_2_nEI
-
+from new_branin_hybrid_cKG_experiment_v2 import function_caller_new_branin_v2
+from new_branin_hybrid_cKG_experiment import function_caller_new_branin
 # from new_branin_hybrid_cKG_experiment import function_caller_new_branin
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
@@ -74,7 +51,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [ function_caller_test_func_2_bnch_2, function_caller_mistery_bnch_2]
+    functions = [ function_caller_new_branin, function_caller_new_branin_v2]
 
     for func in functions:
         func(args.k)

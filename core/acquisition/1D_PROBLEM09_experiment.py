@@ -1,7 +1,7 @@
 import numpy as np
 import GPyOpt
 from GPyOpt.objective_examples.experiments2d import mistery, dropwave
-from GPyOpt.objective_examples.experiments1d import Problem01
+from GPyOpt.objective_examples.experiments1d import Problem01, Problem02,Problem03
 import GPy as GPy
 from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
@@ -22,19 +22,42 @@ import os
 def function_caller_1DGP(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [0.03]:
+    for noise in [0.01]:
 
-        function = Problem01(sd=np.sqrt(noise))
+        function = Problem03(sd=np.sqrt(noise))
         GP_test_f = function.f
         GP_test_c = function.c1
 
-        x = np.linspace(0,4,100).reshape(-1,1)
+        x = np.linspace(4,7,100).reshape(-1,1)
         y = GP_test_f(x, true_val=True)
         c = GP_test_c(x)
         fval = y.reshape(-1) * np.array(c<0).reshape(-1)
-        plt.plot(x, fval, color="black")
+        x = x.reshape(-1)
+        print("x.reshape(-1)[np.logical_or(x<4.5 , x>6)]",x.reshape(-1)[np.logical_or(x<4.5 , x>6)])
+        print("fval.reshape(-1)[np.logical_or(x<4.5 , x>6)]",fval.reshape(-1)[np.logical_or(x<4.5 , x>6)])
+        plt.plot(x.reshape(-1)[x>5.8], fval.reshape(-1)[x>5.8], label="feasible",color="green", linewidth=3)
+        plt.plot(x.reshape(-1)[x < 4.6], fval.reshape(-1)[x < 4.6], color="green", linewidth=3)
+        plt.plot(x[np.array(c > 0).reshape(-1)], fval[np.array(c > 0).reshape(-1)], label="infeasible",color="green", linestyle="--",linewidth=3)
+        plt.xlim(4, 7)
+        plt.xlabel("X", fontsize=15)
+        plt.legend(fontsize=15)
+        plt.title("$f * \mathbb{I}_{c<0}$ vs $X$", fontsize=15)
+        # plt.savefig(
+        #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/composing_functions",
+        #     bbox_inches="tight")
         plt.show()
 
+
+        plt.plot(x,y, color="blue", linewidth=3, label = "$f$")
+        plt.plot(x, c, color="darkorchid", linewidth=3, label="$c$")
+        plt.ylim(-3,3)
+        plt.xlim(4, 7)
+        plt.xlabel("X", fontsize=15)
+        plt.legend(fontsize=15)
+        # plt.savefig(
+        #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/performance.jpg",
+        #     bbox_inches="tight")
+        plt.show()
 
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
@@ -42,11 +65,12 @@ def function_caller_1DGP(rep):
         c = MultiObjective([GP_test_c ])
 
         #define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,4)}])#  , {'name': 'var_2', 'type': 'continuous', 'domain': (0,100)}])#
+        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (4,7)}])#  , {'name': 'var_2', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)  # , normalizer=True)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-03] * n_c, exact_feval=[True] * n_c)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-05] * n_c, exact_feval=[True] * n_c)
+
 
         # --- Aquisition optimizer
         # optimizer for inner acquisition function
@@ -57,10 +81,10 @@ def function_caller_1DGP(rep):
         #
         # # --- Initial design
         # initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 4)
+        initial_design = GPyOpt.experiment_design.initial_design('random', space, 5)
 
         nz = 60  # (n_c+1)
-        acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt, true_func=GP_test_f, true_const=GP_test_c)
         if noise < 1e-3:
             Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
         else:

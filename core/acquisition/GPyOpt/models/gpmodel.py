@@ -78,9 +78,10 @@ class GPModel(BOModel):
         # --- Restrict variance if exact evaluations of the objective
         if self.exact_feval:
             self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
+            # self.model.rbf.lengthscale.constrain_fixed(0.34, warning=False)
         else:
             # self.model.rbf.variance.constrain_fixed(3270.80, warning=False)
-            # self.model.rbf.lengthscale.constrain_fixed(24.44, warning=False)
+            # self.model.rbf.lengthscale.constrain_fixed(2, warning=False)
             #self.model.Gaussian_noise.constrain_fixed(self.noise_var, warning=False)
             #self.model.Gaussian_noise.constrain_bounded(1e-21,5)
             #self.model.rbf.lengthscale.constrain_bounded((np.max(X[:,0])- np.min(X[:,0]))*0.05,np.max(X[:,0])*0.20)

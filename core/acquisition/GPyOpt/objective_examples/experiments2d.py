@@ -513,7 +513,7 @@ class mistery(function2d):
             noise = np.random.normal(0, self.sd, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
 
-        return np.array(-(fval.reshape(n, 1) + offset) + noise.reshape(-1, 1)).reshape(-1)
+        return np.array(-(fval.reshape(n, 1) ) + noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:

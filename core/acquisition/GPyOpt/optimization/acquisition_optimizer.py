@@ -84,7 +84,7 @@ class AcquisitionOptimizer(object):
 
         if 'dynamic_parameter_function' in self.kwargs:
             print("setting fix discretisation for anchor points")
-            discretisation = self.generate_points_pf(N=50) #initial_design("latin",self.space, 1000)
+            discretisation = self.generate_points_pf(N=100) #initial_design("latin",self.space, 1000)
             self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
                                             fixed_discretisation=discretisation)
 
@@ -103,7 +103,7 @@ class AcquisitionOptimizer(object):
         else:
 
 
-            if False: #('dynamic_parameter_function' in self.kwargs): #
+            if False:#('dynamic_parameter_function' in self.kwargs): #
                 print("random sampling failed, changed to feasable sols")
 
                 feasable_samples = self.generate_points_pf(N=100)
@@ -118,13 +118,14 @@ class AcquisitionOptimizer(object):
 
             else:
 
-                anchor_points = anchor_points_generator.get(num_anchor=2, X_sampled_values=self.model.get_X_values(),
+                anchor_points = anchor_points_generator.get(num_anchor=5, X_sampled_values=self.model.get_X_values(),
                                                             duplicate_manager=duplicate_manager,
                                                             context_manager=self.context_manager)
-
-                anchor_points_vals = f(anchor_points)
+                anchor_points_ls = self.optimize_final_evaluation()
+                anchor_points = np.concatenate((anchor_points, anchor_points_ls))
+                # anchor_points_vals = f(anchor_points)
             # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
-            if False:#np.sum(anchor_points_vals)==0:
+            if False: #True: #p.sum(anchor_points_vals)==0:
                 print("feasible points failed, changed to best posterior mean")
                 optimized_points = []
                 anchor_points_ls = self.optimize_final_evaluation()
@@ -142,9 +143,9 @@ class AcquisitionOptimizer(object):
                                                              space=self.space)
                     optimized_points.append(optimised_anchor_point)
                 x_min, fx_min = min(optimized_points, key=lambda t: t[1])
-                print(" x_min, fx_min", x_min, fx_min)
+                print(" posterior best sample x_min, fx_min", x_min, fx_min)
 
-                return x_min, fx_min
+                # return x_min, fx_min
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
 

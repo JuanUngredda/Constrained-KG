@@ -94,48 +94,7 @@ class BO(object):
         suggested_locations = self._compute_next_evaluations(pending_zipped_X=pending_X, ignored_zipped_X=ignored_X)
         return suggested_locations
     
-    
-    # def _value_so_far(self):
-    #     """
-    #     Computes E_n[U(f(x_max))|f], where U is the utility function, f is the true underlying ojective function and x_max = argmax E_n[U(f(x))|U]. See
-    #     function _marginal_max_value_so_far below.
-    #     """
-    #
-    #     output = 0
-    #     support = self.utility.parameter_dist.support
-    #     utility_dist = self.utility.parameter_dist.prob_dist
-    #
-    #     a = np.reshape(self.objective.evaluate(self._marginal_max_value_so_far())[0],(self.objective.output_dim,))
-    #
-    #     output += self.utility.eval_func(support[i],a)*utility_dist[i]
-    #     #print(output)
-    #     return output
-    #
-    #
-    # def _marginal_max_value_so_far(self):
-    #     """
-    #     Computes argmax E_n[U(f(x))|U] (The abuse of notation can be misleading; note that the expectation is with
-    #     respect to the posterior distribution on f after n evaluations)
-    #     """
-    #
-    #     def val_func(X):
-    #         X = np.atleast_2d(X)
-    #         muX = self.model.posterior_mean(X)
-    #         return muX
-    #
-    #     def val_func_with_gradient(X):
-    #         X = np.atleast_2d(X)
-    #         muX = self.model.posterior_mean(X)
-    #         dmu_dX = self.model.posterior_mean_gradient(X)
-    #         valX = np.reshape( muX, (X.shape[0],1))
-    #         dval_dX =  dmu_dX
-    #         return -valX, -dval_dX
-    #
-    #
-    #     argmax = self.acquisition.optimizer.optimize_inner_func(f=val_func, f_df=val_func_with_gradient)[0]
-    #     return argmax
-    #
-    #
+
     def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
@@ -173,50 +132,8 @@ class BO(object):
             self.max_iter = max_iter
             self.max_time = max_time
 
- #        self.X = np.array([[ 1.75,       12.75      ],
- # [ 9.25       ,14.25      ],
- # [ 4.75       ,11.25      ],
- # [ 0.25       , 3.75      ],
- # [ 3.25       , 5.25      ],
- # [-4.25       , 6.75      ],
- # [ 6.25       , 8.25      ],
- # [-1.25       , 9.75      ],
- # [-2.75       , 0.75      ],
- # [ 7.75       , 2.25      ],
- # [10.         , 0.46190376],
- # [-4.07672534 ,13.18691809],
- # [ 5.57342965,  0.4728215 ],
- # [-1.47666097 , 7.4558601 ],
- # [-0.58304314 , 4.6502318 ],
- # [-2.99537612, 12.43184346],
- # [-5.        , 15.        ],
- # [-2.61100274, 15.        ],
- # [ 1.82193578,  2.39787769],
- # [-3.87814538, 11.43865536],
- # [ 1.38264341,  1.98608386],
- # [-0.20475798,  1.62051209],
- # [ 9.45116644,  0.54745162],
- # [ 9.32309544,  0.54290219],
- # [ 5.01421171,  0.94878182],
- # [ 6.71028756,  0.38835956],
- # [ 8.17895474,  1.81650718],
- # [ 2.8157139 ,  1.51718192],
- # [ 1.0956769 ,  1.10321236],
- # [-1.45610591,  5.57659565],
- # [ 4.02134336,  0.87608649],
- # [ 1.97188218,  1.13838647],
- # [ 7.90865545,  4.20979887],
- # [ 5.01051958,  0.24428875],
- # [ 1.25780231,  3.25093737],
- # [ 3.28221282,  0.32520072],
- # [ 3.2170687 ,  0.1789976 ],
- # [ 3.01849866,  0.11181718],
- # [ 3.39818085,  0.07663895],
- # [ 3.26688867,  0.05719408],
- # [ 3.26531851,  0.05256111],
- # [ 3.14626724,  0.12634154]] )
-
         # --- Initial function evaluation and model fitting
+        print("X", self.X)
         if self.X is not None and self.Y is None:
             self.Y, cost_values = self.objective.evaluate(self.X)
             self.C, cost_values = self.constraint.evaluate(self.X)
@@ -231,8 +148,11 @@ class BO(object):
         self.num_acquisitions = 0
         self.suggested_sample = self.X
         self.Y_new = self.Y
-        self.Opportunity_Cost = []
-        self.recommended_value = []
+        self.Opportunity_Cost_sampled = []
+        self.Opportunity_Cost_GP_mean = []
+
+        self.recommended_value_GP_mean = []
+        self.recommended_value_sampled = []
         self.underlying_optimum = []
         value_so_far = []
 
@@ -263,7 +183,7 @@ class BO(object):
 
             if verbosity:
                 print("self.suggested_sample", self.suggested_sample)
-                # self.acquisition._plots(self.suggested_sample)
+                self.acquisition._plots(self.suggested_sample)
                 # raise
                 # print("using discretisation")
                 # discretisation = initial_design('random', self.space, 1000)
@@ -271,7 +191,9 @@ class BO(object):
                 # print("optimised points")
                 # self.acquisition._plots(np.array([4.375]))
 
-                self.verbosity_plot_2D()
+                # self.verbosity_plot_D()
+                # self.acquisition._plots(np.array([2.18]))
+                # raise
 
 
             print("self.suggested_sample",self.suggested_sample)
@@ -286,19 +208,17 @@ class BO(object):
             self.num_acquisitions += 1
             print("optimize_final_evaluation")
 
-            X, Y, C, recommended_val, optimum, Opportunity_cost = self.X, self.Y, self.C , self.recommended_value, self.underlying_optimum, self.Opportunity_Cost
-            C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
+            C_bool = np.product(np.concatenate(self.C , axis=1) < 0, axis=1)
             data = {}
 
-
-            print("np.array(Opportunity_cost).reshape(-1)", np.array(Opportunity_cost).reshape(-1))
-            print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
-            print("np.array(C_bool).reshape(-1)", np.array(C_bool).reshape(-1))
-            data["Opportunity_cost"] = np.concatenate((np.zeros(self.n_init), np.array(Opportunity_cost).reshape(-1)))
-            data["Y"] = np.array(Y).reshape(-1)
+            data["OC sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_sampled).reshape(-1)))
+            data["OC GP mean"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_GP_mean).reshape(-1)))
+            data["Y"] = np.array(self.Y).reshape(-1)
             data["C_bool"] = np.array(C_bool).reshape(-1)
-            data["recommended_val"] = np.concatenate((np.zeros(self.n_init), np.array(recommended_val).reshape(-1)))
-            data["optimum"] = np.concatenate((np.zeros(self.n_init), np.array(optimum).reshape(-1)))
+            data["recommended_val_sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.recommended_value_sampled).reshape(-1)))
+            data["recommended_val_GP"] = np.concatenate(
+                (np.zeros(self.n_init), np.array(self.recommended_value_GP_mean).reshape(-1)))
+            data["optimum"] = np.concatenate((np.zeros(self.n_init), np.array(self.underlying_optimum).reshape(-1)))
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
@@ -310,9 +230,9 @@ class BO(object):
                 os.makedirs(cwd + "/" + folder + "/" + subfolder)
             print("path", path)
             gen_file.to_csv(path_or_buf=path)
-            print("self.X, self.Y, self.C , self.Opportunity_Cost",self.X, self.Y, self.C , self.Opportunity_Cost)
+            print("self.X, self.Y, self.C , OC sampled, OC GP mean",self.X, self.Y, self.C , self.Opportunity_Cost_sampled,)
 
-        return self.X, self.Y, self.C , self.recommended_value, self.underlying_optimum, self.Opportunity_Cost
+        return self.X, self.Y, self.C , self.recommended_value_sampled, self.underlying_optimum, self.Opportunity_Cost_sampled
         # --- Print the desired result in files
         #if self.evaluations_file is not None:
             #self.save_evaluations(self.evaluations_file)
@@ -373,7 +293,7 @@ class BO(object):
         axs[1, 1].legend()
 
         axs[0, 1].set_title('Opportunity Cost')
-        axs[0, 1].plot(range(len(self.Opportunity_Cost)), self.Opportunity_Cost)
+        axs[0, 1].plot(range(len(self.Opportunity_Cost_sampled)), self.Opportunity_Cost_sampled)
         axs[0, 1].set_yscale("log")
         plt.show()
 
@@ -437,24 +357,12 @@ class BO(object):
 
     def optimize_final_evaluation(self, KG_dynamic_optimisation):
 
-
-
-        # design_plot = initial_design('random', self.space, 1000)
-        # ac_f = self.expected_improvement(design_plot)
-        # fig, axs = plt.subplots(2, 2)
-        # axs[0, 0].set_title('True Function')
-        # axs[0, 0].scatter(design_plot[:, 0], design_plot[:, 1], c=np.array(ac_f).reshape(-1))
-
-
-        start = time.time()
         if self.deterministic:
             Y = self.model.posterior_mean(self.X)
             pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
             func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
-
             suggested_final_historical_sample = self.X[np.argmax(func_val)]
             suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
-            suggested_final_mean_historical_sample = np.array(np.max(func_val)).reshape(-1)
 
             Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
             C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
@@ -466,13 +374,55 @@ class BO(object):
 
             self.true_best_value()
             optimum = np.max(self.true_best_stats["true_best"])
-            self.recommended_value.append(np.max(func_val_true).reshape(-1))
+            self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
             self.underlying_optimum.append(optimum.reshape(-1))
+            self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
 
-            self.Opportunity_Cost.append(optimum - np.max(func_val_true))
+            self.recommended_value_GP_mean.append(np.max(func_val_true).reshape(-1))
+            self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true))
             return 0
 
         elif KG_dynamic_optimisation:
+
+            self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
+            out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
+                                                      num_samples=1000)
+
+            suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
+            suggested_final_mean_GP_recommended = -out[1]
+
+            Y = self.model.posterior_mean(self.X)
+            pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+            func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+
+            suggested_final_historical_sample = self.X[np.argmax(func_val)]
+            suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+            suggested_final_mean_historical_sample = np.array(np.max(func_val)).reshape(-1)
+
+            if suggested_final_mean_GP_recommended.reshape(-1) < np.array(
+                    suggested_final_mean_historical_sample).reshape(-1):
+
+                Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+                C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+
+            else:
+                Y_true, _ = self.objective.evaluate(suggested_final_sample_GP_recommended, true_val=True)
+                C_true, _ = self.constraint.evaluate(suggested_final_sample_GP_recommended, true_val=True)
+
+            bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+            func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+            func_val_true_GP_mean = func_val_true_GP_recommended
+
+            self.true_best_value()
+            optimum = np.max(self.true_best_stats["true_best"])
+            self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
+            print("best posterior mean")
+            print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
+            print("best sample found from Posterior GP val",  -out[1], "best sample historical val",suggested_final_mean_historical_sample)
+
+            print("OC", optimum - np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
+                  np.max(func_val_true_GP_mean))
+            self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true_GP_mean))
 
             #Saving original variables
             self.original_X = self.X.copy()
@@ -480,49 +430,36 @@ class BO(object):
             self.original_C = self.C.copy()
 
             out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
-
-            print("best expected improvement found", out)
             self.suggested_sample = self.space.zip_inputs(out[0])
-            print("model hypers", self.model.get_model_parameters())
-
             self.X = np.vstack((self.X, self.suggested_sample))
 
             self.evaluate_objective()
             self._update_model()
 
+            Y = self.model.posterior_mean(self.X)
+            pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+            func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+            suggested_final_historical_sample = self.X[np.argmax(func_val)]
+            suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
 
-        self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-        out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,  num_samples=100)
+            Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+            C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
 
+            bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+            func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+            func_val_true_sampled = func_val_true_GP_recommended
 
-        suggested_final_sample_GP_recommended =  self.space.zip_inputs(out[0])
-        suggested_final_mean_GP_recommended = -out[1]
+            optimum = np.max(self.true_best_stats["true_best"])
+            self.recommended_value_sampled.append(np.max(func_val_true_sampled).reshape(-1))
+            self.underlying_optimum.append(optimum.reshape(-1))
+            self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
 
+            print("sampled OC")
+            print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
+            print("OC", optimum - np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
+                  np.max(func_val_true_sampled))
 
-        Y = self.model.posterior_mean( self.X)
-        pf = self.probability_feasibility_multi_gp( self.X, model=self.model_c)
-        func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
-
-        suggested_final_historical_sample =  self.X[np.argmax(func_val)]
-        suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
-        suggested_final_mean_historical_sample = np.array(np.max(func_val)).reshape(-1)
-
-
-        print("best sample found from Posterior GP", out, "best sample historical", suggested_final_historical_sample, suggested_final_mean_historical_sample )
-
-        if suggested_final_mean_GP_recommended.reshape(-1) < np.array(suggested_final_mean_historical_sample).reshape(-1):
-            Y_true, _ = self.objective.evaluate(suggested_final_historical_sample , true_val=True)
-            C_true, _ = self.constraint.evaluate(suggested_final_historical_sample , true_val=True)
-
-        else:
-            Y_true, _ = self.objective.evaluate(suggested_final_sample_GP_recommended , true_val=True)
-            C_true, _ = self.constraint.evaluate(suggested_final_sample_GP_recommended , true_val=True)
-
-
-        bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-        func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
-
-        func_val_true = func_val_true_GP_recommended # Y_true * bool_C_true.reshape(-1, 1)
+         # Y_true * bool_C_true.reshape(-1, 1)
 
         # print("func_val_true",func_val_true)
         self.X = self.original_X.copy()
@@ -530,12 +467,6 @@ class BO(object):
         self.C = self.original_C.copy()
         self._update_model()
 
-        self.true_best_value()
-        optimum = np.max(self.true_best_stats["true_best"])
-        self.recommended_value.append(np.max(func_val_true).reshape(-1))
-        self.underlying_optimum.append(optimum.reshape(-1))
-        print("OC", optimum - np.max(func_val_true),"optimum", optimum, "func_val recommended", np.max(func_val_true))
-        self.Opportunity_Cost.append(optimum - np.max(func_val_true))
         return 0
 
     def aggregated_posterior(self, X):

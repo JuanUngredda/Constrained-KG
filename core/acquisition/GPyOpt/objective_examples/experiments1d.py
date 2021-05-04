@@ -43,6 +43,90 @@ class forrester(function1d):
 			noise = np.random.normal(0,self.sd,n).reshape(n,1)
 		return fval.reshape(n,1) + noise
 
+class Problem02(function1d):
+	def __init__(self,sd=None):
+		self.input_dim = 1
+		if sd==None: self.sd = 0
+		else: self.sd=sd
+
+		self.bounds = [(0,5)]
+
+	def f(self,X, true_val=False):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
+		n = X.shape[0]
+		fval = -(X-2.16)**2 + 1.1 #np.sin(X) + np.sin((10.0/3.0)*X) + np.log(X+0.001) -0.84 * X + 3
+		fval = fval
+		if self.sd ==0 or true_val:
+			noise = np.zeros(n).reshape(n,1)
+		else:
+			print("self.sd",self.sd)
+			noise = np.random.normal(0,self.sd,n).reshape(n,1)
+			print("noise", noise)
+		return fval.reshape(n,1) + noise
+
+	def c1(self, X, true_val=None):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
+		n = X.shape[0]
+
+		fval = -0.01*X + 2.15858184*0.01
+
+		return fval.reshape(n,1)
+
+	def c(self, x, true_val=False):
+		return [self.c1(x)]
+
+	def func_val(self, x):
+		Y = self.f(x, true_val=True)
+		C = self.c(x)
+		out = Y.reshape(-1) * np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+		out = np.array(out).reshape(-1)
+		print("out", out)
+		return -out
+
+class Problem03(function1d):
+	def __init__(self,sd=None):
+		self.input_dim = 1
+		if sd==None: self.sd = 0
+		else: self.sd=sd
+
+		self.bounds = [(0,5)]
+
+	def f(self,X, true_val=False):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
+		n = X.shape[0]
+		fval = np.sin(X)+ np.sin(10*X/3)+1 #-(X-2.2)**2 + 1.1 #np.sin(X) + np.sin((10.0/3.0)*X) + np.log(X+0.001) -0.84 * X + 3
+		fval = fval
+		if self.sd ==0 or true_val:
+			noise = np.zeros(n).reshape(n,1)
+		else:
+			print("self.sd",self.sd)
+			noise = np.random.normal(0,self.sd,n).reshape(n,1)
+			print("noise", noise)
+		return fval.reshape(n,1) + noise
+
+	def c1(self, X, true_val=None):
+		if len(X.shape) == 1:
+			X = X.reshape(1, -1)
+		n = X.shape[0]
+
+		fval = -(2)*(X-5.2)**2.0 + 1.1 #np.ones(X.shape)*(-100)#
+
+		return fval.reshape(n,1)
+
+	def c(self, x, true_val=False):
+		return [self.c1(x)]
+
+	def func_val(self, x):
+		Y = self.f(x, true_val=True)
+		C = self.c(x)
+		out = Y.reshape(-1) * np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
+		out = np.array(out).reshape(-1)
+		print("out", out)
+		return -out
+
 class Problem01(function1d):
 	def __init__(self,sd=None):
 		self.input_dim = 1

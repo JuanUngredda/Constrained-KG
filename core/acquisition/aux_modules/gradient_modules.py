@@ -361,7 +361,7 @@ class gradients(object):
                     computed_var = computed_var[np.newaxis,:]
 
 
-            # print("mu", computed_mean.shape)
+            # print("mu", computed_mean.shape, "computed_var", computed_var)
             Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
             # print("Fz", Fz.shape)
             if len(Fz.shape) == 1:
