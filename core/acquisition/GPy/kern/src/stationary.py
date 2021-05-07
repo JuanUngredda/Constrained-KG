@@ -12,7 +12,7 @@ from ...util.config import config # for assesing whether to use cython
 from paramz.caching import Cache_this
 from paramz.transformations import Logexp
 import time
-from numba import jit
+# from numba import jit
 
 try:
     from . import stationary_cython
@@ -351,8 +351,8 @@ class Stationary(Kern):
         #print(grad/self.lengthscale**2)
         return grad
 
-    @staticmethod
-    @jit(nopython=True)
+    # @staticmethod
+    # @jit(nopython=True)
     def grad_X_numba_accelerated(tmp, X, input_dim, lengthscale,X2=None):
         grad = np.empty(X.shape, dtype=np.float64)
         for q in range(input_dim):

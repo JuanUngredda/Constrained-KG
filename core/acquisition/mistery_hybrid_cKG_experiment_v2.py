@@ -17,17 +17,17 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 print("mistery activate")
-def function_caller_new_branin_v2(rep):
+def function_caller_mistery_v2(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [ 1e-06, 1.0]:
+    for noise in [1e-06, 1.0]:
         # func2 = dropwave()
-        new_brannin_f = new_brannin(sd=np.sqrt(noise))
+        mistery_f =mistery(sd=np.sqrt(noise))
 
         # --- Attributes
         # repeat same objective function to solve a 1 objective problem
-        f = MultiObjective([new_brannin_f.f])
-        c = MultiObjective([new_brannin_f.c])
+        f = MultiObjective([mistery_f.f])
+        c = MultiObjective([mistery_f.c])
 
         # --- Attributes
         # repeat same objective function to solve a 1 objective problem
@@ -35,7 +35,8 @@ def function_caller_new_branin_v2(rep):
         # c2 = MultiObjective([test_c2])
         # --- Space
         # define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 5)},
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0, 5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
@@ -52,12 +53,9 @@ def function_caller_new_branin_v2(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-
         if noise<1e-3:
-            print("EI final step")
             Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
         else:
-            print("nEI final step")
             Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
         last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
@@ -70,16 +68,17 @@ def function_caller_new_branin_v2(rep):
 
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "new_branin_hybrid_KG_v2_" + str(noise)
+        subfolder = "mistery_hybrid_KG_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_new_branin_v2(rep=4)
+# function_caller_mistery_v2(rep=4)
 
 

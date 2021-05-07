@@ -36,7 +36,7 @@ class KG(AcquisitionBase):
         self.optimizer = optimizer
         self.utility = utility
         self.MCMC = False
-
+        self.base_points_cap_size = nz
         self.counter = 0
         self.current_max_value = np.inf
         self.Z_samples_obj = None
@@ -107,8 +107,13 @@ class KG(AcquisitionBase):
             res = list(itertools.product(*alllist))
             list(res)
 
-            self.Z_obj = np.array(list(res))[:, :1] #np.atleast_2d(self.n_marginalisation_points).T #
-            self.Z_const = np.array(list(res))[:, 1:] #constraint_quantiles #
+            if np.array(list(res)).shape[0]> self.base_points_cap_size:
+                subset_pick = np.random.choice(range(np.array(list(res)).shape[0]), self.base_points_cap_size, replace=False)
+                self.Z_obj = np.array(list(res))[subset_pick, :1] #np.atleast_2d(self.n_marginalisation_points).T #
+                self.Z_const = np.array(list(res))[subset_pick, 1:] #constraint_quantiles #
+            else:
+                self.Z_obj = np.array(list(res))[:, :1] #np.atleast_2d(self.n_marginalisation_points).T #
+                self.Z_const = np.array(list(res))[:, 1:] #constraint_quantiles #
 
 
         if fixed_discretisation is not None:
@@ -244,7 +249,7 @@ class KG(AcquisitionBase):
             X_discretisation[z] = inner_opt_x.reshape(-1)
 
         self.new_anchors_flag = False
-        # print("discretisation", X_discretisation)
+        print("precision", 1.96*np.std(statistics_precision)/np.sqrt(len(statistics_precision)))
         return X_discretisation
 
     def probability_feasibility_multi_gp(self, x, model, l=0):
@@ -339,7 +344,7 @@ class KG(AcquisitionBase):
 
     def discrete_KG(self, Xd, xnew, Zc, aux_obj, aux_c, grad=False, verbose=False):
         xnew = np.atleast_2d(xnew)
-        Xd = np.concatenate((Xd, self.fixed_discretisation_values))
+        # Xd = np.concatenate((Xd, self.fixed_discretisation_values))
         Xd = np.concatenate((Xd, xnew))
         Xd = np.concatenate((Xd, self.current_max))
         self.grad = grad

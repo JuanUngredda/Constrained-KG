@@ -16,7 +16,7 @@ class FC_NN_test_function():
     '''
 
     def __init__(self, max_time=0.003):
-        self.batch_size = 500
+        self.batch_size = 250#500
         self.learning_rate = 0.001
         self.rho = 0.9
         self.epsilon = 1e-07
@@ -68,7 +68,7 @@ class FC_NN_test_function():
                 y_test = keras.utils.to_categorical(y_test, num_classes)
 
                 # Part 2: Make model
-
+                print("x", x.shape)
                 model = Sequential()
                 model.add(Dense(int(np.power(2, x[:, 2][0])), activation='relu', input_shape=(784,)))
                 model.add(Dropout(x[:, 0][0]))
@@ -86,7 +86,7 @@ class FC_NN_test_function():
                               metrics=['accuracy'])
 
                 # Part 5: train
-                # print("batch_size", batch_size, "epochs", epochs)
+
                 history = model.fit(x_train, y_train,
                                     batch_size=batch_size,
                                     epochs=self.epochs,
@@ -100,6 +100,7 @@ class FC_NN_test_function():
             print("np.mean(out_val)",np.mean(out_val))
             print("np.std", np.std(out_val))
             print("mse",np.std(out_val)/len(out_val) )
+            raise
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error

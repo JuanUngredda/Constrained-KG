@@ -102,7 +102,6 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-
             if False:#('dynamic_parameter_function' in self.kwargs): #
                 print("random sampling failed, changed to feasable sols")
 
@@ -118,7 +117,7 @@ class AcquisitionOptimizer(object):
 
             else:
 
-                anchor_points = anchor_points_generator.get(num_anchor=5, X_sampled_values=self.model.get_X_values(),
+                anchor_points = anchor_points_generator.get(num_anchor=3, X_sampled_values=self.model.get_X_values(),
                                                             duplicate_manager=duplicate_manager,
                                                             context_manager=self.context_manager)
                 anchor_points_ls = self.optimize_final_evaluation()
