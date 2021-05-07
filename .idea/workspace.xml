@@ -24,11 +24,11 @@
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/NN_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/NN_TS.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/acquisition/NN_experiment_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/NN_experiment_TS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/forking_CSC/fork0_to_csc.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/forking_CSC/fork0_to_csc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/new_branin_hybrid_cKG_experiment_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_v2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +71,7 @@
       <recent name="$PROJECT_DIR$/core/acquisition" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.NN_TS">
+  <component name="RunManager" selected="Python.test_func_2_hybrid_cKG_experiment_v2">
     <configuration name="KG_control" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Constrained-KG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -184,10 +184,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.test_func_2_hybrid_cKG_experiment_v2" />
         <item itemvalue="Python.NN_TS" />
         <item itemvalue="Python.real_functions_caller" />
         <item itemvalue="Python.KG_control" />
-        <item itemvalue="Python.test_func_2_hybrid_cKG_experiment_v2" />
         <item itemvalue="Python.mistery_hybrid_cKG_experiment_v2" />
       </list>
     </recent_temporary>
@@ -225,7 +225,7 @@
       <workItem from="1618666006933" duration="1435000" />
       <workItem from="1618695014022" duration="130396000" />
       <workItem from="1619443177081" duration="77325000" />
-      <workItem from="1620382882568" duration="20650000" />
+      <workItem from="1620382882568" duration="23041000" />
     </task>
     <servers />
   </component>
@@ -273,7 +273,7 @@
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_nEI.coverage" NAME="mistery_nEI Coverage Results" MODIFIED="1617813914654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_experiment_cEI.coverage" NAME="mistery_experiment_cEI Coverage Results" MODIFIED="1617807478997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$optimizer.coverage" NAME="optimizer Coverage Results" MODIFIED="1617287560408" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_hybrid_cKG_experiment_v2.coverage" NAME="test_func_2_hybrid_cKG_experiment_v2 Coverage Results" MODIFIED="1620387503762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_hybrid_cKG_experiment_v2.coverage" NAME="test_func_2_hybrid_cKG_experiment_v2 Coverage Results" MODIFIED="1620412896476" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$Plot_Function.coverage" NAME="Plot_Function Coverage Results" MODIFIED="1619720933617" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$KG_control.coverage" NAME="KG_control Coverage Results" MODIFIED="1620387776747" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_experiment__1_.coverage" NAME="test_func_2_experiment (1) Coverage Results" MODIFIED="1618335288030" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />

@@ -12,13 +12,13 @@ from EI import EI
 from bayesian_optimisation import BO
 import pandas as pd
 import os
-
+from datetime import datetime
 
 #ALWAYS check cost in
 # --- Function to optimize
 print("mistery activate")
 def function_caller_mistery_v2(rep):
-    rep = rep
+    rep = rep +10
     np.random.seed(rep)
     for noise in [1e-06, 1.0]:
         # func2 = dropwave()
@@ -65,14 +65,14 @@ def function_caller_mistery_v2(rep):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-
+        stop_date = datetime(2021, 5, 8, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
         subfolder = "mistery_hybrid_KG_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,stop_date= stop_date,
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)

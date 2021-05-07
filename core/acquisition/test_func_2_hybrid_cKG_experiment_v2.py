@@ -12,13 +12,13 @@ from nEI import nEI
 from EI import EI
 import pandas as pd
 import os
-
+from datetime import datetime
 
 #ALWAYS check cost in
 # --- Function to optimize
 print("test_fun_2 activate")
 def function_caller_test_func_2_v2(rep):
-    rep = rep
+    rep = rep +10
     np.random.seed(rep)
     for noise in [1e-06, 1.0]:
         # func2 = dropwave()
@@ -102,7 +102,7 @@ def function_caller_test_func_2_v2(rep):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-
+        stop_date = datetime(2021, 5, 8, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
         subfolder = "test_function_2_hybrid_KG_" + str(noise)
@@ -110,6 +110,7 @@ def function_caller_test_func_2_v2(rep):
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  stop_date=stop_date,
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True )

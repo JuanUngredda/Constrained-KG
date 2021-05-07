@@ -20,6 +20,8 @@ from GPyOpt.optimization.acquisition_optimizer import ContextManager
 from scipy.stats import norm
 import pandas as pd
 import os
+from datetime import datetime
+
 try:
     from GPyOpt.plotting.plots_bo import plot_acquisition, plot_convergence
 except:
@@ -95,7 +97,7 @@ class BO(object):
         return suggested_locations
     
 
-    def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
+    def run_optimization(self, max_iter = 1, max_time = np.inf, stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -116,7 +118,7 @@ class BO(object):
         self.evaluations_file = evaluations_file
         self.context = context
         self.path = path
-        self.max_time = max_time
+
         # --- Setting up stop conditions
         self.eps = eps
         if  (max_iter is None) and (max_time is None):
@@ -163,12 +165,10 @@ class BO(object):
                                 "residual_noise": []}
 
 
-
-        overall_time_start = time.time()
-        overall_time_stop = time.time()
-        current_time = 0
-        while (self.max_iter > self.num_acquisitions ) and current_time < self.max_time:
-            current_time = (overall_time_stop - overall_time_start)*(1.0/360) #time in hours
+        self.stop_date = stop_date #datetime(2021, 5, 8, 6)
+        today = datetime.now()
+        while (self.max_iter > self.num_acquisitions ) and (self.stop_date > today):
+            today = datetime.now()
 
             self._update_model()
 

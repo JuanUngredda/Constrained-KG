@@ -11,6 +11,7 @@ from Thompson_Sampling import TS
 from bayesian_optimisation import BO
 import pandas as pd
 import os
+from datetime import datetime
 
 #ALWAYS check cost in
 # --- Function to optimize
@@ -73,17 +74,17 @@ def function_caller_NN_TS(rep):
                 deterministic=True)
 
 
-        max_iter  = 100
+        stop_date = datetime(2021, 5, 8, 6) #year month day hour
+        max_iter  = 50
         # print("Finished Initialization")
         subfolder = "mistery_TS_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, stop_date= stop_date, verbosity=False,
                                                                                   path=path, evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=False)
         print("Code Ended")
-
         print("X",X,"Y",Y, "C", C)
 
 
