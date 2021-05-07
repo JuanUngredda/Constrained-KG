@@ -6,6 +6,12 @@ from tensorflow.keras.layers import Dense, Dropout
 
 import time
 import numpy as np
+import os
+
+import pathlib
+
+checkpoint_dir = pathlib.Path(__file__).parent.absolute()
+checkpoint_dir = str(checkpoint_dir) + "/checkpoints/"
 
 class FC_NN_test_function():
     '''
@@ -15,16 +21,40 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, max_time=0.003):
+    def __init__(self, discrete_idx, max_time=0.003):
         self.batch_size = 250#500
         self.learning_rate = 0.001
         self.rho = 0.9
         self.epsilon = 1e-07
-        self.epochs = 3
-        self.samples = 1000
+        self.epochs = 4
+        self.samples = 100
         self.num_classes = 10
         self.max_time = max_time
+        self.discrete_idx = discrete_idx
 
+
+    def encode_input(self, x, discrete):
+        encode = "_"
+        for i in range(len(x)):
+            if np.isin(i, discrete):
+                encode = encode + str(int(x[i])) + "_"
+            else:
+                val = '%.5f' % (x[i])
+                encode = encode + str(val) + "_"
+        return encode
+
+    def check_available_models(self, x):
+        files = os.listdir(checkpoint_dir)
+        x_encoded = self.encode_input(x.reshape(-1), discrete=self.discrete_idx)
+        available = False
+        print("x_encoded", x_encoded)
+        print("files", files)
+        for f in files:
+            if x_encoded in f:
+                checkpoint_path = checkpoint_dir + x_encoded +"/"+x_encoded+ ".ckpt"
+                available=True
+                return available, checkpoint_path
+        return available, None
 
     def f(self, X, true_val = False, verbose=0):
         """
@@ -45,27 +75,63 @@ class FC_NN_test_function():
         validation_score = np.zeros((X.shape[0], 1))
 
         for index in range(X.shape[0]):
+            (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
             print("index", index, X.shape[0])
             x = X[index]
             x = np.array(x).reshape(-1)
-            x = x.reshape(1, -1)
-            if true_val:
-                reps = 20
-            else:
-                reps = 1
-            out_val = []
-            for i in range(reps):
+            available, loaded_model_path = self.check_available_models(x)
+
+            if available:
+                print("available model: ",available)
+                x = x.reshape(1, -1)
+                out_val = []
                 # Part 1: get the dataset
-                (x_train, y_train), (x_test, y_test) = mnist.load_data()
-                x_train = x_train.reshape(60000, 784)
-                x_test = x_test.reshape(10000, 784)
+
+                x_train = self.x_train.reshape(60000, 784)
+                x_test = self.x_test.reshape(10000, 784)
                 self.x_test = x_test
                 x_train = x_train.astype('float32')
                 x_test = x_test.astype('float32')
                 x_train /= 255
                 x_test /= 255
-                y_train = keras.utils.to_categorical(y_train, num_classes)
-                y_test = keras.utils.to_categorical(y_test, num_classes)
+                y_train = keras.utils.to_categorical(self.y_train, num_classes)
+                y_test = keras.utils.to_categorical(self.y_test, num_classes)
+
+                # Part 2: Make model
+                print("x", x.shape)
+                model = Sequential()
+                model.add(Dense(int(np.power(2, x[:, 2][0])), activation='relu', input_shape=(784,)))
+                model.add(Dropout(x[:, 0][0]))
+                model.add(Dense(int(np.power(2, x[:, 3][0])), activation='relu'))
+                model.add(Dropout(x[:, 1][0]))
+                model.add(Dense(num_classes, activation='softmax'))
+
+                # Part 3: Make optimizer
+                optimizer = tf.keras.optimizers.RMSprop(lr=learning_rate, rho=rho, epsilon=epsilon)
+
+                # Part 4: compile
+                model.compile(loss='categorical_crossentropy',
+                              optimizer=optimizer,
+                              metrics=['accuracy'])
+
+
+                model.load_weights(loaded_model_path)
+                self.model = model
+            else:
+                print("available model: ", available)
+                x = x.reshape(1, -1)
+                out_val = []
+                # Part 1: get the dataset
+
+                x_train = self.x_train.reshape(60000, 784)
+                x_test = self.x_test.reshape(10000, 784)
+                self.x_test = x_test
+                x_train = x_train.astype('float32')
+                x_test = x_test.astype('float32')
+                x_train /= 255
+                x_test /= 255
+                y_train = keras.utils.to_categorical(self.y_train, num_classes)
+                y_test = keras.utils.to_categorical(self.y_test, num_classes)
 
                 # Part 2: Make model
                 print("x", x.shape)
@@ -86,42 +152,45 @@ class FC_NN_test_function():
                               metrics=['accuracy'])
 
                 # Part 5: train
+                input_code = self.encode_input(x.reshape(-1), discrete=self.discrete_idx)
 
-                history = model.fit(x_train, y_train,
+                checkpoint_path = checkpoint_dir + input_code +"/"+input_code+ ".ckpt"
+                cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                                 save_weights_only=True,
+                                                                 verbose=0)
+
+                model.fit(x_train, y_train,
                                     batch_size=batch_size,
                                     epochs=self.epochs,
                                     verbose=verbose,
-                                    validation_data=(x_test, y_test))
+                                    validation_data=(x_test, y_test),
+                                    callbacks=[cp_callback])
 
                 self.model = model
-                # Part 6: get test measurements
-                score = model.evaluate(x_test, y_test, verbose=1)
-                out_val.append(score[1])
+            # Part 6: get test measurements
+            score = model.evaluate(x_test, y_test, verbose=1)
+            out_val.append(score[1])
             print("np.mean(out_val)",np.mean(out_val))
             print("np.std", np.std(out_val))
             print("mse",np.std(out_val)/len(out_val) )
-            raise
+
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error
 
     def c(self, X, true_val=True, verbose=0):
 
-        batch_size = self.batch_size
-        learning_rate = self.learning_rate
-        rho = self.rho
-        epsilon = self.epsilon
-        epochs = self.epochs
-
         if len(X.shape) == 1:
             X = np.array(X).reshape(1, -1)
 
         X_mean_average = np.zeros((X.shape[0], 1))
         for index in range(X.shape[0]):
-
             x = X[index]
             print("x",x, "verbose", verbose, "true_val", true_val)
-            self.f(x,true_val=true_val , verbose=verbose)
+            start = time.time()
+            self.f(x)
+            stop = time.time()
+            print("training time", stop-start)
             if verbose == 1: self.model.summary()
             samples = self.samples
             average_time = np.zeros(samples)
@@ -133,14 +202,31 @@ class FC_NN_test_function():
                 self.model(self.x_test, training=False)
                 stop = time.time()
                 average_time[i] = stop - start
-            average_time = average_time[1:]
+
             #print("average time", average_time)
-            print("np.mean(average_time)", np.mean(average_time))
-            print("std", np.std(average_time))
-            print("mse", np.std(average_time) / np.sqrt(len(average_time)))
+            # import matplotlib.pyplot as plt
+            # plt.hist(average_time, density=True, bins=40)
+            # plt.show()
+            # plt.hist(np.log(average_time), density=True, bins=40)
+            # plt.show()
+            # mean_subset = []
+            #
+            # for _ in range(50):
+            #     subsets = np.random.choice(range(len(average_time)), 100, replace=False)
+            #     mean_subset.append(np.mean(average_time[subsets]))
+            #
+            # plt.hist(np.array(mean_subset).reshape(-1), density=True)
+            # plt.show()
+            # print("subset mean", np.mean(mean_subset))
+            # print("mse", np.std(mean_subset) / np.sqrt(len(mean_subset)))
+            #
+            # print("sum time", np.sum(average_time))
+            # print("np.mean(average_time)", np.mean(average_time))
+            # print("std", np.std(average_time))
+            # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
             X_mean_average[index, 0] = np.mean(average_time)
 
-        return X_mean_average - self.max_time
+        return np.log(X_mean_average) #- np.log(self.max_time)
 
 #objective_function = FC_NN_test_function()
 #print("Verbose execution")

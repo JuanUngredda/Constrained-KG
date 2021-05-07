@@ -116,7 +116,7 @@ class BO(object):
         self.evaluations_file = evaluations_file
         self.context = context
         self.path = path
-                
+        self.max_time = max_time
         # --- Setting up stop conditions
         self.eps = eps
         if  (max_iter is None) and (max_time is None):
@@ -164,9 +164,11 @@ class BO(object):
 
 
 
-
-        while (self.max_iter > self.num_acquisitions ):
-
+        overall_time_start = time.time()
+        overall_time_stop = time.time()
+        current_time = 0
+        while (self.max_iter > self.num_acquisitions ) and current_time < self.max_time:
+            current_time = (overall_time_stop - overall_time_start)*(1.0/360) #time in hours
 
             self._update_model()
 
@@ -231,6 +233,8 @@ class BO(object):
             print("path", path)
             gen_file.to_csv(path_or_buf=path)
             print("self.X, self.Y, self.C , OC sampled, OC GP mean",self.X, self.Y, self.C , self.Opportunity_Cost_sampled,)
+
+            overall_time_stop= time.time()
 
         return self.X, self.Y, self.C , self.recommended_value_sampled, self.underlying_optimum, self.Opportunity_Cost_sampled
         # --- Print the desired result in files

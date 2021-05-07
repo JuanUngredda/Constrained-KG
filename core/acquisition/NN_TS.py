@@ -23,13 +23,14 @@ def function_caller_NN_TS(rep):
     while function_rejected or s<=1:
     #for i in range(2):
         try:
-            RMITD_f = FC_NN_test_function()
+            RMITD_f = FC_NN_test_function(discrete_idx= [2,3])
             function_rejected = False
             s+=1
         except:
             function_rejected = True
             print("function_rejected check path inside function")
             pass
+    import time
 
 
     # --- Attributes
@@ -47,11 +48,44 @@ def function_caller_NN_TS(rep):
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (0.0,0.99)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (5,12)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (5,12)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+
+    x = GPyOpt.experiment_design.initial_design('random', space, 5)
+    discrete_dims = [2, 3]
+    x[:, discrete_dims] = np.round(x[:, discrete_dims])
+    start = time.time()
+    fval = RMITD_f.f(x)
+    stop = time.time()
+    print("time performance", stop - start)
+
+    start = time.time()
+    cval = RMITD_f.c(x)
+    stop = time.time()
+    print("time time", stop-start)
+
+    data = {}
+    data["Y"] = np.array(fval).reshape(-1)
+    data["C"] = np.array(cval).reshape(-1)
+
+    gen_file = pd.DataFrame.from_dict(data)
+
+    import pathlib
+    checkpoint_dir = pathlib.Path(__file__).parent.absolute()
+    checkpoint_dir = str(checkpoint_dir) + "/NN_stats/"
+
+    path = checkpoint_dir +'/YC.csv'
+    if os.path.isdir(checkpoint_dir ) == False:
+        os.makedirs(checkpoint_dir )
+
+    gen_file.to_csv(path_or_buf=path)
+    path = checkpoint_dir  + '/X.csv'
+    np.savetxt(path, x, delimiter=",")
+    raise
+
     n_f = 1
     n_c = 1
     noise = 0.002**2
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[False]*n_f)
-    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-21]*n_c, exact_feval=[True]*n_c)
+    model_f = multi_outputGP(output_dim = n_f,   exact_feval=[False]*n_f)
+    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-04]*n_c, exact_feval=[True]*n_c)
 
 
     # --- Aquisition optimizer

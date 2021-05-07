@@ -52,8 +52,8 @@ def function_caller_NN_TS(rep):
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (5, 12)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim = n_f,   exact_feval=[True]*n_f)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
 
 
         # --- Aquisition optimizer
