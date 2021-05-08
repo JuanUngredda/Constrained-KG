@@ -18,7 +18,7 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery activate")
 def function_caller_mistery_v2(rep):
-    rep = rep 
+    rep = rep
     np.random.seed(rep)
     for noise in [1e-06, 1.0]:
         # func2 = dropwave()
@@ -68,7 +68,7 @@ def function_caller_mistery_v2(rep):
         stop_date = datetime(2022, 5, 8, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "mistery_hybrid_KG_" + str(noise)
+        subfolder = "mistery_hybrid_KG_v2" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
