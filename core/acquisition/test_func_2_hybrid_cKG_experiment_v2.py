@@ -102,7 +102,7 @@ def function_caller_test_func_2_v2(rep):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-        stop_date = datetime(2022, 5, 8, 7)  # year month day hour
+        stop_date = datetime(2021, 5, 9, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
         subfolder = "test_function_2_hybrid_KG_v2" + str(noise)
