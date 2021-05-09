@@ -49,36 +49,40 @@ def function_caller_NN_TS(rep):
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (5,12)},
                                          {'name': 'var_2', 'type': 'continuous', 'domain': (5,12)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
 
-    x = GPyOpt.experiment_design.initial_design('random', space, 5)
-    discrete_dims = [2, 3]
-    x[:, discrete_dims] = np.round(x[:, discrete_dims])
+    # x = GPyOpt.experiment_design.initial_design('random', space, 5)
+    x = np.array([[0.5,0.5, 5, 5]])
+    x = np.repeat(x, 100, axis=0)
+    # discrete_dims = [2, 3]
+    # x[:, discrete_dims] = np.round(x[:, discrete_dims])
     start = time.time()
     fval = RMITD_f.f(x)
+    print("fval", fval, "mean", np.mean(fval), "std",np.std(fval),"MSE", np.std(fval)/np.sqrt(len(fval)))
     stop = time.time()
     print("time performance", stop - start)
 
     start = time.time()
     cval = RMITD_f.c(x)
+    print("cval", cval, "mean", np.mean(cval), "MSE", np.std(cval) / np.sqrt(len(cval)))
     stop = time.time()
     print("time time", stop-start)
 
-    data = {}
-    data["Y"] = np.array(fval).reshape(-1)
-    data["C"] = np.array(cval).reshape(-1)
-
-    gen_file = pd.DataFrame.from_dict(data)
-
-    import pathlib
-    checkpoint_dir = pathlib.Path(__file__).parent.absolute()
-    checkpoint_dir = str(checkpoint_dir) + "/NN_stats/"
-
-    path = checkpoint_dir +'/YC.csv'
-    if os.path.isdir(checkpoint_dir ) == False:
-        os.makedirs(checkpoint_dir )
-
-    gen_file.to_csv(path_or_buf=path)
-    path = checkpoint_dir  + '/X.csv'
-    np.savetxt(path, x, delimiter=",")
+    # data = {}
+    # data["Y"] = np.array(fval).reshape(-1)
+    # data["C"] = np.array(cval).reshape(-1)
+    #
+    # gen_file = pd.DataFrame.from_dict(data)
+    #
+    # import pathlib
+    # checkpoint_dir = pathlib.Path(__file__).parent.absolute()
+    # checkpoint_dir = str(checkpoint_dir) + "/NN_stats/"
+    #
+    # path = checkpoint_dir +'/YC.csv'
+    # if os.path.isdir(checkpoint_dir ) == False:
+    #     os.makedirs(checkpoint_dir )
+    #
+    # gen_file.to_csv(path_or_buf=path)
+    # path = checkpoint_dir  + '/X.csv'
+    # np.savetxt(path, x, delimiter=",")
     raise
 
     n_f = 1

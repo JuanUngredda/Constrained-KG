@@ -3,15 +3,15 @@ import tensorflow.keras as keras
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-
+from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-import os
+# import os
 
-import pathlib
-
-checkpoint_dir = pathlib.Path(__file__).parent.absolute()
-checkpoint_dir = str(checkpoint_dir) + "/checkpoints/"
+# import pathlib
+#
+# checkpoint_dir = pathlib.Path(__file__).parent.absolute()
+# checkpoint_dir = str(checkpoint_dir) + "/checkpoints/"
 
 class FC_NN_test_function():
     '''
@@ -31,7 +31,8 @@ class FC_NN_test_function():
         self.num_classes = 10
         self.max_time = max_time
         self.discrete_idx = discrete_idx
-
+        self.checkpoints = {"x":[], "model":[]}
+        (self.master_x_train, self.master_y_train), (self.master_x_test, self.master_y_test) = mnist.load_data()
 
     def encode_input(self, x, discrete):
         encode = "_"
@@ -44,16 +45,17 @@ class FC_NN_test_function():
         return encode
 
     def check_available_models(self, x):
-        files = os.listdir(checkpoint_dir)
-        x_encoded = self.encode_input(x.reshape(-1), discrete=self.discrete_idx)
+        files = self.checkpoints["x"]
         available = False
-        print("x_encoded", x_encoded)
         print("files", files)
-        for f in files:
-            if x_encoded in f:
-                checkpoint_path = checkpoint_dir + x_encoded +"/"+x_encoded+ ".ckpt"
+        if len(files)==0:
+            return available, None
+
+        for f in range(len(files)):
+            if np.all(x.reshape(-1)==files[f].reshape(-1)):
+                model = self.checkpoints["model"][f]
                 available=True
-                return available, checkpoint_path
+                return available, model
         return available, None
 
     def f(self, X, true_val = False, verbose=0):
@@ -74,64 +76,39 @@ class FC_NN_test_function():
 
         validation_score = np.zeros((X.shape[0], 1))
 
+        # print("self.master_x_train",self.master_x_train.shape)
+        # print("self.master_y_train",self.master_x_test.shape)
+
+        x_concat = np.concatenate((self.master_x_train, self.master_x_test))
+        y_concat = np.concatenate((self.master_y_train, self.master_y_test))
+
         for index in range(X.shape[0]):
-            (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
+            train_size = 6.0/7
+            self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat, train_size=train_size)
+
             print("index", index, X.shape[0])
             x = X[index]
-            x = np.array(x).reshape(-1)
-            available, loaded_model_path = self.check_available_models(x)
+            available, model = self.check_available_models(x)
+            x = x.reshape(1, -1)
+            out_val = []
+            # Part 1: get the dataset
+
+            x_train = self.x_train.reshape(60000, 784)
+            x_test = self.x_test.reshape(10000, 784)
+            self.x_test = x_test
+            x_train = x_train.astype('float32')
+            x_test = x_test.astype('float32')
+
+            x_train /= 255
+            x_test /= 255
+            y_train = keras.utils.to_categorical(self.y_train, num_classes)
+            y_test = keras.utils.to_categorical(self.y_test, num_classes)
 
             if available:
                 print("available model: ",available)
-                x = x.reshape(1, -1)
-                out_val = []
-                # Part 1: get the dataset
-
-                x_train = self.x_train.reshape(60000, 784)
-                x_test = self.x_test.reshape(10000, 784)
-                self.x_test = x_test
-                x_train = x_train.astype('float32')
-                x_test = x_test.astype('float32')
-                x_train /= 255
-                x_test /= 255
-                y_train = keras.utils.to_categorical(self.y_train, num_classes)
-                y_test = keras.utils.to_categorical(self.y_test, num_classes)
-
-                # Part 2: Make model
-                print("x", x.shape)
-                model = Sequential()
-                model.add(Dense(int(np.power(2, x[:, 2][0])), activation='relu', input_shape=(784,)))
-                model.add(Dropout(x[:, 0][0]))
-                model.add(Dense(int(np.power(2, x[:, 3][0])), activation='relu'))
-                model.add(Dropout(x[:, 1][0]))
-                model.add(Dense(num_classes, activation='softmax'))
-
-                # Part 3: Make optimizer
-                optimizer = tf.keras.optimizers.RMSprop(lr=learning_rate, rho=rho, epsilon=epsilon)
-
-                # Part 4: compile
-                model.compile(loss='categorical_crossentropy',
-                              optimizer=optimizer,
-                              metrics=['accuracy'])
-
-
-                model.load_weights(loaded_model_path)
                 self.model = model
             else:
                 print("available model: ", available)
-                x = x.reshape(1, -1)
-                out_val = []
-                # Part 1: get the dataset
-
-                x_train = self.x_train.reshape(60000, 784)
-                x_test = self.x_test.reshape(10000, 784)
-                self.x_test = x_test
-                x_train = x_train.astype('float32')
-                x_test = x_test.astype('float32')
-                x_train /= 255
-                x_test /= 255
-                y_train = keras.utils.to_categorical(self.y_train, num_classes)
-                y_test = keras.utils.to_categorical(self.y_test, num_classes)
 
                 # Part 2: Make model
                 print("x", x.shape)
@@ -152,28 +129,19 @@ class FC_NN_test_function():
                               metrics=['accuracy'])
 
                 # Part 5: train
-                input_code = self.encode_input(x.reshape(-1), discrete=self.discrete_idx)
-
-                checkpoint_path = checkpoint_dir + input_code +"/"+input_code+ ".ckpt"
-                cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                                 save_weights_only=True,
-                                                                 verbose=0)
 
                 model.fit(x_train, y_train,
                                     batch_size=batch_size,
                                     epochs=self.epochs,
                                     verbose=verbose,
-                                    validation_data=(x_test, y_test),
-                                    callbacks=[cp_callback])
+                                    validation_data=(x_test, y_test))
 
+                self.checkpoints["x"].append(x.reshape(-1))
+                self.checkpoints["model"].append(model)
                 self.model = model
             # Part 6: get test measurements
-            score = model.evaluate(x_test, y_test, verbose=1)
+            score = model.evaluate(x_test, y_test, verbose=0)
             out_val.append(score[1])
-            print("np.mean(out_val)",np.mean(out_val))
-            print("np.std", np.std(out_val))
-            print("mse",np.std(out_val)/len(out_val) )
-
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error
@@ -188,7 +156,11 @@ class FC_NN_test_function():
             x = X[index]
             print("x",x, "verbose", verbose, "true_val", true_val)
             start = time.time()
-            self.f(x)
+            available, model = self.check_available_models(x)
+            if available:
+                self.model =model
+            else:
+                self.f(x)
             stop = time.time()
             print("training time", stop-start)
             if verbose == 1: self.model.summary()
