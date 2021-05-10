@@ -206,8 +206,14 @@ class FC_NN_test_function():
 
         return np.log(X_mean_average) - np.log(self.max_time)
 
-#objective_function = FC_NN_test_function()
-#print("Verbose execution")
+import tensorflow as tf
+#ALWAYS check cost in
+# --- Function to optimize
+print("NN TS activate")
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+objective_function = FC_NN_test_function()
+print("Verbose execution")
 
 #test_error = objective_function.f(X = np.array([[0.2,0.2,3,3]]), verbose=1)
                                                                
