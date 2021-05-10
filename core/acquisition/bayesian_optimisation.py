@@ -381,7 +381,7 @@ class BO(object):
                 self.true_best_value()
                 optimum = np.max(self.true_best_stats["true_best"])
             else:
-                optimum = 0
+                optimum = np.array([0]).reshape(-1)
             self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
             self.underlying_optimum.append(optimum.reshape(-1))
             self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
@@ -425,7 +425,7 @@ class BO(object):
                 self.true_best_value()
                 optimum = np.max(self.true_best_stats["true_best"])
             else:
-                optimum = 0
+                optimum = np.array([0]).reshape(-1)
             self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
             print("best posterior mean")
             print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
@@ -464,7 +464,7 @@ class BO(object):
                 self.true_best_value()
                 optimum = np.max(self.true_best_stats["true_best"])
             else:
-                optimum = 0
+                optimum = np.array([0]).reshape(-1)
             self.recommended_value_sampled.append(np.max(func_val_true_sampled).reshape(-1))
             self.underlying_optimum.append(optimum.reshape(-1))
             self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
