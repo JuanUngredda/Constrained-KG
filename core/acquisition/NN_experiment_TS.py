@@ -19,8 +19,8 @@ import tensorflow as tf
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_TS(rep):
-
-    for i in range(len(10)):
+    
+    for i in range(10):
         rep = rep +i
         np.random.seed(rep)
 
