@@ -23,7 +23,7 @@ print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_cEI(rep):
 
-    for i in range(5):
+    for i in range(10):
         rep = rep + i
         np.random.seed(rep)
 
@@ -102,14 +102,14 @@ def function_caller_NN_cEI(rep):
         stop_date = datetime(2022, 5, 10, 7) # year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "NN_hybrid_KG_"
+        subfolder = "NN_cEI_"
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,stop_date= stop_date,
                                                                                   path=path,compute_OC=False,
                                                                                   evaluations_file=subfolder,
-                                                                                  KG_dynamic_optimisation=True)
+                                                                                  KG_dynamic_optimisation=False)
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
