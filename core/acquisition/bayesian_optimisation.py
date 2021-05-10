@@ -97,7 +97,7 @@ class BO(object):
         return suggested_locations
     
 
-    def run_optimization(self, max_iter = 1, max_time = np.inf, stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
+    def run_optimization(self, max_iter = 1, max_time = np.inf, compute_OC=True,stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -113,6 +113,7 @@ class BO(object):
             raise InvalidConfigError("Cannot run the optimization loop without the objective function")
 
         # --- Save the options to print and save the results
+        self.compute_OC = compute_OC
         self.KG_dynamic_optimisation = KG_dynamic_optimisation
         self.verbosity = verbosity
         self.evaluations_file = evaluations_file
@@ -376,8 +377,11 @@ class BO(object):
 
             func_val_true = func_val_true_GP_recommended
 
-            self.true_best_value()
-            optimum = np.max(self.true_best_stats["true_best"])
+            if self.compute_OC:
+                self.true_best_value()
+                optimum = np.max(self.true_best_stats["true_best"])
+            else:
+                optimum = 0
             self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
             self.underlying_optimum.append(optimum.reshape(-1))
             self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
@@ -417,8 +421,11 @@ class BO(object):
             func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
             func_val_true_GP_mean = func_val_true_GP_recommended
 
-            self.true_best_value()
-            optimum = np.max(self.true_best_stats["true_best"])
+            if self.compute_OC:
+                self.true_best_value()
+                optimum = np.max(self.true_best_stats["true_best"])
+            else:
+                optimum = 0
             self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
             print("best posterior mean")
             print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
@@ -453,7 +460,11 @@ class BO(object):
             func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
             func_val_true_sampled = func_val_true_GP_recommended
 
-            optimum = np.max(self.true_best_stats["true_best"])
+            if self.compute_OC:
+                self.true_best_value()
+                optimum = np.max(self.true_best_stats["true_best"])
+            else:
+                optimum = 0
             self.recommended_value_sampled.append(np.max(func_val_true_sampled).reshape(-1))
             self.underlying_optimum.append(optimum.reshape(-1))
             self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
@@ -642,15 +653,14 @@ class BO(object):
         anchor_point = np.array(X[np.argmin(fval)]).reshape(-1)
         anchor_point = anchor_point.reshape(1, -1)
 
-        best_design = minimize(self.func_val, anchor_point, method='nelder-mead', tol=1e-8).x
+        if self.compute_OC:
+            best_design = minimize(self.func_val, anchor_point, method='nelder-mead', tol=1e-8).x
+            value_best_design = -self.func_val(best_design)
+            print("best design", best_design, "value_best_design", value_best_design)
+            self.true_best_stats["true_best"].append(value_best_design)
+        else:
+            self.true_best_stats["true_best"].append(0)
 
-        value_best_design  = -self.func_val(best_design)
-        print("best design", best_design, "value_best_design", value_best_design)
-
-
-
-
-        self.true_best_stats["true_best"].append(value_best_design)
         self.true_best_stats["mean_gp"].append(self.model.posterior_mean(best_design))
         self.true_best_stats["std gp"].append(self.model.posterior_variance(best_design, noise=False))
         self.true_best_stats["pf"].append(self.probability_feasibility_multi_gp(best_design,self.model_c).reshape(-1,1))

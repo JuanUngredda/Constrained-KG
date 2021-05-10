@@ -23,7 +23,7 @@ def function_caller_NN_TS(rep):
     while function_rejected or s<=1:
     #for i in range(2):
         try:
-            RMITD_f = FC_NN_test_function(discrete_idx= [2,3])
+            RMITD_f = FC_NN_test_function()
             function_rejected = False
             s+=1
         except:

@@ -12,7 +12,7 @@ from bayesian_optimisation import BO
 import pandas as pd
 import os
 from datetime import datetime
-
+import time
 #ALWAYS check cost in
 # --- Function to optimize
 print("NN TS activate")
@@ -27,7 +27,8 @@ def function_caller_NN_TS(rep):
         while function_rejected or s <= 1:
             # for i in range(2):
             try:
-                RMITD_f = FC_NN_test_function()
+                threshold = 2.6e-2 #seconds
+                RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
             except:
@@ -47,15 +48,30 @@ def function_caller_NN_TS(rep):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0.0, 0.99)},
-                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0.0, 0.99)},
-                                           {'name': 'var_2', 'type': 'continuous', 'domain': (5, 12)},
-                                           {'name': 'var_2', 'type': 'continuous', 'domain': (5, 12)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (1e-6, 0.99)},  #Learning rate
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 1
+                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 2
+                                           {'name': 'var_4', 'type': 'continuous', 'domain': (0.0, 0.99)},# Drop-out rate 3
+                                           {'name': 'var_5', 'type': 'continuous', 'domain': (5, 12)},  # units 1
+                                           {'name': 'var_6', 'type': 'continuous', 'domain': (5, 12)},# units 2
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (5, 12)}])# units 3
+
+        x = np.array([[0.1, 0.5, 0.5,0.5, 5,5,5],
+                      [0.1, 0.5, 0.5,0.5, 7,7,7],
+                      [0.1, 0.5, 0.5,0.5, 9,9,9]])
+
+        start = time.time()
+        cval = RMITD_f.c(x)
+
+        if np.all(cval<0):
+            print("restriction is not doing anything")
+            print("cval", cval)
+            raise
+
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[np.square(1e-2)]*n_c, exact_feval=[True]*n_f)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
-
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -63,8 +79,7 @@ def function_caller_NN_TS(rep):
         #
         # # --- Initial design
         #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
-
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 15)
 
         nz=1
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
@@ -74,15 +89,15 @@ def function_caller_NN_TS(rep):
                 deterministic=True)
 
 
-        stop_date = datetime(2021, 5, 8, 6) #year month day hour
+        stop_date = datetime(2022, 5, 8, 6) #year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "mistery_TS_" + str(noise)
+        subfolder = "NN_TS_" + str(noise)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, stop_date= stop_date, verbosity=False,
-                                                                                  path=path, evaluations_file=subfolder,
+                                                                                  path=path, evaluations_file=subfolder,compute_OC=False,
                                                                                   KG_dynamic_optimisation=False)
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)

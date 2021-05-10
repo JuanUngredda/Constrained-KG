@@ -21,16 +21,15 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, discrete_idx, max_time=0.003):
+    def __init__(self, max_time=0.003):
         self.batch_size = 250#500
-        self.learning_rate = 0.001
         self.rho = 0.9
         self.epsilon = 1e-07
-        self.epochs = 4
+        self.epochs = 3
         self.samples = 100
         self.num_classes = 10
         self.max_time = max_time
-        self.discrete_idx = discrete_idx
+        # self.discrete_idx = discrete_idx
         self.checkpoints = {"x":[], "model":[]}
         (self.master_x_train, self.master_y_train), (self.master_x_test, self.master_y_test) = mnist.load_data()
 
@@ -47,7 +46,6 @@ class FC_NN_test_function():
     def check_available_models(self, x):
         files = self.checkpoints["x"]
         available = False
-        print("files", files)
         if len(files)==0:
             return available, None
 
@@ -64,8 +62,9 @@ class FC_NN_test_function():
         optimizer, put all three together and train. Finally
         perform test and return test error.
         """
+
         batch_size = self.batch_size
-        learning_rate = self.learning_rate
+        #self.learning_rate
         rho = self.rho
         epsilon = self.epsilon
         epochs = self.epochs
@@ -83,13 +82,17 @@ class FC_NN_test_function():
         y_concat = np.concatenate((self.master_y_train, self.master_y_test))
 
         for index in range(X.shape[0]):
+
+
             train_size = 6.0/7
             self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat, train_size=train_size)
 
             print("index", index, X.shape[0])
             x = X[index]
+
             available, model = self.check_available_models(x)
             x = x.reshape(1, -1)
+            learning_rate = x[:, 0]
             out_val = []
             # Part 1: get the dataset
 
@@ -111,12 +114,14 @@ class FC_NN_test_function():
                 print("available model: ", available)
 
                 # Part 2: Make model
-                print("x", x.shape)
+
                 model = Sequential()
-                model.add(Dense(int(np.power(2, x[:, 2][0])), activation='relu', input_shape=(784,)))
-                model.add(Dropout(x[:, 0][0]))
-                model.add(Dense(int(np.power(2, x[:, 3][0])), activation='relu'))
+                model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu', input_shape=(784,)))
                 model.add(Dropout(x[:, 1][0]))
+                model.add(Dense(int(np.power(2, x[:, 5][0])), activation='relu'))
+                model.add(Dropout(x[:, 2][0]))
+                model.add(Dense(int(np.power(2, x[:, 6][0])), activation='relu'))
+                model.add(Dropout(x[:, 3][0]))
                 model.add(Dense(num_classes, activation='softmax'))
                 if verbose == 1: model.summary()
 
@@ -142,6 +147,7 @@ class FC_NN_test_function():
             # Part 6: get test measurements
             score = model.evaluate(x_test, y_test, verbose=0)
             out_val.append(score[1])
+            print("x", x, "fval", np.mean(out_val))
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error
@@ -154,7 +160,7 @@ class FC_NN_test_function():
         X_mean_average = np.zeros((X.shape[0], 1))
         for index in range(X.shape[0]):
             x = X[index]
-            print("x",x, "verbose", verbose, "true_val", true_val)
+            # print("x",x, "verbose", verbose, "true_val", true_val)
             start = time.time()
             available, model = self.check_available_models(x)
             if available:
@@ -162,7 +168,7 @@ class FC_NN_test_function():
             else:
                 self.f(x)
             stop = time.time()
-            print("training time", stop-start)
+            # print("training time", stop-start)
             if verbose == 1: self.model.summary()
             samples = self.samples
             average_time = np.zeros(samples)
@@ -193,12 +199,12 @@ class FC_NN_test_function():
             # print("mse", np.std(mean_subset) / np.sqrt(len(mean_subset)))
             #
             # print("sum time", np.sum(average_time))
-            # print("np.mean(average_time)", np.mean(average_time))
+            print("x", x, "cval", np.log(np.mean(average_time))-np.log(self.max_time))
             # print("std", np.std(average_time))
             # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
             X_mean_average[index, 0] = np.mean(average_time)
 
-        return np.log(X_mean_average) #- np.log(self.max_time)
+        return np.log(X_mean_average) - np.log(self.max_time)
 
 #objective_function = FC_NN_test_function()
 #print("Verbose execution")
