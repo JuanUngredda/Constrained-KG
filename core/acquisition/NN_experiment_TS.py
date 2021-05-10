@@ -84,7 +84,7 @@ def function_caller_NN_TS(rep):
         #
         # # --- Initial design
         #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 13)
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 14)
 
         nz=1
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
