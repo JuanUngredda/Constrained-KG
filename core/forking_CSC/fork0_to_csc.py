@@ -110,7 +110,8 @@ N_PROCESSES = 8
 # set the computers you want to use here, tmux will load to show if they are active.
 ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
                  "embutido", "jamon", "caldereta", "dinuguan", "lechon",
-                 "niliga", "inihaw", "halabos", "sinuglaw", "keiko", "kumeta", "het1","het2","het3","het4"]
+                 "niliga", "inihaw", "halabos", "sinuglaw", "keiko", 
+                 "kumeta", "het1","het2","het3","het4"]
 
 # default list uses all computers, but some may need to be removed.
 # working with names is a bitch, instead use numbers (tmux panes).
@@ -118,7 +119,7 @@ ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
 #U = [0,2,3,4,5,6,7,8]
 #python fork0_to_csc.py /home/rawsys/matjiu/BOPL_Cornell-Warwick/experiments/control.py 14 --first_fork adobo --basedir /home/maths/phrnaj/MCBO_results/ --conda TFgpu
 
-U =  [18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
+U =  [16]#[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
 
 CSC_NAMES = [ALL_CSC_NAMES[i] for i in U]
 

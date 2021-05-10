@@ -77,7 +77,7 @@ def function_caller_NN_cKG(rep):
 
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[np.square(1e-2)]*n_c, exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-3]*n_c, exact_feval=[True]*n_f)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
 
 
