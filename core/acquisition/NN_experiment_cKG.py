@@ -102,7 +102,7 @@ def function_caller_NN_cKG(rep):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-        stop_date = datetime(2021, 5, 10, 7) # year month day hour
+        stop_date = datetime(2022, 5, 10, 7) # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
         subfolder = "NN_hybrid_KG_"
