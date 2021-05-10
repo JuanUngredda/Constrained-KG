@@ -7,9 +7,12 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from Thompson_Sampling import TS
+from Hybrid_continuous_KG_v2 import KG
 from bayesian_optimisation import BO
 import pandas as pd
+from nEI import nEI
+from EI import EI
+from EI import EI
 import os
 from datetime import datetime
 import time
@@ -18,7 +21,7 @@ import tensorflow as tf
 # --- Function to optimize
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-def function_caller_NN_TS(rep):
+def function_caller_NN_cEI(rep):
 
 
     rep = rep
@@ -63,8 +66,8 @@ def function_caller_NN_TS(rep):
                   [1e-3, 0.3, 0.3,0.3, 7,7,7],
                   [1e-3, 0.3, 0.3,0.3, 10,10,10]])
 
-    cval = RMITD_f.f(x)
-    print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+    # cval = RMITD_f.f(x)
+    # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
     start = time.time()
     cval = RMITD_f.c(x)
 
@@ -78,37 +81,39 @@ def function_caller_NN_TS(rep):
     model_f = multi_outputGP(output_dim = n_f,   noise_var=[np.square(1e-2)]*n_c, exact_feval=[True]*n_f)
     model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
 
+
     # --- Aquisition optimizer
     #optimizer for inner acquisition function
-    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model = model_f, model_c=model_c)
+    type_anchor_points_logic = "max_objective"
+    acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer="lbfgs",inner_optimizer='lbfgs',space=space, model=model_f, model_c=model_c,anchor_points_logic=type_anchor_points_logic)
     #
     # # --- Initial design
     #initial design
-    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 13)
+    initial_design = GPyOpt.experiment_design.initial_design('latin', space, 14)
 
-    nz=1
-    acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
+    nz = 1
+    acquisition = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
     bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-            tag_last_evaluation  =True,
+            tag_last_evaluation=True,
             deterministic=True)
 
 
-    stop_date = datetime(2022, 5, 8, 6) #year month day hour
+    stop_date = datetime(2022, 5, 10, 7) # year month day hour
     max_iter  = 50
     # print("Finished Initialization")
-    subfolder = "NN_TS_"
+    subfolder = "NN_hybrid_KG_"
     folder = "RESULTS"
     cwd = os.getcwd()
     path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-    X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, stop_date= stop_date, verbosity=False,
-                                                                              path=path, evaluations_file=subfolder,compute_OC=False,
-                                                                              KG_dynamic_optimisation=False)
+    X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,stop_date= stop_date,
+                                                                              path=path,compute_OC=False,
+                                                                              evaluations_file=subfolder,
+                                                                              KG_dynamic_optimisation=True)
+
     print("Code Ended")
     print("X",X,"Y",Y, "C", C)
-
-
-function_caller_NN_TS(rep=21)
+function_caller_NN_cEI(rep=21)
 
 
 

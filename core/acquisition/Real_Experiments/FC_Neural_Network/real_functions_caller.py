@@ -83,7 +83,6 @@ class FC_NN_test_function():
 
         for index in range(X.shape[0]):
 
-
             train_size = 6.0/7
             self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat, train_size=train_size)
 
@@ -107,47 +106,54 @@ class FC_NN_test_function():
             y_train = keras.utils.to_categorical(self.y_train, num_classes)
             y_test = keras.utils.to_categorical(self.y_test, num_classes)
 
-            if False:#available:
-                print("available model: ",available)
-                self.model = model
+            if true_val:
+                num_replications = 10
             else:
-                print("available model: ", available)
+                num_replications = 1
 
-                # Part 2: Make model
+            for _ in range(num_replications):
+                if available:
+                    print("available model: ",available)
+                    self.model = model
+                else:
+                    print("available model: ", available)
 
-                model = Sequential()
-                model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu', input_shape=(784,)))
-                model.add(Dropout(x[:, 1][0]))
-                model.add(Dense(int(np.power(2, x[:, 5][0])), activation='relu'))
-                model.add(Dropout(x[:, 2][0]))
-                model.add(Dense(int(np.power(2, x[:, 6][0])), activation='relu'))
-                model.add(Dropout(x[:, 3][0]))
-                model.add(Dense(num_classes, activation='softmax'))
-                if verbose == 1: model.summary()
+                    # Part 2: Make model
 
-                # Part 3: Make optimizer
-                optimizer = tf.keras.optimizers.RMSprop(lr=learning_rate, rho=rho, epsilon=epsilon)
+                    model = Sequential()
+                    model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu', input_shape=(784,)))
+                    model.add(Dropout(x[:, 1][0]))
+                    model.add(Dense(int(np.power(2, x[:, 5][0])), activation='relu'))
+                    model.add(Dropout(x[:, 2][0]))
+                    model.add(Dense(int(np.power(2, x[:, 6][0])), activation='relu'))
+                    model.add(Dropout(x[:, 3][0]))
+                    model.add(Dense(num_classes, activation='softmax'))
+                    if verbose == 1: model.summary()
 
-                # Part 4: compile
-                model.compile(loss='categorical_crossentropy',
-                              optimizer=optimizer,
-                              metrics=['accuracy'])
+                    # Part 3: Make optimizer
+                    optimizer = tf.keras.optimizers.RMSprop(lr=learning_rate, rho=rho, epsilon=epsilon)
 
-                # Part 5: train
+                    # Part 4: compile
+                    model.compile(loss='categorical_crossentropy',
+                                  optimizer=optimizer,
+                                  metrics=['accuracy'])
 
-                model.fit(x_train, y_train,
-                                    batch_size=batch_size,
-                                    epochs=self.epochs,
-                                    verbose=verbose,
-                                    validation_data=(x_test, y_test))
+                    # Part 5: train
 
-                self.checkpoints["x"].append(x.reshape(-1))
-                self.checkpoints["model"].append(model)
-                self.model = model
-            # Part 6: get test measurements
-            score = model.evaluate(x_test, y_test, verbose=0)
-            out_val.append(score[1])
-            print("x", x, "fval", np.mean(out_val))
+                    model.fit(x_train, y_train,
+                                        batch_size=batch_size,
+                                        epochs=self.epochs,
+                                        verbose=verbose,
+                                        validation_data=(x_test, y_test))
+
+                    self.checkpoints["x"].append(x.reshape(-1))
+                    self.checkpoints["model"].append(model)
+                    self.model = model
+                # Part 6: get test measurements
+                score = model.evaluate(x_test, y_test, verbose=0)
+                out_val.append(score[1])
+                print("x", x, "fval", np.mean(out_val))
+
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error
