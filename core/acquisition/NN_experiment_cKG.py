@@ -110,7 +110,7 @@ def function_caller_NN_cKG(rep):
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,stop_date= stop_date,
-                                                                                  path=path,
+                                                                                  path=path,compute_OC=False,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 
