@@ -22,7 +22,7 @@ class FC_NN_test_function():
     '''
 
     def __init__(self, max_time=0.003):
-        self.batch_size = 250#500
+        self.batch_size = 500
         self.rho = 0.9
         self.epsilon = 1e-07
         self.epochs = 3
@@ -107,7 +107,7 @@ class FC_NN_test_function():
             y_train = keras.utils.to_categorical(self.y_train, num_classes)
             y_test = keras.utils.to_categorical(self.y_test, num_classes)
 
-            if available:
+            if False:#available:
                 print("available model: ",available)
                 self.model = model
             else:

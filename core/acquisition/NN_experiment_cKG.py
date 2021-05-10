@@ -7,9 +7,11 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from Thompson_Sampling import TS
+from Hybrid_continuous_KG_v2 import KG
 from bayesian_optimisation import BO
 import pandas as pd
+from nEI import nEI
+from EI import EI
 import os
 from datetime import datetime
 import time
@@ -18,7 +20,7 @@ import tensorflow as tf
 # --- Function to optimize
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-def function_caller_NN_TS(rep):
+def function_caller_NN_cKG(rep):
 
     for i in range(10):
         rep = rep +i
@@ -63,8 +65,8 @@ def function_caller_NN_TS(rep):
                       [1e-3, 0.3, 0.3,0.3, 7,7,7],
                       [1e-3, 0.3, 0.3,0.3, 10,10,10]])
 
-        cval = RMITD_f.f(x)
-        print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        # cval = RMITD_f.f(x)
+        # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
         start = time.time()
         cval = RMITD_f.c(x)
 
@@ -72,7 +74,7 @@ def function_caller_NN_TS(rep):
             print("restriction is not doing anything")
             print("cval", cval)
             raise
-        raise
+
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[np.square(1e-2)]*n_c, exact_feval=[True]*n_f)
@@ -83,15 +85,19 @@ def function_caller_NN_TS(rep):
         acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer='lbfgs', space=space, model = model_f, model_c=model_c)
         #
         # # --- Initial design
-        #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 13)
+        #initial design        #initial design
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz=1
-        acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
+        nz = 60 # (n_c+1)
+        acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition = Last_Step_acq,
                 tag_last_evaluation  =True,
-                deterministic=True)
+                deterministic=False)
 
 
         stop_date = datetime(2022, 5, 8, 6) #year month day hour
@@ -108,7 +114,7 @@ def function_caller_NN_TS(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-function_caller_NN_TS(rep=21)
+function_caller_NN_cKG(rep=21)
 
 
 
