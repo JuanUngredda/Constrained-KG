@@ -13,9 +13,11 @@ import pandas as pd
 import os
 from datetime import datetime
 import time
+import tensorflow as tf
 #ALWAYS check cost in
 # --- Function to optimize
 print("NN TS activate")
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_TS(rep):
     rep = rep
     np.random.seed(rep)
@@ -24,8 +26,7 @@ def function_caller_NN_TS(rep):
     s = 0
     while function_rejected or s <= 1:
         # for i in range(2):
-        threshold = 2.6e-2  # seconds
-        RMITD_f = FC_NN_test_function(max_time=threshold)
+
         try:
             threshold = 2.6e-2 #seconds
             RMITD_f = FC_NN_test_function(max_time=threshold)
