@@ -249,6 +249,7 @@ class KG(AcquisitionBase):
             X_discretisation[z] = inner_opt_x.reshape(-1)
 
         self.new_anchors_flag = False
+        # print("X_discretisation",X_discretisation, "shape", X_discretisation.shape)
         print("precision", 1.96*np.std(statistics_precision)/np.sqrt(len(statistics_precision)))
         return X_discretisation
 

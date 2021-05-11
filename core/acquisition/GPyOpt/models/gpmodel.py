@@ -73,7 +73,7 @@ class GPModel(BOModel):
 
         # --- Define prior on the hyper-parameters for the kernel (for integrated acquisitions)
         self.model.kern.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
-        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(2,4))
+        self.model.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(1,100))
 
         # --- Restrict variance if exact evaluations of the objective
         if self.exact_feval:

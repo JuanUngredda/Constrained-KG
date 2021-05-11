@@ -55,7 +55,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=100,optimizer_type=None, **kwargs):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=500,optimizer_type=None, **kwargs):
         """
         Optimizes the input function.
 
@@ -84,7 +84,7 @@ class AcquisitionOptimizer(object):
 
         if 'dynamic_parameter_function' in self.kwargs:
             print("setting fix discretisation for anchor points")
-            discretisation = self.generate_points_pf(N=100) #initial_design("latin",self.space, 1000)
+            discretisation = self.generate_points_pf(N=7000) #initial_design("latin",self.space, 1000)
             self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
                                             fixed_discretisation=discretisation)
 
@@ -102,18 +102,22 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-            if False:#('dynamic_parameter_function' in self.kwargs): #
+            if ('dynamic_parameter_function' in self.kwargs): #
                 print("random sampling failed, changed to feasable sols")
 
-                feasable_samples = self.generate_points_pf(N=100)
+                feasable_samples = self.generate_points_pf(N=1000)
                 # print("feasable_samples",feasable_samples.shape)
                 scores = f(feasable_samples)
                 # plt.scatter(feasable_samples.reshape(-1),-scores.reshape(-1) )
                 # plt.show()
                 # raise
-                num_anchor = 7
+                num_anchor = 3
                 anchor_points = feasable_samples[np.argsort(scores)[:min(len(scores), num_anchor)], :]
-                anchor_points_vals = np.sort(scores)[:min(len(scores), num_anchor)]
+
+                anchor_points_ls = self.optimize_final_evaluation()
+                anchor_points = np.concatenate((anchor_points, anchor_points_ls))
+
+                # anchor_points_vals = np.sort(scores)[:min(len(scores), num_anchor)]
 
             else:
 
@@ -122,6 +126,8 @@ class AcquisitionOptimizer(object):
                                                             context_manager=self.context_manager)
                 anchor_points_ls = self.optimize_final_evaluation()
                 anchor_points = np.concatenate((anchor_points, anchor_points_ls))
+                # anchor_points = np.concatenate((anchor_points, np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5]])))
+                print("anchor_points ",anchor_points )
                 # anchor_points_vals = f(anchor_points)
             # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
             if False: #True: #p.sum(anchor_points_vals)==0:
@@ -206,7 +212,7 @@ class AcquisitionOptimizer(object):
 
         return x_min, fx_min
 
-    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, extra_point =None ,reuse=False, num_samples=2000):
+    def optimize_inner_func(self, f=None, df=None, f_df=None, duplicate_manager=None, extra_point =None ,reuse=False, num_samples=7000):
         """
         Optimizes the input function.
 
