@@ -70,7 +70,7 @@ def function_caller_NN_cKG(rep):
         start = time.time()
         cval = RMITD_f.c(x)
         print("cval", cval)
-        raise
+        # raise
         if np.all(cval<0):
             print("restriction is not doing anything")
 
@@ -117,7 +117,7 @@ def function_caller_NN_cKG(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_NN_cKG(rep=21)
+# function_caller_NN_cKG(rep=21)
 
 
 
