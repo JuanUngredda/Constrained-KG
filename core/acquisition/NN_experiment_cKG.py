@@ -88,7 +88,7 @@ def function_caller_NN_cKG(rep):
         #
         # # --- Initial design
         #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 16)
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 14)
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
@@ -105,7 +105,7 @@ def function_caller_NN_cKG(rep):
         stop_date = datetime(2022, 5, 10, 7) # year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "NN_hybrid_KG_"
+        subfolder = "NN_hybrid_KG"
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
@@ -116,7 +116,7 @@ def function_caller_NN_cKG(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_NN_cKG(rep=21)
+# function_caller_NN_cKG(rep=21)
 
 
 
