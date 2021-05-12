@@ -32,7 +32,7 @@ def function_caller_NN_cKG(rep):
             # for i in range(2):
 
             try:
-                threshold = 2.6e-2 #seconds
+                threshold = 1.5e-2 #seconds2.6e-2
                 RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
