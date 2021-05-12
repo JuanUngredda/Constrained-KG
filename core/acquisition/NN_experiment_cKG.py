@@ -61,21 +61,21 @@ def function_caller_NN_cKG(rep):
                                            {'name': 'var_6', 'type': 'continuous', 'domain': (3, 12)},# units 2
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)}])# units 3
 
-        # x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
-        #               [1e-3, 0.3, 0.3,0.3, 7,7,7],
-        #               [1e-3, 0.3, 0.3,0.3, 10,10,10]])
-        #
-        # # cval = RMITD_f.f(x)
-        # # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
-        # start = time.time()
-        # cval = RMITD_f.c(x)
-        # print("cval", cval)
-        # # raise
-        # if np.all(cval<0):
-        #     print("restriction is not doing anything")
-        #
-        #     raise
+        x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
+                      [1e-3, 0.3, 0.3,0.3, 7,7,7],
+                      [1e-3, 0.3, 0.3,0.3, 10,10,10]])
 
+        # cval = RMITD_f.f(x)
+        # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        start = time.time()
+        cval = RMITD_f.c(x)
+        print("cval", cval)
+        # raise
+        if np.all(cval<0):
+            print("restriction is not doing anything")
+
+            raise
+        raise
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   exact_feval=[False]*n_f)
@@ -170,7 +170,7 @@ def function_caller_NN_cKG(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_NN_cKG(rep=0)
+function_caller_NN_cKG(rep=0)
 
 
 
