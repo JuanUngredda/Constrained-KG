@@ -21,7 +21,8 @@ import tensorflow as tf
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_cKG(rep_base):
-    for it in range(3):
+
+    for it in [2]:
         rep = rep_base + 10**(it)
         np.random.seed(rep)
         function_rejected = True
@@ -157,10 +158,10 @@ def function_caller_NN_cKG(rep_base):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-        stop_date = datetime(2021, 5, 13, 7) # year month day hour
+        stop_date = datetime(2021, 5, 14, 7) # year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "NN_hybrid_KG"
+        subfolder = "NN_hybrid_KG_"
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'

@@ -18,19 +18,18 @@ import tensorflow as tf
 # --- Function to optimize
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-def function_caller_NN_TS(rep):
-    rep = rep+30
-    for i in range(5):
-        rep = rep + i
-        np.random.seed(rep)
+def function_caller_NN_TS(rep_base):
 
+    for it in [0,1]:
+        rep = rep_base + 10**(it)
+        np.random.seed(rep)
         function_rejected = True
         s = 0
         while function_rejected or s <= 1:
             # for i in range(2):
 
             try:
-                threshold = 2.6e-2 #seconds
+                threshold = 1.5e-2  #seconds
                 RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
@@ -51,7 +50,7 @@ def function_caller_NN_TS(rep):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (1e-6, 0.99)},  #Learning rate
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (1e-6, 0.1)},  #Learning rate
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 1
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 2
                                            {'name': 'var_4', 'type': 'continuous', 'domain': (0.0, 0.99)},# Drop-out rate 3
@@ -59,23 +58,23 @@ def function_caller_NN_TS(rep):
                                            {'name': 'var_6', 'type': 'continuous', 'domain': (3, 12)},# units 2
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)}])# units 3
 
-        x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
-                      [1e-3, 0.3, 0.3,0.3, 7,7,7],
-                      [1e-3, 0.3, 0.3,0.3, 10,10,10]])
-
-        cval = RMITD_f.f(x)
-        print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
-        start = time.time()
-        cval = RMITD_f.c(x)
-
-        if np.all(cval<0):
-            print("restriction is not doing anything")
-            print("cval", cval)
-            raise
+        # x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
+        #               [1e-3, 0.3, 0.3,0.3, 7,7,7],
+        #               [1e-3, 0.3, 0.3,0.3, 10,10,10]])
+        #
+        # cval = RMITD_f.f(x)
+        # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        # start = time.time()
+        # cval = RMITD_f.c(x)
+        #
+        # if np.all(cval<0):
+        #     print("restriction is not doing anything")
+        #     print("cval", cval)
+        #     raise
 
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-03]*n_c, exact_feval=[True]*n_f)
+        model_f = multi_outputGP(output_dim = n_f,   exact_feval=[False]*n_f)
         model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-4]*n_c, exact_feval=[True]*n_c)
 
         # --- Aquisition optimizer
@@ -94,7 +93,7 @@ def function_caller_NN_TS(rep):
                 deterministic=True)
 
 
-        stop_date = datetime(2022, 5, 8, 6) #year month day hour
+        stop_date = datetime(2021, 5, 14, 7) #year month day hour
         max_iter  = 50
         # print("Finished Initialization")
         subfolder = "NN_TS_"

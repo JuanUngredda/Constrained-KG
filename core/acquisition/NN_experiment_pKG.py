@@ -7,11 +7,10 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from Hybrid_continuous_KG_v2 import KG
+from Hybrid_continuous_KG_penalised import KG
 from bayesian_optimisation import BO
 import pandas as pd
 from nEI import nEI
-from EI import EI
 from EI import EI
 import os
 from datetime import datetime
@@ -21,20 +20,18 @@ import tensorflow as tf
 # --- Function to optimize
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-def function_caller_NN_cEI(rep_base):
 
+def function_caller_NN_pKG(rep_base):
     for it in [0,1]:
         rep = rep_base + 10**(it)
         np.random.seed(rep)
-        np.random.seed(rep)
-
         function_rejected = True
         s = 0
         while function_rejected or s <= 1:
             # for i in range(2):
 
             try:
-                threshold = 1.5e-2  #seconds
+                threshold = 1.5e-2  #seconds2.6e-2
                 RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
@@ -64,19 +61,23 @@ def function_caller_NN_cEI(rep_base):
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)}])# units 3
 
         # x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
+        #               [1e-3, 0.3, 0.3, 0.3, 6, 6, 6],
         #               [1e-3, 0.3, 0.3,0.3, 7,7,7],
+        #               [1e-3, 0.3, 0.3, 0.3, 8, 8, 8],
+        #               [1e-3, 0.3, 0.3, 0.3, 9, 9, 9],
         #               [1e-3, 0.3, 0.3,0.3, 10,10,10]])
         #
         # # cval = RMITD_f.f(x)
         # # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
         # start = time.time()
         # cval = RMITD_f.c(x)
-        #
+        # print("cval", cval)
+        # # raise
         # if np.all(cval<0):
         #     print("restriction is not doing anything")
-        #     print("cval", cval)
+        #
         #     raise
-
+        # raise
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   exact_feval=[False]*n_f)
@@ -92,29 +93,87 @@ def function_caller_NN_cEI(rep_base):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 14)
 
-        nz = 1
-        acquisition = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
-        evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                tag_last_evaluation=True,
-                deterministic=True)
+        nz = 60 # (n_c+1)
+        acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
+        Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+        evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
+
+       #  X_init = np.array([[1.07151786e-02, 6.01071429e-01, 3.18214286e-01 ,2.47500000e-01,  9.75000000e+00, 1.03928571e+01, 3.32142857e+00],
+       #           [3.21435357e-02, 1.76785714e-01 ,1.76785714e-01 ,8.83928571e-01 , 1.16785714e+01 ,9.10714286e+00 ,1.03928571e+01],
+       #           [3.92863214e-02, 7.42500000e-01, 6.01071429e-01, 3.18214286e-01 , 5.89285714e+00 ,3.96428571e+00 ,3.96428571e+00],
+       #           [6.78574643e-02, 8.13214286e-01, 7.42500000e-01, 7.42500000e-01 , 7.82142857e+00 ,9.75000000e+00 ,1.16785714e+01],
+       #           [4.64291071e-02 ,6.71785714e-01, 1.06071429e-01, 1.76785714e-01,  4.60714286e+00, 4.60714286e+00, 7.17857143e+00],
+       #           [7.50002500e-02 ,5.30357143e-01, 2.47500000e-01 ,1.06071429e-01 , 5.25000000e+00 ,5.89285714e+00 ,5.89285714e+00],
+       #           [5.35718929e-02 ,1.06071429e-01, 5.30357143e-01, 6.01071429e-01 , 3.32142857e+00 ,8.46428571e+00 ,9.75000000e+00],
+       #           [8.92858214e-02 ,3.88928571e-01, 8.83928571e-01, 3.53571429e-02 , 6.53571429e+00 ,1.10357143e+01 ,6.53571429e+00],
+       #           [3.57239286e-03 ,4.59642857e-01, 4.59642857e-01, 5.30357143e-01 , 8.46428571e+00 ,3.32142857e+00 ,7.82142857e+00],
+       #           [8.21430357e-02 ,8.83928571e-01, 8.13214286e-01, 3.88928571e-01 , 1.10357143e+01 ,7.82142857e+00 ,9.10714286e+00],
+       #           [2.50007500e-02 ,9.54642857e-01, 3.53571429e-02, 4.59642857e-01 , 3.96428571e+00 ,6.53571429e+00 ,5.25000000e+00],
+       #           [1.78579643e-02 ,3.53571429e-02, 6.71785714e-01, 6.71785714e-01 , 9.10714286e+00 ,1.16785714e+01 ,4.60714286e+00],
+       #           [9.64286071e-02 ,2.47500000e-01, 3.88928571e-01, 9.54642857e-01 , 7.17857143e+00 ,5.25000000e+00 ,8.46428571e+00],
+       #           [6.07146786e-02 ,3.18214286e-01, 9.54642857e-01, 8.13214286e-01 , 1.03928571e+01 ,7.17857143e+00 ,1.10357143e+01],
+       #           [3.05437452e-02 ,5.66454977e-01, 4.70179650e-01, 4.18535096e-01 , 7.22063887e+00 ,3.66974987e+00 ,6.47967381e+00]])
+       # # #
+       #  Y_init = [np.array([[0.1144    ],
+       # [0.1123    ],
+       # [0.50620002],
+       # [0.1142    ],
+       # [0.3075    ],
+       # [0.40869999],
+       # [0.0976    ],
+       # [0.1123    ],
+       # [0.83700001],
+       # [0.0931    ],
+       # [0.1145    ],
+       # [0.1125    ],
+       # [0.1112    ],
+       # [0.1076    ],
+       # [0.096     ]])]
+       # # #
+       #  C_init = [np.array([[ 1.7756976 ],
+       # [ 2.7852118 ],
+       # [-0.9650333 ],
+       # [ 2.37180871],
+       # [-0.9986938 ],
+       # [-0.94701512],
+       # [ 0.53443157],
+       # [ 0.91552611],
+       # [ 0.23070045],
+       # [ 1.97647892],
+       # [-1.0990923 ],
+       # [ 2.11170844],
+       # [-0.23868296],
+       # [ 1.72708951],
+       # [-0.54592923]])]
+
+        # X_init = X_init,
+        # Y_init = Y_init,
+        # C_init = C_init,
+
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator,  initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition = Last_Step_acq,
+                tag_last_evaluation  =True,
+                deterministic=False)
 
         stop_date = datetime(2021, 5, 14, 7) # year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "NN_cEI_"
+        subfolder = "NN_pKG_"
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,stop_date= stop_date,
                                                                                   path=path,compute_OC=False,
                                                                                   evaluations_file=subfolder,
-                                                                                  KG_dynamic_optimisation=False)
+                                                                                  KG_dynamic_optimisation=True)
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_NN_cEI(rep=21)
+
+# function_caller_NN_pKG(rep_base=0)
 
 
 
