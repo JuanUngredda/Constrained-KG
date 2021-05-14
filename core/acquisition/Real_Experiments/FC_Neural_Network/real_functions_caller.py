@@ -119,40 +119,41 @@ class FC_NN_test_function():
 
         for index in range(X.shape[0]):
 
-            train_size = 6.0/7
-            self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat, train_size=train_size)
-
-            print("index", index, X.shape[0])
-            x_val_stand = X[index]
-
-            x = self.cube_to_hypers(x_val_stand)
-
-            available, model = self.check_available_models(x)
-            x = x.reshape(1, -1)
-
-            learning_rate = x[:, 0][0]
-            beta_1 = x[:,7][0]
-            beta_2 = x[:,8][0]
-            out_val = []
-            # Part 1: get the dataset
-
-            x_train = self.x_train.reshape(60000, 784)
-            x_test = self.x_test.reshape(10000, 784)
-            self.x_test = x_test
-            x_train = x_train.astype('float32')
-            x_test = x_test.astype('float32')
-
-            x_train /= 255
-            x_test /= 255
-            y_train = keras.utils.to_categorical(self.y_train, num_classes)
-            y_test = keras.utils.to_categorical(self.y_test, num_classes)
-
             if true_val:
                 num_replications = 10
             else:
                 num_replications = 1
 
             for _ in range(num_replications):
+                train_size = 6.0 / 7
+                self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat,
+                                                                                        train_size=train_size)
+
+                print("index", index, X.shape[0])
+                x_val_stand = X[index]
+
+                x = self.cube_to_hypers(x_val_stand)
+
+                available, model = self.check_available_models(x)
+                x = x.reshape(1, -1)
+
+                learning_rate = x[:, 0][0]
+                beta_1 = x[:, 7][0]
+                beta_2 = x[:, 8][0]
+                out_val = []
+                # Part 1: get the dataset
+
+                x_train = self.x_train.reshape(60000, 784)
+                x_test = self.x_test.reshape(10000, 784)
+                self.x_test = x_test
+                x_train = x_train.astype('float32')
+                x_test = x_test.astype('float32')
+
+                x_train /= 255
+                x_test /= 255
+                y_train = keras.utils.to_categorical(self.y_train, num_classes)
+                y_test = keras.utils.to_categorical(self.y_test, num_classes)
+
                 if available:
                     print("available model: ",available)
                     self.model = model
