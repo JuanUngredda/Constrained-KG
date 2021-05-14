@@ -26,7 +26,7 @@ class FC_NN_test_function():
         self.rho = 0.9
         self.epsilon = 1e-07
         self.epochs = 3
-        self.samples = 250
+        self.samples = 500
         self.num_classes = 10
         self.max_time = max_time
         # self.discrete_idx = discrete_idx
@@ -207,10 +207,10 @@ class FC_NN_test_function():
 
         X_mean_average = np.zeros((X.shape[0], 1))
         train_size = 6.0 / 14
-        x_concat = np.concatenate((self.master_x_train, self.master_x_test))
-        y_concat = np.concatenate((self.master_y_train, self.master_y_test))
-        x_train, x_test, y_train, y_test = train_test_split(x_concat, y_concat,test_size=125)
-        x_test = x_test.reshape(125, 784)
+        # x_concat = np.concatenate((self.master_x_train, self.master_x_test))
+        # y_concat = np.concatenate((self.master_y_train, self.master_y_test))
+        # x_train, x_test, y_train, y_test = train_test_split(x_concat, y_concat,test_size=125)
+        # x_test = x_test.reshape(125, 784)
         for index in range(X.shape[0]):
             x = X[index]
             # print("x",x, "verbose", verbose, "true_val", true_val)
