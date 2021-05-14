@@ -56,6 +56,40 @@ class FC_NN_test_function():
                 return available, model
         return available, None
 
+    def cube_to_hypers(self,x):
+        # the GP is over the unit cube [0, 1]^7,
+        # dropout rates are same [0, 1]^3
+        # other hypers vary on exponential scales
+
+        # learning rate [0, 1] -> [0.0001, 0.01], exponentially
+        # batch_size [0, 1] -> [16, 256], exponentially
+        # beta_2 [0, 1] -> [0.7, 0.99], exponentially
+        # beta_2 [0, 1] -> [0.9, 0.999], exponentially
+        hypers = x.copy()
+        hypers[0] = 0.0001 * np.exp(x[0] * np.log(100)) #learning rate
+        hypers[1] = 0.8 * x[1] #drop out
+        hypers[2] = 0.8 * x[2] #drop out
+        hypers[3] = x[3]#number of neu #1 - 0.01 * np.exp((1 - x[4]) * np.log(30))
+        hypers[4] = x[4]#number of neur #1 - 0.0001 * np.exp((1 - x[5]) * np.log(100))
+        hypers[5] = 1 - 0.01 * np.exp((1-x[5]) * np.log(30)) #beta1
+        hypers[6] = 1 - 0.0001 * np.exp((1-x[6]) * np.log(100)) #beta2
+        return hypers
+
+    @staticmethod
+    def hypers_to_cube(self, hypers):
+        # the GP is over the unit cube [0, 1]^7,
+        # dropout rates are same [0, 1]^3
+        # other hypers vary on exponential scales
+        x = copy(hypers)
+        x[0] = 1.25 * hypers[0]
+        x[1] = 1.25 * hypers[1]
+        x[2] = 1.25 * hypers[2]
+        x[3] = np.log(hypers[3] * 10000.0) / np.log(100.0)
+        x[4] = 1 - np.log((1 - hypers[4]) * 100.0) / np.log(30.0)
+        x[5] = 1 - np.log((1 - hypers[5]) * 10000.0) / np.log(100.0)
+        x[6] = np.log(hypers[6] / 16.0) / np.log(16)
+        return x
+
     def f(self, X, true_val = False, verbose=0):
         """
         Load Mnist data, creates a nueral network, create an
@@ -87,11 +121,16 @@ class FC_NN_test_function():
             self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_concat, y_concat, train_size=train_size)
 
             print("index", index, X.shape[0])
-            x = X[index]
+            x_val_stand = X[index]
+            print("x_val_stand",x_val_stand)
+            x = self.cube_to_hypers(x_val_stand)
 
             available, model = self.check_available_models(x)
             x = x.reshape(1, -1)
-            learning_rate = x[:, 0]
+
+            learning_rate = x[:, 0][0]
+            beta_1 = x[:,5][0]
+            beta_2 = x[:,6][0]
             out_val = []
             # Part 1: get the dataset
 
@@ -121,21 +160,24 @@ class FC_NN_test_function():
                     # Part 2: Make model
 
                     model = Sequential()
-                    model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu', input_shape=(784,)))
+                    model.add(Dense(int(np.power(2, x[:, 3][0])), activation='relu', input_shape=(784,)))
                     model.add(Dropout(x[:, 1][0]))
-                    model.add(Dense(int(np.power(2, x[:, 5][0])), activation='relu'))
+                    model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu'))
                     model.add(Dropout(x[:, 2][0]))
-                    model.add(Dense(int(np.power(2, x[:, 6][0])), activation='relu'))
-                    model.add(Dropout(x[:, 3][0]))
                     model.add(Dense(num_classes, activation='softmax'))
                     if verbose == 1: model.summary()
 
                     # Part 3: Make optimizer
-                    optimizer = tf.keras.optimizers.RMSprop(lr=learning_rate, rho=rho, epsilon=epsilon)
+                    print(beta_1,beta_2)
+                    adam = keras.optimizers.Adam(
+                        learning_rate=learning_rate,
+                        beta_1=beta_1,
+                        beta_2=beta_2
+                    )
 
                     # Part 4: compile
                     model.compile(loss='categorical_crossentropy',
-                                  optimizer=optimizer,
+                                  optimizer=adam,
                                   metrics=['accuracy'])
 
                     # Part 5: train
@@ -164,6 +206,11 @@ class FC_NN_test_function():
             X = np.array(X).reshape(1, -1)
 
         X_mean_average = np.zeros((X.shape[0], 1))
+        train_size = 6.0 / 14
+        x_concat = np.concatenate((self.master_x_train, self.master_x_test))
+        y_concat = np.concatenate((self.master_y_train, self.master_y_test))
+        x_train, x_test, y_train, y_test = train_test_split(x_concat, y_concat,test_size=125)
+        x_test = x_test.reshape(125, 784)
         for index in range(X.shape[0]):
             x = X[index]
             # print("x",x, "verbose", verbose, "true_val", true_val)
@@ -181,30 +228,10 @@ class FC_NN_test_function():
 
             for i in range(samples):
                 start = time.time()
-                #np.argmax(self.model.predict(x=self.x_test, batch_size=batch_size), axis=-1)
-                #self.model.predict_classes(x=self.x_test, batch_size=batch_size)
-                self.model(self.x_test, training=False)
+                self.model(self.x_test) #.predict(x_test.astype('float32'))#, training=False)
                 stop = time.time()
                 average_time[i] = stop - start
 
-            #print("average time", average_time)
-            # import matplotlib.pyplot as plt
-            # plt.hist(average_time, density=True, bins=40)
-            # plt.show()
-            # plt.hist(np.log(average_time), density=True, bins=40)
-            # plt.show()
-            # mean_subset = []
-            #
-            # for _ in range(50):
-            #     subsets = np.random.choice(range(len(average_time)), 100, replace=False)
-            #     mean_subset.append(np.mean(average_time[subsets]))
-            #
-            # plt.hist(np.array(mean_subset).reshape(-1), density=True)
-            # plt.show()
-            # print("subset mean", np.mean(mean_subset))
-            # print("mse", np.std(mean_subset) / np.sqrt(len(mean_subset)))
-            #
-            # print("sum time", np.sum(average_time))
             print("x", x, "cval", np.log(np.mean(average_time))-np.log(self.max_time))
             # print("std", np.std(average_time))
             # print("mse", np.std(average_time) / np.sqrt(len(average_time)))

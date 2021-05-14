@@ -50,20 +50,20 @@ def function_caller_NN_TS(rep_base):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (1e-6, 0.1)},  #Learning rate
-                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 1
-                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 2
-                                           {'name': 'var_4', 'type': 'continuous', 'domain': (0.0, 0.99)},# Drop-out rate 3
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 1)},  #Learning rate
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 1
+                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 2
                                            {'name': 'var_5', 'type': 'continuous', 'domain': (3, 12)},  # units 1
-                                           {'name': 'var_6', 'type': 'continuous', 'domain': (3, 12)},# units 2
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)}])# units 3
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# units 3
 
-        # x = np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5],
-        #               [1e-3, 0.3, 0.3,0.3, 7,7,7],
-        #               [1e-3, 0.3, 0.3,0.3, 10,10,10]])
+        x = np.array([[1, 1, 1, 7, 7, 1, 1],
+                      [1, 1, 1, 8, 8, 1, 1]])
         #
-        # cval = RMITD_f.f(x)
-        # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        cval = RMITD_f.c(x)
+        print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        raise
         # start = time.time()
         # cval = RMITD_f.c(x)
         #
@@ -107,7 +107,7 @@ def function_caller_NN_TS(rep_base):
         print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_NN_TS(rep=21)
+function_caller_NN_TS(21)
 
 
 
