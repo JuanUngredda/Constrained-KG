@@ -22,7 +22,7 @@ print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_cKG(rep_base):
 
-    for it in [0,1]:
+    for it in [0]:
         rep = rep_base + 10**(it)
         np.random.seed(rep)
         function_rejected = True
@@ -31,7 +31,7 @@ def function_caller_NN_cKG(rep_base):
             # for i in range(2):
 
             try:
-                threshold = 1.5e-2 #seconds2.6e-2
+                threshold = 6e-3  #seconds
                 RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
@@ -52,19 +52,21 @@ def function_caller_NN_cKG(rep_base):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (1e-6, 0.1)},  #Learning rate
-                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 1
-                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0.0, 0.99)},  #Drop-out rate 2
-                                           {'name': 'var_4', 'type': 'continuous', 'domain': (0.0, 0.99)},# Drop-out rate 3
-                                           {'name': 'var_5', 'type': 'continuous', 'domain': (3, 12)},  # units 1
-                                           {'name': 'var_6', 'type': 'continuous', 'domain': (3, 12)},# units 2
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)}])# units 3
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 1)},  #Learning rate
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 1
+                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 2
+                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  # Drop-out rate 2
+                                           {'name': 'var_5', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},  # beta 1 rate
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# beta 2 rate
 
-        x = np.array([[0.3, 0.3, 0.3,0.3, 8,8,8]])
-        #
-        cval = RMITD_f.f(x)
-        print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
-        raise
+        # x = np.array([[0.3, 0.3, 0.3,0.3, 8,8,8]])
+        # #
+        # cval = RMITD_f.f(x)
+        # print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
+        # raise
         # start = time.time()
         # cval = RMITD_f.c(x)
         # print("cval", cval)
@@ -103,7 +105,7 @@ def function_caller_NN_cKG(rep_base):
                 tag_last_evaluation  =True,
                 deterministic=False)
 
-        stop_date = datetime(2021, 5, 14, 7) # year month day hour
+        stop_date = datetime(2022, 5, 14, 7) # year month day hour
         max_iter  = 50
         # print("Finished Initialization")
         subfolder = "NN_hybrid_KG_"
@@ -117,7 +119,7 @@ def function_caller_NN_cKG(rep_base):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_NN_cKG(rep_base=0)
+function_caller_NN_cKG(rep_base=21)
 
 
 
