@@ -447,27 +447,27 @@ class BO(object):
             # self.evaluate_objective()
             # self._update_model()
             #
-            # Y = self.model.posterior_mean(self.X)
-            # pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
-            # func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
-            # suggested_final_historical_sample = self.X[np.argmax(func_val)]
-            # suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+            Y = self.model.posterior_mean(self.X)
+            pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+            func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+            suggested_final_historical_sample = self.X[np.argmax(func_val)]
+            suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
             #
-            # Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
-            # C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+            Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+            C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
             #
-            # bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-            # func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
-            # func_val_true_sampled = func_val_true_GP_recommended
+            bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+            func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+            func_val_true_sampled = func_val_true_GP_recommended
             #
-            # if self.compute_OC:
-            #     self.true_best_value()
-            #     optimum = np.max(self.true_best_stats["true_best"])
-            # else:
-            #     optimum = np.array([0]).reshape(-1)
+            if self.compute_OC:
+                self.true_best_value()
+                optimum = np.max(self.true_best_stats["true_best"])
+            else:
+                optimum = np.array([0]).reshape(-1)
             self.recommended_value_sampled.append([0])
             self.underlying_optimum.append([0])
-            self.Opportunity_Cost_sampled.append([0])
+            self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
 
         #     print("sampled OC")
         #     print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
