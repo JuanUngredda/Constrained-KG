@@ -228,7 +228,7 @@ class FC_NN_test_function():
 
             for i in range(samples):
                 start = time.time()
-                self.model(self.x_test) #.predict(x_test.astype('float32'))#, training=False)
+                self.model(self.x_test, training=False) #.predict(x_test.astype('float32'))#
                 stop = time.time()
                 average_time[i] = stop - start
 
