@@ -58,8 +58,10 @@ def function_caller_NN_TS(rep_base):
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# units 3
 
-        x = np.array([[1, 0.5, 0.5, 7, 7, 1, 1],
-                      [1, 0.5, 0.5, 8, 8, 1, 1]])
+        x = np.array([[1, 0.5, 0.5, 6, 6, 1, 1],
+                      [1, 0.5, 0.5, 7, 7, 1, 1],
+                      [1, 0.5, 0.5, 8, 8, 1, 1],
+                      [1, 0.5, 0.5, 9, 9, 1, 1]])
         #
         cval = RMITD_f.c(x)
         print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
