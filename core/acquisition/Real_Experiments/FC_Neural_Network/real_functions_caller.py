@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import time
 import numpy as np
 # import os
-
+import matplotlib.pyplot as plt
 # import pathlib
 #
 # checkpoint_dir = pathlib.Path(__file__).parent.absolute()
@@ -22,11 +22,11 @@ class FC_NN_test_function():
     '''
 
     def __init__(self, max_time=0.003):
-        self.batch_size = 500
+        self.batch_size = 250
         self.rho = 0.9
         self.epsilon = 1e-07
-        self.epochs = 3
-        self.samples = 1000
+        self.epochs = 5
+        self.samples = 10
         self.num_classes = 10
         self.max_time = max_time
         # self.discrete_idx = discrete_idx
@@ -124,15 +124,15 @@ class FC_NN_test_function():
 
             print("index", index, X.shape[0])
             x_val_stand = X[index]
-            print("x_val_stand",x_val_stand)
+
             x = self.cube_to_hypers(x_val_stand)
 
             available, model = self.check_available_models(x)
             x = x.reshape(1, -1)
 
             learning_rate = x[:, 0][0]
-            beta_1 = x[:,5][0]
-            beta_2 = x[:,6][0]
+            beta_1 = x[:,7][0]
+            beta_2 = x[:,8][0]
             out_val = []
             # Part 1: get the dataset
 
@@ -172,7 +172,7 @@ class FC_NN_test_function():
                     if verbose == 1: model.summary()
 
                     # Part 3: Make optimizer
-                    print(beta_1,beta_2)
+                    # print("hypers", learning_rate,beta_1,beta_2)
                     adam = keras.optimizers.Adam(
                         learning_rate=learning_rate,
                         beta_1=beta_1,
@@ -185,8 +185,7 @@ class FC_NN_test_function():
                                   metrics=['accuracy'])
 
                     # Part 5: train
-
-                    model.fit(x_train, y_train,
+                    history = model.fit(x_train, y_train,
                                         batch_size=batch_size,
                                         epochs=self.epochs,
                                         verbose=verbose,
@@ -195,8 +194,17 @@ class FC_NN_test_function():
                     self.checkpoints["x"].append(x.reshape(-1))
                     self.checkpoints["model"].append(model)
                     self.model = model
+
+                    # plt.plot(history.history['accuracy'])
+                    # plt.plot(history.history['val_accuracy'])
+                    # plt.title('model loss')
+                    # plt.ylabel('loss')
+                    # plt.xlabel('epoch')
+                    # plt.legend(['train', 'test'], loc='upper left')
+                    # plt.show()
                 # Part 6: get test measurements
                 score = model.evaluate(x_test, y_test, verbose=0)
+
                 out_val.append(score[1])
                 print("x", x, "fval", np.mean(out_val))
 
