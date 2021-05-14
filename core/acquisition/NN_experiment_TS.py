@@ -20,7 +20,7 @@ print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_TS(rep_base):
 
-    for it in [0,1]:
+    for it in [0]:
         rep = rep_base + 10**(it)
         np.random.seed(rep)
         function_rejected = True
@@ -101,7 +101,7 @@ def function_caller_NN_TS(rep_base):
                 deterministic=True)
 
 
-        stop_date = datetime(2021, 5, 14, 7) #year month day hour
+        stop_date = datetime(2022, 5, 14, 7) #year month day hour
         max_iter  = 50
         # print("Finished Initialization")
         subfolder = "NN_TS_"
