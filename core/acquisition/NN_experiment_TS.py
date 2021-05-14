@@ -98,7 +98,7 @@ def function_caller_NN_TS(rep_base):
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation  =True,
-                deterministic=True)
+                deterministic=False)
 
 
         stop_date = datetime(2022, 5, 14, 7) #year month day hour
