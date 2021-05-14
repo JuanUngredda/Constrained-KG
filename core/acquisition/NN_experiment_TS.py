@@ -29,7 +29,7 @@ def function_caller_NN_TS(rep_base):
             # for i in range(2):
 
             try:
-                threshold = 1.5e-2  #seconds
+                threshold = 1.0e-2  #seconds
                 RMITD_f = FC_NN_test_function(max_time=threshold)
                 function_rejected = False
                 s += 1
