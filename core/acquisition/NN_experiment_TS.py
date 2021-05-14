@@ -54,9 +54,9 @@ def function_caller_NN_TS(rep_base):
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 1
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 2
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  # Drop-out rate 2
-                                           {'name': 'var_5', 'type': 'continuous', 'domain': (4, 12)},  # units 1
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (4, 12)},  # units 1
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (4, 12)},  # units 1
+                                           {'name': 'var_5', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},  # beta 1 rate
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# beta 2 rate
 
