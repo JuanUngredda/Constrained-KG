@@ -70,7 +70,7 @@ def function_caller_NN_TS(rep_base):
                       [0.5, 0.5, 0.5, 0.5, 9, 9, 9,  0.9, 0.9],
                       [0.5, 0.5, 0.5, 0.5, 10, 10, 10,  0.9, 0.9]])
         #
-        cval = RMITD_f.f(x)
+        cval = RMITD_f.c(x)
         print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
         raise
         # start = time.time()
