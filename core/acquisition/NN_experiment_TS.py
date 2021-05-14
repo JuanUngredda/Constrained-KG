@@ -53,15 +53,17 @@ def function_caller_NN_TS(rep_base):
         space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 1)},  #Learning rate
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 1
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 2
+                                           {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  # Drop-out rate 2
                                            {'name': 'var_5', 'type': 'continuous', 'domain': (3, 12)},  # units 1
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# units 3
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},  # beta 1 rate
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# beta 2 rate
 
-        x = np.array([[1, 0.5, 0.5, 6, 6, 1, 1],
-                      [1, 0.5, 0.5, 7, 7, 1, 1],
-                      [1, 0.5, 0.5, 8, 8, 1, 1],
-                      [1, 0.5, 0.5, 9, 9, 1, 1]])
+        x = np.array([[1, 0.5, 0.5, 0.5, 7, 7, 7, 1, 1],
+                      [1, 0.5, 0.5, 0.5, 7, 7, 7, 1, 1],
+                      [1, 0.5, 0.5, 0.5, 7, 7, 7, 1, 1],
+                      [1, 0.5, 0.5, 0.5, 7, 7, 7, 1, 1]])
         #
         cval = RMITD_f.c(x)
         print("cval",cval, "mean", np.mean(cval), "std", np.std(cval))
@@ -85,7 +87,7 @@ def function_caller_NN_TS(rep_base):
         #
         # # --- Initial design
         #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 14)
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 20)
 
         nz=1
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)

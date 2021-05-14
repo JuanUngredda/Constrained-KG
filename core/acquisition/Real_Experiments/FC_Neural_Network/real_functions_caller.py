@@ -69,10 +69,12 @@ class FC_NN_test_function():
         hypers[0] = 0.0001 * np.exp(x[0] * np.log(100)) #learning rate
         hypers[1] = 0.8 * x[1] #drop out
         hypers[2] = 0.8 * x[2] #drop out
-        hypers[3] = x[3]#number of neu #1 - 0.01 * np.exp((1 - x[4]) * np.log(30))
-        hypers[4] = x[4]#number of neur #1 - 0.0001 * np.exp((1 - x[5]) * np.log(100))
-        hypers[5] = 1 - 0.01 * np.exp((1-x[5]) * np.log(30)) #beta1
-        hypers[6] = 1 - 0.0001 * np.exp((1-x[6]) * np.log(100)) #beta2
+        hypers[3] = 0.8 * x[3]  # drop out
+        hypers[4] = x[4]#number of neu #1 - 0.01 * np.exp((1 - x[4]) * np.log(30))
+        hypers[5] = x[5]#number of neur #1 - 0.0001 * np.exp((1 - x[5]) * np.log(100))
+        hypers[6] = x[6]  # number of neur #1 - 0.0001 * np.exp((1 - x[5]) * np.log(100))
+        hypers[7] = 1 - 0.01 * np.exp((1-x[7]) * np.log(30)) #beta1
+        hypers[8] = 1 - 0.0001 * np.exp((1-x[8]) * np.log(100)) #beta2
         return hypers
 
     @staticmethod
@@ -160,10 +162,12 @@ class FC_NN_test_function():
                     # Part 2: Make model
 
                     model = Sequential()
-                    model.add(Dense(int(np.power(2, x[:, 3][0])), activation='relu', input_shape=(784,)))
+                    model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu', input_shape=(784,)))
                     model.add(Dropout(x[:, 1][0]))
-                    model.add(Dense(int(np.power(2, x[:, 4][0])), activation='relu'))
+                    model.add(Dense(int(np.power(2, x[:, 5][0])), activation='relu'))
                     model.add(Dropout(x[:, 2][0]))
+                    model.add(Dense(int(np.power(2, x[:, 6][0])), activation='relu'))
+                    model.add(Dropout(x[:, 3][0]))
                     model.add(Dense(num_classes, activation='softmax'))
                     if verbose == 1: model.summary()
 
