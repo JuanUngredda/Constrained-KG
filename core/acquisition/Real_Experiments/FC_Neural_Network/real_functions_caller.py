@@ -26,7 +26,7 @@ class FC_NN_test_function():
         self.rho = 0.9
         self.epsilon = 1e-07
         self.epochs = 3
-        self.samples = 500
+        self.samples = 1000
         self.num_classes = 10
         self.max_time = max_time
         # self.discrete_idx = discrete_idx
