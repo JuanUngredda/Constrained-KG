@@ -223,6 +223,8 @@ class BO(object):
                 (np.zeros(self.n_init), np.array(self.recommended_value_GP_mean).reshape(-1)))
             data["optimum"] = np.concatenate((np.zeros(self.n_init), np.array(self.underlying_optimum).reshape(-1)))
 
+            print("1", data["OC sampled"], "2", data["OC GP mean"] , "3", data["Y"], "4", data["C_bool"] , "5",data["recommended_val_sampled"],
+                  "6", data["recommended_val_GP"], "7", data["optimum"] )
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
             subfolder = self.evaluations_file

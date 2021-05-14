@@ -22,9 +22,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" afterDir="false" />
-    </list>
+    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -221,7 +219,7 @@
       <workItem from="1618695014022" duration="130396000" />
       <workItem from="1619443177081" duration="77325000" />
       <workItem from="1620382882568" duration="87642000" />
-      <workItem from="1620918957294" duration="19489000" />
+      <workItem from="1620918957294" duration="19825000" />
     </task>
     <servers />
   </component>
