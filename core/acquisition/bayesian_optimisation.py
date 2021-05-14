@@ -187,16 +187,7 @@ class BO(object):
             if verbosity:
                 print("self.suggested_sample", self.suggested_sample)
                 self.acquisition._plots(self.suggested_sample)
-                # raise
-                # print("using discretisation")
-                # discretisation = initial_design('random', self.space, 1000)
-                # self.acquisition._plots(np.array([4.375]), discretisation)
-                # print("optimised points")
-                # self.acquisition._plots(np.array([4.375]))
 
-                # self.verbosity_plot_D()
-                # self.acquisition._plots(np.array([2.18]))
-                # raise
 
 
             print("self.suggested_sample",self.suggested_sample)
@@ -394,7 +385,7 @@ class BO(object):
             self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true))
             return 0
 
-        elif KG_dynamic_optimisation:
+        else: #KG_dynamic_optimisation:
 
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
