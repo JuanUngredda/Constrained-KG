@@ -40,6 +40,11 @@ def function_caller_NN_cKG(rep_base):
                 print("function_rejected check path inside function")
                 pass
 
+
+        RMITD_f._save_times(seed=rep_base)
+
+        raise
+
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
         f = MultiObjective([RMITD_f.f])
@@ -56,11 +61,13 @@ def function_caller_NN_cKG(rep_base):
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 1
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  #Drop-out rate 2
                                            {'name': 'var_3', 'type': 'continuous', 'domain': (0, 1)},  # Drop-out rate 2
-                                           {'name': 'var_5', 'type': 'continuous', 'domain': (2, 12)},  # units 1
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
-                                           {'name': 'var_7', 'type': 'continuous', 'domain': (2, 12)},  # units 1
+                                           {'name': 'var_5', 'type': 'continuous', 'domain': (3, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},  # units 1
+                                           {'name': 'var_7', 'type': 'continuous', 'domain': (3, 12)},  # units 1
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)},  # beta 1 rate
                                            {'name': 'var_7', 'type': 'continuous', 'domain': (0, 1)}])# beta 2 rate
+
+
 
         # x = np.array([[0.3, 0.3, 0.3,0.3, 8,8,8]])
         # #
@@ -119,7 +126,7 @@ def function_caller_NN_cKG(rep_base):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_NN_cKG(rep_base=21)
+# function_caller_NN_cKG(rep_base=21)
 
 
 

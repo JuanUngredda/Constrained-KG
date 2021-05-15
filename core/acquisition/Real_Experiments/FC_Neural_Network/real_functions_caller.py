@@ -6,12 +6,13 @@ from tensorflow.keras.layers import Dense, Dropout
 from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-# import os
+import os
+from itertools import product
 import matplotlib.pyplot as plt
-# import pathlib
+import pathlib
 #
-# checkpoint_dir = pathlib.Path(__file__).parent.absolute()
-# checkpoint_dir = str(checkpoint_dir) + "/checkpoints/"
+checkpoint_dir = pathlib.Path(__file__).parent.absolute()
+checkpoint_dir = str(checkpoint_dir) + "/checkpoints/"
 
 class FC_NN_test_function():
     '''
@@ -21,15 +22,23 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, max_time=0.003):
+    def __init__(self, max_time=0.003, seed=0):
         self.batch_size = 250
         self.rho = 0.9
+        self.seed=seed
         self.epsilon = 1e-07
         self.epochs = 5
         self.samples = 1000
         self.num_classes = 10
         self.max_time = max_time
-        # self.discrete_idx = discrete_idx
+
+        try:
+            path = checkpoint_dir + "times_0.txt"
+            self.time_data = np.genfromtxt(path)
+        except:
+            print("warning: no time file found. Computing with current time estimates")
+            self.time_data = None
+
         self.checkpoints = {"x":[], "model":[]}
         (self.master_x_train, self.master_y_train), (self.master_x_test, self.master_y_test) = mnist.load_data()
 
@@ -82,7 +91,7 @@ class FC_NN_test_function():
         # the GP is over the unit cube [0, 1]^7,
         # dropout rates are same [0, 1]^3
         # other hypers vary on exponential scales
-        x = copy(hypers)
+        x = np.copy(hypers)
         x[0] = 1.25 * hypers[0]
         x[1] = 1.25 * hypers[1]
         x[2] = 1.25 * hypers[2]
@@ -91,6 +100,61 @@ class FC_NN_test_function():
         x[5] = 1 - np.log((1 - hypers[5]) * 10000.0) / np.log(100.0)
         x[6] = np.log(hypers[6] / 16.0) / np.log(16)
         return x
+
+    def _save_times(self, seed=0):
+
+
+        perm = product(range(3, 11), repeat=3)
+        X = np.array(list(perm))
+
+        samples =1000
+        average_time = np.zeros(samples)
+        X_mean_average = np.zeros((X.shape[0], 4))
+        for index in range(X.shape[0]):
+            x = X[index]
+            model = self.model_compile(x)
+            for i in range(samples):
+                start = time.time()
+                model(self.master_x_test.reshape(10000, 784), training=False)
+                stop = time.time()
+                average_time[i] = stop - start
+
+            print("x", x, "cval", np.log(np.mean(average_time)))
+            X_mean_average[index, :3] = x
+            X_mean_average[index, -1] = np.mean(average_time)
+
+            if os.path.isdir(checkpoint_dir ) == False:
+                os.makedirs(checkpoint_dir)
+            np.savetxt(fname=checkpoint_dir+"/"+"times_"+str(seed)+".txt", X=X_mean_average)
+
+
+    def model_compile(self, neur):
+
+        if len(neur.shape) == 1:
+            neur = np.array(neur).reshape(1, -1)
+        x = np.copy(neur)
+
+        assert len(x.reshape(-1))==3 ;"wrong size for layers"
+        model = Sequential()
+        model.add(Dense(int(np.power(2, x[:, 0][0])), activation='relu', input_shape=(784,)))
+        model.add(Dense(int(np.power(2, x[:, 1][0])), activation='relu'))
+        model.add(Dense(int(np.power(2, x[:, 2][0])), activation='relu'))
+        model.add(Dense(self.num_classes, activation='softmax'))
+
+        # Part 3: Make optimizer
+        # print("hypers", learning_rate,beta_1,beta_2)
+        adam = keras.optimizers.Adam(
+            learning_rate=1e-04,
+            beta_1=0.99,
+            beta_2=0.999
+        )
+
+        # Part 4: compile
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=adam,
+                      metrics=['accuracy'])
+
+        return model
 
     def f(self, X, true_val = False, verbose=0):
         """
@@ -226,31 +290,36 @@ class FC_NN_test_function():
         # x_test = x_test.reshape(125, 784)
         for index in range(X.shape[0]):
             x = X[index]
-            # print("x",x, "verbose", verbose, "true_val", true_val)
-            start = time.time()
-            available, model = self.check_available_models(x)
-            if available:
-                self.model =model
+            if self.time_data is not None:
+                idx = np.all(self.time_data[:,:3]==np.round(x[4:7]), axis=1)
+                avg_time = self.time_data[idx, -1]
+                X_mean_average[index, 0] = avg_time
+
             else:
-                self.f(x)
-            stop = time.time()
-            # print("training time", stop-start)
-            if verbose == 1: self.model.summary()
-            samples = self.samples
-            average_time = np.zeros(samples)
-
-            for i in range(samples):
                 start = time.time()
-                self.model(self.x_test, training=False) #.predict(x_test.astype('float32'))#
+                available, model = self.check_available_models(x)
+                if available:
+                    self.model =model
+                else:
+                    self.f(x)
                 stop = time.time()
-                average_time[i] = stop - start
+                # print("training time", stop-start)
+                if verbose == 1: self.model.summary()
+                samples = self.samples
+                average_time = np.zeros(samples)
 
-            print("x", x, "cval", np.log(np.mean(average_time))-np.log(self.max_time))
-            # print("std", np.std(average_time))
-            # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
-            X_mean_average[index, 0] = np.mean(average_time)
+                for i in range(samples):
+                    start = time.time()
+                    self.model(self.x_test, training=False) #.predict(x_test.astype('float32'))#
+                    stop = time.time()
+                    average_time[i] = stop - start
 
-        return np.log(X_mean_average) - np.log(self.max_time)
+                print("x", x, "cval", np.log(np.mean(average_time))-np.log(self.max_time))
+                # print("std", np.std(average_time))
+                # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
+                X_mean_average[index, 0] = np.mean(average_time)
+
+            return np.log(X_mean_average) - np.log(self.max_time)
 
 # import tensorflow as tf
 # #ALWAYS check cost in
