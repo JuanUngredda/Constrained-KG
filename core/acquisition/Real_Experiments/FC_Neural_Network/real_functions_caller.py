@@ -33,7 +33,7 @@ class FC_NN_test_function():
         self.max_time = max_time
 
         try:
-            path = checkpoint_dir + "times_0.txt"
+            path = checkpoint_dir + "avg_time.txt"
             self.time_data = np.genfromtxt(path)
         except:
             print("warning: no time file found. Computing with current time estimates")
@@ -283,16 +283,15 @@ class FC_NN_test_function():
             X = np.array(X).reshape(1, -1)
 
         X_mean_average = np.zeros((X.shape[0], 1))
-        train_size = 6.0 / 14
-        # x_concat = np.concatenate((self.master_x_train, self.master_x_test))
-        # y_concat = np.concatenate((self.master_y_train, self.master_y_test))
-        # x_train, x_test, y_train, y_test = train_test_split(x_concat, y_concat,test_size=125)
-        # x_test = x_test.reshape(125, 784)
+
         for index in range(X.shape[0]):
             x = X[index]
             if self.time_data is not None:
                 idx = np.all(self.time_data[:,:3]==np.round(x[4:7]), axis=1)
-                avg_time = self.time_data[idx, -1]
+                if np.sum(idx)==0:
+                    avg_time = self.time_data[-1, -1]
+                else:
+                    avg_time = self.time_data[idx, -1]
                 X_mean_average[index, 0] = avg_time
 
             else:
