@@ -12,9 +12,10 @@ import argparse
 # from mistery_hybrid_cKG_experiment_v2 import function_caller_mistery_v2
 # from test_func_2_hybrid_cKG_experiment_v2 import function_caller_test_func_2_v2
 from NN_experiment_cKG import function_caller_NN_cKG
-from NN_experiment_cEI import function_caller_NN_cEI
-from NN_experiment_TS import function_caller_NN_TS
-from NN_experiment_pKG import function_caller_NN_pKG
+# from NN_experiment_cEI import function_caller_NN_cEI
+# from NN_experiment_TS import function_caller_NN_TS
+# from NN_experiment_pKG import function_caller_NN_pKG
+
 # from NN_experiment_TS import function_caller_NN_TS
 # from NN_experiment_cEI import function_caller_NN_cEI
 
