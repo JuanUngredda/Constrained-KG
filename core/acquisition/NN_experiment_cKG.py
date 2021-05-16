@@ -23,7 +23,7 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_cKG(rep_base):
 
 
-    rep = rep_base + 20#**(it)
+    rep = rep_base + 30#**(it)
     np.random.seed(rep)
     function_rejected = True
     s = 0
@@ -94,7 +94,7 @@ def function_caller_NN_cKG(rep_base):
             tag_last_evaluation  =True,
             deterministic=False)
 
-    stop_date = datetime(2022, 5, 16, 7) # year month day hour
+    stop_date = datetime(2021, 5, 17, 7) # year month day hour
     max_iter  = 50
     # print("Finished Initialization")
     subfolder = "NN_hybrid_KG_"
