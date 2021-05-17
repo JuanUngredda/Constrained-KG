@@ -109,7 +109,7 @@ def function_caller_NN_cKG(rep_base):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_NN_cKG(rep_base=99999)
+# function_caller_NN_cKG(rep_base=99999)
 
 
 

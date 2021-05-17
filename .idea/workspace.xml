@@ -66,7 +66,7 @@
       <recent name="$PROJECT_DIR$/core/acquisition" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.NN_nEI">
+  <component name="RunManager" selected="Python.NN_experiment_cKG">
     <configuration name="1D_PROBLEM09_experiment" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Constrained-KG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -179,8 +179,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.NN_nEI" />
         <item itemvalue="Python.NN_experiment_cKG" />
+        <item itemvalue="Python.NN_nEI" />
         <item itemvalue="Python.1D_PROBLEM09_experiment" />
         <item itemvalue="Python.NN_experiment_nEI" />
         <item itemvalue="Python.KG_control" />
@@ -221,7 +221,7 @@
       <workItem from="1618695014022" duration="130396000" />
       <workItem from="1619443177081" duration="77325000" />
       <workItem from="1620382882568" duration="87642000" />
-      <workItem from="1620918957294" duration="62585000" />
+      <workItem from="1620918957294" duration="62978000" />
     </task>
     <servers />
   </component>
