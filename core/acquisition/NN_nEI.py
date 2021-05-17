@@ -29,7 +29,7 @@ dtype = torch.double
 def function_caller_NN_nEI(rep):
     torch.manual_seed(rep)
     N_BATCH = 100
-    initial_points = 2
+    initial_points = 18
     MC_SAMPLES = 250
 
     threshold = 1.1e-2  # seconds
