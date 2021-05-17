@@ -31,7 +31,7 @@ def function_caller_NN_nEI(rep_base):
     for it in range(2):
         rep = rep_base + 10 ** (it)
         torch.manual_seed(rep)
-        N_BATCH = 100
+        N_BATCH = 50
         initial_points = 18
         MC_SAMPLES = 250
 
