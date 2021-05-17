@@ -19,7 +19,7 @@ from botorch.exceptions import BadInitialCandidatesWarning
 import time
 from botorch.optim import optimize_acqf
 # from Transformation_Translation import Translate
-from Last_Step import Constrained_Mean_Response
+# from Last_Step import Constrained_Mean_Response
 import warnings
 from scipy.stats import norm
 # from botorch.models.transforms import Standardize
@@ -217,13 +217,13 @@ def function_caller_NN_nEI(rep):
     best_observed_nei.append(best_observed_value_nei)
 
     # run N_BATCH rounds of BayesOpt after the initial random batch
-    Last_Step = Constrained_Mean_Response(
-        model=model_nei,
-        best_f=0.0,  # dummy variable really, doesnt do anything since I only take max/min of posterior mean
-        objective=constrained_obj,dtype=dtype
-    )
+    # Last_Step = Constrained_Mean_Response(
+    #     model=model_nei,
+    #     best_f=0.0,  # dummy variable really, doesnt do anything since I only take max/min of posterior mean
+    #     objective=constrained_obj,dtype=dtype
+    # )
 
-    last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
+    # last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
 
     for iteration in range(1, N_BATCH + 1):
         t0 = time.time()
@@ -261,35 +261,35 @@ def function_caller_NN_nEI(rep):
             model_nei.state_dict(),
         )
 
-        Last_Step = Constrained_Mean_Response(
-            model=model_nei,
-            best_f=0.0,  # dummy variable really, doesnt do anything since I only take max/min of posterior mean
-            objective=constrained_obj
-        )
+        # Last_Step = Constrained_Mean_Response(
+        #     model=model_nei,
+        #     best_f=0.0,  # dummy variable really, doesnt do anything since I only take max/min of posterior mean
+        #     objective=constrained_obj
+        # )
 
-        last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
+        # last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
 
         # update progress
-        value_recommended_design = weighted_obj(last_x_nei)
+        # value_recommended_design = weighted_obj(last_x_nei)
 
         # if value_recommended_design == 0:
         #     recommended_Y = recommended_value(train_x_nei, model_nei)
         #     last_x_nei = train_x_nei[np.argmax(recommended_Y)]
         #     best_value = weighted_obj(last_x_nei)
         # else:
-        best_value = value_recommended_design
+        # best_value = value_recommended_design
 
         t1 = time.time()
 
         if verbose:
-            print("last_x_nei, last_obj_nei, last_con_nei",last_x_nei, last_obj_nei, last_con_nei)
+            print("last_x_nei, last_obj_nei, last_con_nei",new_x_nei, new_obj_nei, new_con_nei )
             print("new_x_nei, new_obj_nei, new_con_nei",new_x_nei, new_obj_nei, new_con_nei)
-            print("best value", best_value)
+            print("best value", best_value_nei)
 
         else:
             print(".", end="")
 
-        best_observed_all_nei.append(best_value)
+        best_observed_all_nei.append(best_value_nei)
         data = {}
         print(" best_observed_all_nei", best_observed_all_nei)
         data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)
