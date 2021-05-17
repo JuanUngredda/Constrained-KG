@@ -1,12 +1,9 @@
 import numpy as np
-from GPyOpt.objective_examples.experiments2d import mistery,  test_function_2, new_brannin_torch
-
 import pandas as pd
 import os
 from time import time as time
 #ALWAYS check cost in
 # --- Function to optimize
-from botorch.test_functions import Hartmann
 import torch
 from gpytorch.kernels import RBFKernel, ScaleKernel
 from botorch.models import FixedNoiseGP, ModelListGP, SingleTaskGP
@@ -19,10 +16,10 @@ from botorch.exceptions import BadInitialCandidatesWarning
 import time
 from botorch.optim import optimize_acqf
 # from Transformation_Translation import Translate
-# from Last_Step import Constrained_Mean_Response
 import warnings
 from scipy.stats import norm
 # from botorch.models.transforms import Standardize
+
 from Real_Experiments.FC_Neural_Network.real_functions_caller import FC_NN_test_function
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,7 +29,7 @@ dtype = torch.double
 def function_caller_NN_nEI(rep):
     torch.manual_seed(rep)
     N_BATCH = 100
-    initial_points = 18
+    initial_points = 2
     MC_SAMPLES = 250
 
     threshold = 1.1e-2  # seconds
@@ -41,16 +38,18 @@ def function_caller_NN_nEI(rep):
     input_dim = 9
 
 
-    def objective_function(X):
+    def objective_function(X, true_val=False):
         X = X.numpy()
-        return torch.tensor(problem_class.f(X), device=device, dtype=dtype)
+        print("true val", true_val)
+        return torch.tensor(problem_class.f(X, true_val=true_val), device=device, dtype=dtype)
 
     def outcome_constraint(X):
+        X = X.numpy()
         return torch.tensor(problem_class.c(X), device=device, dtype=dtype)
 
-    def weighted_obj(X):
+    def weighted_obj(X, true_val=False):
         """Feasibility weighted objective; zero if not feasible."""
-        return objective_function(X) * (outcome_constraint(X) <= 0).type_as(X)
+        return objective_function(X, true_val) * (outcome_constraint(X) <= 0).type_as(X)
 
     # train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
     train_cvar = torch.tensor(1e-4, device=device, dtype=dtype)
@@ -73,14 +72,11 @@ def function_caller_NN_nEI(rep):
         lb = bounds[0, :]
         delta = ub - lb
         train_x = torch.rand(n, input_dim, device=device, dtype=dtype) * delta + lb
-        exact_obj = objective_function(train_x).unsqueeze(-1)  # add output dimension
-        exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
+        exact_obj = objective_function(train_x)#.unsqueeze(-1)  # add output dimension
+        exact_con = outcome_constraint(train_x)#.unsqueeze(-1)  # add output dimension
         train_obj = exact_obj
         train_con = exact_con
         best_observed_value = weighted_obj(train_x).max().item()
-        print("X", train_x)
-        print("train_obj", train_obj)
-        print("train_con", train_con)
         return train_x, train_obj, train_con, best_observed_value
 
     def recommended_value(X, model):
@@ -121,14 +117,27 @@ def function_caller_NN_nEI(rep):
 
         #
         model_obj = SingleTaskGP(train_x, train_obj, covar_module=covar_module)
+
+
         model_con = FixedNoiseGP(train_x, train_con, train_cvar.expand_as(train_con)).to(train_x)
         # combine into a multi-output GP model
         model = ModelListGP(model_obj, model_con)
         mll = SumMarginalLogLikelihood(model.likelihood, model)
         # load state dict if it is passed
+
         if state_dict is not None:
             model.load_state_dict(state_dict)
-        return mll, model
+        return mll, model, model_obj
+
+    def sampled_points_mean(train_x, train_con, model_obj):
+        train_x = model_obj.transform_inputs(train_x)
+        GP_mean = model_obj.mean_module(train_x)
+
+        if np.all(train_con>0):
+            return 0
+        else:
+            GP_mean = np.array(GP_mean).reshape(-1)
+            return GP_mean[np.array(train_con).reshape(-1) <0]
 
     def optimize_acqf_and_get_observation(acq_func, check_acqu_val_sample=None, diagnostics=False):
         """Optimizes the acquisition function, and returns a new candidate and a noisy observation."""
@@ -146,18 +155,7 @@ def function_caller_NN_nEI(rep):
 
         # observe new values
         new_x = candidates.detach()
-        # if check_acqu_val_sample is None:
-        #     new_x = candidates.detach()
-        # else:
-        #     new_x = candidates.detach()
-        #     new_acq_func_val = acq_func.forward(new_x).unsqueeze(-1)
-        #     new_acq_func_val = new_acq_func_val.squeeze(-1).detach().numpy()
-        #     last_acq_func_val = acq_func.forward(check_acqu_val_sample).unsqueeze(-1)
-        #     last_acq_func_val = last_acq_func_val.squeeze(-1).detach().numpy()
-        #     if last_acq_func_val >= new_acq_func_val:
-        #         new_x = check_acqu_val_sample
-        #     else:
-        #         new_x = new_x
+
 
         if diagnostics:
             ub = bounds[1, :]
@@ -187,8 +185,8 @@ def function_caller_NN_nEI(rep):
             # plt.plot( best_observed_all_nei)
             # plt.show()
 
-        exact_obj = objective_function(new_x).unsqueeze(-1)  # add output dimension
-        exact_con = outcome_constraint(new_x).unsqueeze(-1)  # add output dimension
+        exact_obj = objective_function(new_x)#.unsqueeze(-1)  # add output dimension
+        exact_con = outcome_constraint(new_x)#.unsqueeze(-1)  # add output dimension
         new_obj = exact_obj
         new_con = exact_con
         return new_x, new_obj, new_con
@@ -213,7 +211,7 @@ def function_caller_NN_nEI(rep):
     train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei = generate_initial_data(n=initial_points)
     # Translate_Object = Translate(m=1, Y=train_obj_nei)
     # train_x_ei, train_obj_ei, train_con_ei, best_observed_value_ei =train_x_nei, train_obj_nei, train_con_nei, best_observed_value_nei
-    mll_nei, model_nei = initialize_model(train_x_nei, train_obj_nei, train_con_nei)
+    mll_nei, model_nei, model_obj = initialize_model(train_x_nei, train_obj_nei, train_con_nei)
     best_observed_nei.append(best_observed_value_nei)
 
     # run N_BATCH rounds of BayesOpt after the initial random batch
@@ -254,7 +252,7 @@ def function_caller_NN_nEI(rep):
         best_value_nei = weighted_obj(train_x_nei).max().item()
         best_observed_nei.append(best_value_nei)
 
-        mll_nei, model_nei = initialize_model(
+        mll_nei, model_nei, model_obj = initialize_model(
             train_x_nei,
             train_obj_nei,
             train_con_nei,
@@ -268,16 +266,10 @@ def function_caller_NN_nEI(rep):
         # )
 
         # last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
+        GP_vals_sampled = recommended_value(train_x_nei, model_nei)
+        value_recommended_design = weighted_obj(train_x_nei[np.argmax(GP_vals_sampled )], true_val=True)
 
-        # update progress
-        # value_recommended_design = weighted_obj(last_x_nei)
-
-        # if value_recommended_design == 0:
-        #     recommended_Y = recommended_value(train_x_nei, model_nei)
-        #     last_x_nei = train_x_nei[np.argmax(recommended_Y)]
-        #     best_value = weighted_obj(last_x_nei)
-        # else:
-        # best_value = value_recommended_design
+        best_value = np.array(value_recommended_design).reshape(-1)
 
         t1 = time.time()
 
@@ -289,7 +281,7 @@ def function_caller_NN_nEI(rep):
         else:
             print(".", end="")
 
-        best_observed_all_nei.append(best_value_nei)
+        best_observed_all_nei.append(best_value)
         data = {}
         print(" best_observed_all_nei", best_observed_all_nei)
         data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)

@@ -293,6 +293,7 @@ class FC_NN_test_function():
         if len(X.shape) == 1:
             X = np.array(X).reshape(1, -1)
 
+
         X_mean_average = np.zeros((X.shape[0], 1))
 
         for index in range(X.shape[0]):
@@ -329,7 +330,7 @@ class FC_NN_test_function():
                 # print("mse", np.std(average_time) / np.sqrt(len(average_time)))
                 X_mean_average[index, 0] = np.mean(average_time)
 
-            return np.log(X_mean_average) - np.log(self.max_time)
+        return np.log(X_mean_average) - np.log(self.max_time)
 
 # import tensorflow as tf
 # #ALWAYS check cost in
