@@ -179,6 +179,8 @@ class AcquisitionOptimizer(object):
             print("anchor_points",anchor_points)
             print("optimised_anchor_point",optimized_points)
         else:
+            if 'additional_anchor_points' in self.kwargs:
+                anchor_points = np.concatenate((anchor_points, kwargs["additional_anchor_points"]))
             optimized_points = []
             for a in anchor_points:
                 optimised_anchor_point = apply_optimizer(self.optimizer, a.flatten(), f=f, df=None,

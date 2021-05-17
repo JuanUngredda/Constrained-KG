@@ -389,7 +389,7 @@ class BO(object):
 
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
-                                                      num_samples=1000)
+                                                      additional_anchor_points = self.X ,num_samples=1000)
 
             suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
             suggested_final_mean_GP_recommended = -out[1]

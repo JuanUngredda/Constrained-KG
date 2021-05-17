@@ -11,7 +11,7 @@ from Hybrid_continuous_KG_v2 import KG
 from bayesian_optimisation import BO
 import pandas as pd
 # from nEI import nEI
-from EI import EI
+from nEI import nEI
 # from EI import EI
 import os
 from datetime import datetime
@@ -21,11 +21,10 @@ import tensorflow as tf
 # --- Function to optimize
 print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-def function_caller_NN_cEI(rep_base):
+def function_caller_NN_nEI(rep_base):
     rep_base = rep_base + 100
     for it in range(3):
         rep = rep_base + 10**(it)
-        np.random.seed(rep)
         np.random.seed(rep)
 
         function_rejected = True
@@ -85,7 +84,7 @@ def function_caller_NN_cEI(rep_base):
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 18)
 
         nz = 1
-        acquisition = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        acquisition = nEI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 tag_last_evaluation=True,
@@ -95,7 +94,7 @@ def function_caller_NN_cEI(rep_base):
         stop_date = datetime(2022, 5, 16, 7)# year month day hour
         max_iter  = 50
         # print("Finished Initialization")
-        subfolder = "NN_cEI_"
+        subfolder = "NN_nEI_"
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
@@ -106,7 +105,7 @@ def function_caller_NN_cEI(rep_base):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_NN_cEI(21)
+# function_caller_NN_nEI(21)
 
 
 
