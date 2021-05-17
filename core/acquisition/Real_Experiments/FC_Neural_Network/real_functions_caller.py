@@ -9,6 +9,7 @@ import numpy as np
 import os
 from itertools import product
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 import pathlib
 #
 checkpoint_dir = pathlib.Path(__file__).parent.absolute()
@@ -269,13 +270,21 @@ class FC_NN_test_function():
                     # plt.show()
                 # Part 6: get test measurements
                 score = model.evaluate(x_test, y_test, verbose=0)
-
-                out_val.append(score[1])
+                if true_val:
+                    transf_score = self._output_scaler(score[1], type=None)
+                else:
+                    transf_score = self._output_scaler(score[1], type="inv norm cdf")
+                out_val.append(transf_score)
                 print("x", x, "fval", np.mean(out_val))
 
             validation_score[index, 0] = np.mean(out_val)
 
         return validation_score  # test classification error
+    def _output_scaler(self, x, type=None):
+        if type is None:
+            return x
+        elif type=="inv norm cdf":
+            return norm.ppf(x)
 
     def c(self, X, true_val=True, verbose=0):
 

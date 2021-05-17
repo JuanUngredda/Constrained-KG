@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import scipy
 from nEI import nEI
 from EI import EI
-from Hybrid_continuous_KG import KG
+from Hybrid_continuous_KG_v2 import KG
 from bayesian_optimisation import BO
 import pandas as pd
+from datetime import datetime
 import os
 
 
@@ -22,7 +23,7 @@ import os
 def function_caller_1DGP(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [0.01]:
+    for noise in [0.005]:
 
         function = Problem03(sd=np.sqrt(noise))
         GP_test_f = function.f
@@ -97,6 +98,7 @@ def function_caller_1DGP(rep):
                 tag_last_evaluation=True,
                 deterministic=False)
 
+        stop_date = datetime(2022, 5, 17, 7)  # year month day hour
         max_iter = 100
         # print("Finished Initialization")
         subfolder = "mistery_hybrid_KG_" + str(noise)
@@ -104,6 +106,7 @@ def function_caller_1DGP(rep):
         cwd = os.getcwd()
         path = cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=True,
+                                                                                  stop_date=stop_date,
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)

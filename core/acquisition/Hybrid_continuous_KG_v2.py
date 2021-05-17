@@ -568,6 +568,387 @@ class KG(AcquisitionBase):
         Fz = np.product(Fz,axis=0)
         return Fz
 
+    def _plots(self, test_samples, discretisation=None):
+
+        if False:
+            def current_func(X_inner, Z_const, aux_c):
+                X_inner = np.atleast_2d(X_inner)
+                mu = self.model.posterior_mean(X_inner)[0]
+                mu = np.array(mu).reshape(-1)
+                grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const, aux=aux_c,
+                                   X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
+
+                Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0).reshape(-1)
+                return -(mu * Fz).reshape(-1)
+
+            plot_samples = initial_design('random', self.space, 1000)
+            test_samples = np.sort(test_samples ,axis=0)
+            plot_samples = np.sort(plot_samples,axis=0)
+            # print("test_samples",test_samples)
+            varX_obj = self.model.posterior_variance(test_samples, noise=True)
+            varX_c = self.model_c.posterior_variance(test_samples, noise=True)
+
+            colors = ["magenta", "green", "red", "blue", "orange"]
+            Z_obj =  np.array([ -3, -1.64, -2.64, -0.67, 0, 0.67, 1.64, 2.64, 3])
+            Z_const =  np.array([ -3, -1.64, -2.64, -0.67, 0, 0.67, 1.64, 2.64, 3])
+
+            optimums_objs = []
+            optimums_const = []
+            optimiser_objs = []
+            optimiser_const =[ ]
+            future_means_const = []
+            future_means_objs = []
+            for i in range(0, len(test_samples)):
+                x = np.atleast_2d(test_samples[i])
+                # For each x new precompute covariance matrices for
+                self.model.partial_precomputation_for_covariance(x)
+                self.model.partial_precomputation_for_covariance_gradient(x)
+                self.model_c.partial_precomputation_for_covariance(x)
+                self.model_c.partial_precomputation_for_covariance_gradient(x)
+                # Precompute aux_obj and aux_c for computational efficiency.
+                aux_obj = np.reciprocal(varX_obj[:, i])
+                aux_c = np.reciprocal(varX_c[:, i])
+                maxgraph = []
+                feasibility_graph = []
+                posterior_mean_c = []
+                posterior_var_c = []
+                for zc in range(len(Z_const)):
+                    individual_maxgraph = []
+
+                    grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const[zc], aux=aux_c,
+                                       X_inner=plot_samples)  # , test_samples = initial_design('random', self.space, 1000))
+                    feasibility_graph.append(grad_c.compute_probability_feasibility_multi_gp(x=plot_samples, l=0).reshape(-1))
+                    posterior_mean_c.append(grad_c.compute_value_mu_xnew(x=plot_samples).reshape(-1))
+                    posterior_var_c.append(grad_c.compute_posterior_var_x_new(x=plot_samples).reshape(-1))
+                    for zo in range(len(Z_obj)):
+                        def inner_func(X_inner, verbose=False):
+                            X_inner = np.atleast_2d(X_inner)
+                            # X_inner = X_inner.astype("int")
+                            grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj[zo], aux=aux_obj,
+                                                 X_inner=X_inner)  # , test_samples = self.test_samples)
+                            mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+
+                            grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const[zc], aux=aux_c,
+                                               X_inner=X_inner)  # , test_samples = initial_design('random', self.space, 1000))
+
+                            Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
+
+                            func_val = mu_xnew * Fz  # - inner_opt_val
+
+                            return -func_val.reshape(-1)
+
+                        def inner_func_with_gradient(X_inner):
+                            # print("inner_func_with_gradient")
+
+                            X_inner = np.atleast_2d(X_inner)
+                            # X_inner = X_inner.astype("int")
+
+                            grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj[zo], aux=aux_obj, X_inner=X_inner,
+                                                 precompute_grad=True)
+                            mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+
+                            grad_mu_xnew = grad_obj.compute_gradient_mu_xnew(x=X_inner)
+
+                            grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const[zc], aux=aux_c, X_inner=X_inner,
+                                               precompute_grad=True)
+
+                            Fz, grad_Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0,
+                                                                                          gradient_flag=True)
+                            func_val = np.array(mu_xnew * Fz)  # - self.control_variate
+
+                            func_grad_val = np.array(mu_xnew).reshape(-1) * grad_Fz.reshape(-1) + Fz.reshape(
+                                -1) * grad_mu_xnew.reshape(
+                                -1)  # grad_c.product_gradient_rule(func = np.array([np.array(mu_xnew).reshape(-1), Fz.reshape(-1)]), grad = np.array([grad_mu_xnew.reshape(-1) ,grad_Fz.reshape(-1) ]))
+
+                            assert ~ np.isnan(func_val);
+                            "nans found"
+                            print("-func_val, -func_grad_val", -func_val, -func_grad_val)
+                            return -func_val, func_grad_val
+
+
+                        def inner_func_predict(X_inner):
+                            X_inner = np.atleast_2d(X_inner)
+                            # X_inner = X_inner.astype("int")
+                            grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj[zo], aux=aux_obj,
+                                                 X_inner=X_inner)
+                            mu_xnew = self.model.predict(X_inner)[0].reshape(-1)
+                            # var_xnew = self.model.predict(X_inner)[1].reshape(-1)
+                            var_xnew = grad_obj.compute_b(xopt=X_inner)
+
+                            grad_c = gradients(x_new=x, model=self.model_c, Z=Z_const[zc], aux=aux_c,
+                                               X_inner=X_inner)
+
+                            Fz = grad_c.compute_probability_feasibility_multi_gp(x=X_inner, l=0)
+
+                            func_val = mu_xnew.reshape(-1) * Fz.reshape(-1)  # - inner_opt_val
+
+                            return func_val.reshape(-1), var_xnew.reshape(-1)* (np.array(Fz).reshape(-1))
+
+                        if discretisation is not None:
+                            current_test_samples_mean = -current_func(X_inner=plot_samples, Z_const=Z_const[zc],
+                                                                      aux_c=aux_c)
+                            next_test_samples_mean = -inner_func(plot_samples)
+                            mean_n1, varn_n1 = inner_func_predict(plot_samples)
+
+                            current_inner_opt_x, current_inner_opt_val = self._compute_current_max(x, Z_const[zc], aux_c)
+
+                            discretisation_vals = -inner_func(discretisation)
+                            next_inner_opt_x = discretisation[np.argmax(discretisation_vals)]
+                            # print("func_val2",inner_func(next_inner_opt_x , verbose=True))
+                            next_inner_opt_val = -np.max(discretisation_vals )
+
+
+                            individual_maxgraph.append(-next_inner_opt_val)
+                            maxgraph.append(-next_inner_opt_val)
+                            plt.plot(plot_samples, mean_n1, color="lightcoral")
+                            plt.plot(plot_samples, mean_n1 + 2.64 * varn_n1, color="lightcoral", alpha=0.3)
+                            plt.plot(plot_samples, mean_n1 - 2.64 * varn_n1, color="lightcoral", alpha=0.3)
+                            plt.fill_between(plot_samples.reshape(-1), mean_n1 - 1.96 * varn_n1,
+                                             mean_n1 + 1.96 * varn_n1, color="lightcoral", alpha=0.2)
+
+
+                            plt.plot(plot_samples, current_test_samples_mean, color="grey")
+                            plt.plot(plot_samples, next_test_samples_mean, color="grey", linestyle='dashed')
+                            plt.scatter(current_inner_opt_x, current_inner_opt_val, color="red")
+                            plt.scatter(next_inner_opt_x, -next_inner_opt_val, color="green")
+                            plt.scatter(np.array(discretisation).reshape(-1), np.repeat([0], len(np.array(discretisation).reshape(-1))), color="blue")
+                            plt.scatter(x, [0], color="magenta")
+
+                        else:
+
+                            next_test_samples_mean = -inner_func(plot_samples)
+                            next_inner_opt_x, next_inner_opt_val = self.optimizer.optimize_inner_func(f=inner_func,
+                                                                                            f_df=None)
+                            individual_maxgraph.append(-next_inner_opt_val)
+                            maxgraph.append(-next_inner_opt_val)
+
+                            if Z_obj[zo]==0:
+                                future_means_const.append(next_test_samples_mean)
+                                optimums_const.append(-next_inner_opt_val)
+                                optimiser_const.append(next_inner_opt_x)
+                                if Z_const[zc]==0:
+                                    current_mean_const = next_test_samples_mean
+                                    current_optimums_const = -next_inner_opt_val
+                                    current_optimiser_const = next_inner_opt_x
+
+                            if Z_const[zc]==0:
+                                future_means_objs.append(next_test_samples_mean)
+                                optimums_objs.append(-next_inner_opt_val )
+                                optimiser_objs.append(next_inner_opt_x)
+                                if Z_obj[zo]==0:
+                                    current_mean_objs = next_test_samples_mean
+                                    current_optimums_objs = -next_inner_opt_val
+                                    current_optimiser_objs = next_inner_opt_x
+
+
+                ####plot Zy
+                plt.plot(plot_samples, current_mean_objs , color="black", linestyle="dashed", zorder=0)
+                plt.plot(plot_samples, np.array(future_means_objs).T, alpha=0.4, color="grey", zorder=0)
+                plt.fill_between(plot_samples.reshape(-1), np.min(future_means_objs, axis=0), np.max(future_means_objs, axis=0), color="lightcoral",
+                                 alpha=0.7, zorder=0)
+
+
+                plt.scatter(np.array(optimiser_objs).reshape(-1), np.array(optimums_objs).reshape(-1), color="red",
+                            label="$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$", edgecolors='black', zorder=1)
+                plt.scatter(np.array(current_optimiser_objs).reshape(-1), np.array(current_optimums_objs).reshape(-1),
+                            color="green", zorder=2,  edgecolors='black')
+                plt.xlim(1.2,3.5)
+                plt.ylim(-0.3,1.5)
+                plt.xticks(fontsize=14)
+                plt.yticks(fontsize=14)
+                plt.legend(loc="upper left", fontsize=15)
+                # plt.savefig(
+                #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/Zy_change.jpg",
+                #     bbox_inches="tight")
+                plt.show()
+
+                #PLOTS Zc
+                plt.plot(plot_samples, current_mean_const , color="black", linestyle="dashed", zorder=0)
+                plt.plot(plot_samples, np.array(future_means_const).T, alpha=0.4, color="grey", zorder=0)
+                plt.fill_between(plot_samples.reshape(-1), np.min(future_means_const, axis=0), np.max(future_means_const, axis=0), color="lightcoral",
+                                 alpha=0.7, zorder=0)
+
+
+                plt.scatter(np.array(optimiser_const).reshape(-1), np.array(optimums_const).reshape(-1), color="red",
+                            label="$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$", zorder=1, edgecolors='black')
+                plt.scatter(np.array(current_optimiser_const).reshape(-1), np.array(current_optimums_const).reshape(-1),
+                            color="green", zorder=2,  edgecolors='black')
+                plt.legend(loc="upper left", fontsize=15)
+                plt.xlim(1.2,3.5)
+                plt.ylim(-0.3,1.2)
+                plt.xticks(fontsize=14)
+                plt.yticks(fontsize=14)
+                # plt.savefig(
+                #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/Zc_change.jpg",
+                #     bbox_inches="tight")
+                plt.show()
+
+                Zo, Zc = np.meshgrid(Z_obj, Z_const)
+                maxvals = np.array(maxgraph).reshape(Zo.shape)
+
+
+                fig = plt.figure()
+                ax = fig.add_subplot(111, projection='3d')
+                ax.plot_wireframe(Zc,Zo, maxvals, color="red")
+                ax.set_ylabel('$Z_{y}$', fontsize=15)
+                ax.set_xlabel('$Z_{c}$', fontsize=15)
+                ax.set_title('$\max_{x}$  $\mu_{i}^{n+1}(x) PF_{j}^{n+1}(x)$', fontsize=15)
+
+                plt.savefig(
+                    "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/epigraph.jpg",
+                    bbox_inches="tight")
+                plt.show()
+
+            # plt.plot(plot_samples, np.array(feasibility_graph).T)
+            # plt.title("feasible region")
+            # plt.show()
+
+            # plt.plot(plot_samples, np.array(posterior_mean_c).T)
+            # plt.plot(plot_samples, np.array(self.model_c.predict(plot_samples)[0]).reshape(-1), color="black")
+            # plot_samples = np.linspace(0,10,100)[:,np.newaxis]
+            varX_c = self.model_c.posterior_variance(test_samples, noise=True)
+            aux_c = np.reciprocal(varX_c[:, 0])
+            grad_c = gradients(x_new=test_samples, model=self.model_c, Z=Z_const[0], aux=aux_c,
+                               X_inner=plot_samples)
+
+            var_xnew = grad_c.compute_b(xopt=plot_samples)
+
+            plt.title("b constraint")
+            plt.scatter(test_samples, 0, color="magenta")
+            plt.scatter(plot_samples, var_xnew)
+            plt.scatter(np.array(self.model_c.get_X_values()).reshape(-1), np.repeat(0, len(np.array(self.model_c.get_X_values()).reshape(-1))), color="green")
+            plt.show()
+
+            varX_c = self.model.posterior_variance(test_samples, noise=True)
+            aux_c = np.reciprocal(varX_c[:, 0])
+            grad_c = gradients(x_new=test_samples, model=self.model, Z=Z_const[0], aux=aux_c,
+                               X_inner=plot_samples)
+
+            var_xnew = grad_c.compute_b(xopt=plot_samples)
+
+            plt.title("b objective")
+            plt.scatter(test_samples, 0, color="magenta")
+            plt.scatter(plot_samples, var_xnew)
+            plt.scatter(np.array(self.model_c.get_X_values()).reshape(-1), np.repeat(0, len(np.array(self.model_c.get_X_values()).reshape(-1))), color="green")
+            plt.show()
+
+            # print("corr", self.model_c.posterior_covariance_between_points(test_samples, test_samples))
+            # print("varX_c", varX_c)
+            # print("b", np.sqrt(varX_c))
+            # raise
+            plot_samples = initial_design('random', self.space, 1000)
+            # plt.plot(plot_samples, np.array(self.model_c.predict(plot_samples)[0]).reshape(-1) + 1.95*np.sqrt(var_xnew), color="black")
+            # plt.plot(plot_samples,
+            #          np.array(self.model_c.predict(plot_samples)[0]).reshape(-1) - 1.95 * np.sqrt(var_xnew), color="black")
+            # plt.title("posterior means constraints")
+            # plt.show()
+            #
+            # plt.title("posterior var constraints")
+            # plt.plot(plot_samples, np.array(posterior_var_c).T)
+            # plt.show()
+        if True:
+            from matplotlib.pyplot import figure
+            kg_val = []
+            plot_kg_samples = np.linspace(4, 7,60)[:,np.newaxis] # initial_design('random', self.space, 500)
+            plot_kg_samples  = np.sort(plot_kg_samples , axis=0)
+            varX_obj = self.model.posterior_variance(plot_kg_samples, noise=True)
+            varX_c = self.model_c.posterior_variance(plot_kg_samples, noise=True)
+
+            for i in range( len(plot_kg_samples)):
+                x = np.atleast_2d(plot_kg_samples[i])
+                self.model.partial_precomputation_for_covariance(x)
+                self.model.partial_precomputation_for_covariance_gradient(x)
+                self.model_c.partial_precomputation_for_covariance(x)
+                self.model_c.partial_precomputation_for_covariance_gradient(x)
+
+                aux_obj = np.reciprocal(varX_obj[:, i])
+                aux_c = np.reciprocal(varX_c[:, i])
+                kg_val.append(self.discrete_KG(Xd=self.fixed_discretisation_values, xnew=x, Zc=self.Z_cdKG, aux_obj=aux_obj, aux_c=aux_c, grad=False))
+
+            varX_obj = self.model.posterior_variance(test_samples, noise=True)
+            varX_c = self.model_c.posterior_variance(test_samples, noise=True)
+            for i in range(len(test_samples)):
+                x = np.atleast_2d(test_samples[i])
+                self.model.partial_precomputation_for_covariance(x)
+                self.model.partial_precomputation_for_covariance_gradient(x)
+                self.model_c.partial_precomputation_for_covariance(x)
+                self.model_c.partial_precomputation_for_covariance_gradient(x)
+
+                aux_obj = np.reciprocal(varX_obj[:, i])
+                aux_c = np.reciprocal(varX_c[:, i])
+                best_kg_val = self.discrete_KG(Xd=self.fixed_discretisation_values, xnew=x, Zc=self.Z_cdKG, aux_obj=aux_obj, aux_c=aux_c, grad=False)
+
+            def penalised_mean_GP(X_inner):
+                # print("inner_func_with_gradient")
+
+                X_inner = np.atleast_2d(X_inner)
+
+                mu_xnew = self.model.predict(X_inner)[0]
+                var_xnew = self.model.posterior_variance(X_inner, noise=False)
+
+                Fz = self.probability_feasibility_multi_gp(x=X_inner, model=self.model_c).reshape(-1)
+
+                mean = np.array(mu_xnew.reshape(-1) * Fz)  # - self.control_variate
+                var = np.array(var_xnew.reshape(-1) * Fz**2)
+
+                return mean, var
+
+            figure(figsize=(8, 6))
+            plot_gp_samples = initial_design('random', self.space, 500)
+            plot_gp_samples = np.sort(plot_gp_samples, axis=0)
+
+            mean_current_GP , var_current_GP= penalised_mean_GP(plot_gp_samples)
+            plt.plot(plot_gp_samples.reshape(-1), np.array(mean_current_GP).reshape(-1), color="black", linestyle="dashed", alpha=0.5, zorder=0)
+            plt.fill_between(plot_gp_samples.reshape(-1), np.array(mean_current_GP).reshape(-1) - 1.65* np.sqrt(var_current_GP),
+                             np.array(mean_current_GP).reshape(-1) + 1.65* np.sqrt(var_current_GP), color="lightcoral", alpha=0.3, zorder=0)
+
+            current_max = np.max(mean_current_GP )
+            current_optimiser = plot_gp_samples[np.argmax(mean_current_GP)]
+
+
+            plt.scatter(test_samples.reshape(-1), penalised_mean_GP(test_samples)[0], color="red", edgecolors="black", label="$max_{x} cKG(x)$", s=60, zorder=2)
+            plt.scatter(self.model.get_X_values(), np.array(self.model.get_Y_values()).reshape(-1) * np.array(np.array(self.model_c.get_Y_values()).reshape(-1)<0).reshape(-1), color="white", edgecolors="black", s=60, zorder=1)
+            plt.scatter(current_optimiser, current_max , color="orange", edgecolors="black", label="$max_{x} \mu^{n}(x) PF^{n}(x)$", s=60, zorder=2)
+            plt.xlabel("$X$", fontsize=15)
+            plt.ylabel("$\mu^{n}(x) PF^{n}(x)$", fontsize=15)
+            # plt.title("n = " + str(len(self.model.get_X_values())), fontsize=14)
+            plt.xlim(4,7)
+
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+
+            x = plot_gp_samples
+            y = self.true_func(x, true_val=True)
+            c = self.true_const(x)
+            truefval = y.reshape(-1) * np.array(c < 0).reshape(-1)
+
+            current_max = np.max(truefval)
+            current_optimiser = x[np.argmax(truefval)]
+            plt.plot(x, truefval, color="green", label="True function", zorder=-1)
+            plt.scatter(current_optimiser, current_max , color="green", edgecolor="black", zorder=2, label="$\max_{x} f$")
+            # plt.legend(loc="upper right", prop={'size': 14})
+            plt.savefig(
+                "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/posterior_GP_{n}_v2.jpg".format(n = len(self.model.get_X_values())),
+                bbox_inches="tight")
+            plt.show()
+
+            figure(figsize=(8, 6))
+            plt.scatter(test_samples.reshape(-1), best_kg_val.reshape(-1), color="red", edgecolors="black",
+                        label="$argmax_{x} cKG(x)$", s=60, zorder=1)
+            plt.plot(plot_kg_samples.reshape(-1), np.array(kg_val).reshape(-1), color="black", linewidth=3,  zorder=0)
+            plt.xlabel("$X$", fontsize=15)
+            plt.ylabel("$cKG$", fontsize=15)
+            plt.xlim(4,7)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            # plt.legend(loc="upper right", prop={'size': 14})
+            plt.savefig(
+                "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/cKG_{n}_v2.jpg".format(n = len(self.model.get_X_values())),
+                bbox_inches="tight")
+            plt.show()
+
+
+
     def probability_feasibility(self, x, model, l=0):
 
         model = model.model
