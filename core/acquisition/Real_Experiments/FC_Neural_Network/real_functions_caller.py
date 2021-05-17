@@ -23,7 +23,7 @@ class FC_NN_test_function():
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, max_time=0.003, seed=0):
+    def __init__(self, max_time=0.003, seed=0, output_scaling=None):
         self.batch_size = 250
         self.rho = 0.9
         self.seed=seed
@@ -32,7 +32,7 @@ class FC_NN_test_function():
         self.samples = 1000
         self.num_classes = 10
         self.max_time = max_time
-
+        self.output_scaling = output_scaling
         try:
             path = checkpoint_dir + "avg_time.txt"
             self.time_data = np.genfromtxt(path)
@@ -273,7 +273,7 @@ class FC_NN_test_function():
                 if true_val:
                     transf_score = self._output_scaler(score[1], type=None)
                 else:
-                    transf_score = self._output_scaler(score[1], type="inv norm cdf")
+                    transf_score = self._output_scaler(score[1], type=self.output_scaling)
                 out_val.append(transf_score)
                 print("x", x, "fval", np.mean(out_val))
 
@@ -281,9 +281,11 @@ class FC_NN_test_function():
 
         return validation_score  # test classification error
     def _output_scaler(self, x, type=None):
+        print("output scaling type:", type)
         if type is None:
             return x
         elif type=="inv norm cdf":
+
             return norm.ppf(x)
 
     def c(self, X, true_val=True, verbose=0):

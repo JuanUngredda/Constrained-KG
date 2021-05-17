@@ -33,7 +33,7 @@ def function_caller_NN_cKG(rep_base):
 
             try:
                 threshold = 1.1e-2  #seconds
-                RMITD_f = FC_NN_test_function(max_time=threshold)
+                RMITD_f = FC_NN_test_function(max_time=threshold, output_scaling="inv norm cdf")
                 function_rejected = False
                 s += 1
             except:

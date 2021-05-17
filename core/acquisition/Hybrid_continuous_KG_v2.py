@@ -849,7 +849,7 @@ class KG(AcquisitionBase):
         if True:
             from matplotlib.pyplot import figure
             kg_val = []
-            plot_kg_samples = np.linspace(4, 7,60)[:,np.newaxis] # initial_design('random', self.space, 500)
+            plot_kg_samples = np.linspace(4, 7,90)[:,np.newaxis] # initial_design('random', self.space, 500)
             plot_kg_samples  = np.sort(plot_kg_samples , axis=0)
             varX_obj = self.model.posterior_variance(plot_kg_samples, noise=True)
             varX_c = self.model_c.posterior_variance(plot_kg_samples, noise=True)
