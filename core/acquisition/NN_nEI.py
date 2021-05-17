@@ -270,6 +270,7 @@ def function_caller_NN_nEI(rep_base):
 
             # last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics=False)
             GP_vals_sampled = recommended_value(train_x_nei, model_nei)
+            print("GP_vals_sampled", GP_vals_sampled)
             value_recommended_design = weighted_obj(train_x_nei[np.argmax(GP_vals_sampled )], true_val=True)
 
             best_value = np.array(value_recommended_design).reshape(-1)
@@ -301,7 +302,6 @@ def function_caller_NN_nEI(rep_base):
 
             gen_file.to_csv(path_or_buf=path)
 
-
-# function_caller_NN_nEI(rep=2)
+# function_caller_NN_nEI(2)
 
 
