@@ -20,7 +20,7 @@ print("NN TS activate")
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 def function_caller_NN_TS(rep_base):
     rep_base = rep_base + 300
-    for it in range(2):
+    for it in range(1):
         rep = rep_base + 10**(it)
         np.random.seed(rep)
         function_rejected = True

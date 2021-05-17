@@ -79,7 +79,7 @@ def function_caller_NN_cKG(rep_base):
         #
         # # --- Initial design
         #initial design
-        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 2)
+        initial_design = GPyOpt.experiment_design.initial_design('latin', space, 18)
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)

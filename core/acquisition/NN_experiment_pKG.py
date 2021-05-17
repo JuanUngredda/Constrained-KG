@@ -23,7 +23,7 @@ print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
 def function_caller_NN_pKG(rep_base):
     rep_base = rep_base+100
-    for it in range(3):
+    for it in range(1):
         rep = rep_base + 10**(it)
         np.random.seed(rep)
         function_rejected = True
