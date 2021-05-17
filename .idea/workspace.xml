@@ -23,11 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/core/acquisition/NN_nEI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/NN_experiment_cKG.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/NN_experiment_cKG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Real_Experiments/FC_Neural_Network/real_functions_caller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/NN_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/NN_nEI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,7 +221,7 @@
       <workItem from="1618695014022" duration="130396000" />
       <workItem from="1619443177081" duration="77325000" />
       <workItem from="1620382882568" duration="87642000" />
-      <workItem from="1620918957294" duration="55155000" />
+      <workItem from="1620918957294" duration="55520000" />
     </task>
     <servers />
   </component>
@@ -282,7 +278,7 @@
     <SUITE FILE_PATH="coverage/Constrained_KG$NN_experiment_nEI.coverage" NAME="NN_experiment_nEI Coverage Results" MODIFIED="1621246931749" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_experiment.coverage" NAME="test_func_2_experiment Coverage Results" MODIFIED="1619724473223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_EI.coverage" NAME="new_branin_EI Coverage Results" MODIFIED="1617804377575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$NN_nEI.coverage" NAME="NN_nEI Coverage Results" MODIFIED="1621258074481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$NN_nEI.coverage" NAME="NN_nEI Coverage Results" MODIFIED="1621258448445" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$test_func_2_cEI.coverage" NAME="test_func_2_cEI Coverage Results" MODIFIED="1617807456562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_cEI_experiment.coverage" NAME="new_branin_cEI_experiment Coverage Results" MODIFIED="1619355572038" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$Hybrid_continuous_KG.coverage" NAME="Hybrid_continuous_KG Coverage Results" MODIFIED="1619190142697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
