@@ -28,7 +28,7 @@ dtype = torch.double
 
 def function_caller_NN_nEI(rep_base):
     rep_base = rep_base + 100
-    for it in range(2):
+    for it in range(3):
         rep = rep_base + 10 ** (it)
         torch.manual_seed(rep)
         N_BATCH = 50
