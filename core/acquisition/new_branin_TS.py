@@ -67,6 +67,6 @@ def function_caller_new_brannin_TS(rep):
         print("X", X, "Y", Y, "C", C)
 
 
-# function_caller_new_brannin_TS(rep=15)
+function_caller_new_brannin_TS(rep=15)
 
 

@@ -8,7 +8,7 @@ import time
 import numpy as np
 import os
 from itertools import product
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.stats import norm
 import pathlib
 #

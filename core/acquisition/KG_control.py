@@ -4,25 +4,11 @@ import subprocess as sp
 import os
 import argparse
 
-# from test_func_2_experiment import function_caller_test_func_2
-# from mistery_hybrid_cKG_experiment import function_caller_mistery
-# from new_branin_hybrid_cKG_experiment import function_caller_new_branin
+from mistery_hybrid_cKG_experiment_current_step import function_caller_mistery_v2
+from new_branin_hybrid_cKG_experiment_current_step import function_caller_new_branin_v2
+from test_func_2_hybrid_cKG_experiment_current_step import function_caller_test_func_2_v2
 
-# from new_branin_hybrid_cKG_experiment_v2 import function_caller_new_branin_v2
-# from mistery_hybrid_cKG_experiment_v2 import function_caller_mistery_v2
-# from test_func_2_hybrid_cKG_experiment_v2 import function_caller_test_func_2_v2
-from NN_experiment_cKG import function_caller_NN_cKG
-# from NN_nEI import function_caller_NN_nEI
-# from NN_experiment_cEI import function_caller_NN_cEI
-# from NN_experiment_nEI import function_caller_NN_nEI
-# from NN_experiment_TS import function_caller_NN_TS
-# from NN_experiment_pKG import function_caller_NN_pKG
 
-# from NN_experiment_TS import function_caller_NN_TS
-# from NN_experiment_cEI import function_caller_NN_cEI
-
-# from new_branin_hybrid_cKG_experiment import function_caller_new_branin
-# from new_branin_hybrid_cKG_experiment import function_caller_new_branin
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -63,7 +49,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [function_caller_NN_cKG]#, function_caller_NN_cKG]
+    functions = [function_caller_mistery_v2,function_caller_new_branin_v2, function_caller_test_func_2_v2]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)
