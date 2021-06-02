@@ -18,11 +18,14 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery activate")
 def function_caller_mistery_v2(rep):
-    rep = rep + 40
+    rep = rep
     np.random.seed(rep)
-    for noise in [1e-06, 1.0]:
+
+    for noise in [1.0]:
         # func2 = dropwave()
-        mistery_f =mistery(sd=np.sqrt(noise))
+        noise_objective = noise
+        noise_constraints = (0.1) ** 2
+        mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
         # repeat same objective function to solve a 1 objective problem
@@ -39,8 +42,8 @@ def function_caller_mistery_v2(rep):
                                            {'name': 'var_2', 'type': 'continuous', 'domain': (0, 5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-06] * n_c, exact_feval=[True] * n_c)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise_objective]*n_f, exact_feval=[True]*n_f)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[noise_constraints]*n_c, exact_feval=[True]*n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -53,22 +56,16 @@ def function_caller_mistery_v2(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        if noise<1e-3:
-            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
-        else:
-            Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+
+
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                ls_evaluator=last_step_evaluator,
-                ls_acquisition = Last_Step_acq,
-                tag_last_evaluation  =True,
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 10, 7) # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "mistery_hybrid_KG_v2_" + str(noise)
+        subfolder = "mistery_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
@@ -79,6 +76,6 @@ def function_caller_mistery_v2(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_mistery_v2(rep=4)
+# function_caller_mistery_v2(rep=4)
 
 

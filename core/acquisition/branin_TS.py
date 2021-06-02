@@ -16,28 +16,32 @@ import os
 
 print("new branin TS activate")
 def function_caller_new_brannin_TS(rep):
+    rep = rep
     np.random.seed(rep)
-    for noise in [1e-06, 1.0]:
 
+    for noise in [1.0]:
         # func2 = dropwave()
-        new_brannin_f = new_brannin(sd=np.sqrt(noise))
+        noise_objective = noise
+        noise_constraints = (0.1) ** 2
+        mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
-        #repeat same objective function to solve a 1 objective problem
-        f = MultiObjective([new_brannin_f.f])
-        c = MultiObjective([new_brannin_f.c])
+        # repeat same objective function to solve a 1 objective problem
+        f = MultiObjective([mistery_f.f])
+        c = MultiObjective([mistery_f.c])
 
         # --- Attributes
-        #repeat same objective function to solve a 1 objective problem
+        # repeat same objective function to solve a 1 objective problem
 
-        #c2 = MultiObjective([test_c2])
+        # c2 = MultiObjective([test_c2])
         # --- Space
-        #define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+        # define space of variables
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (-5, 10)},
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0, 15)}])
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f)#, normalizer =True)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise_objective] * n_f, exact_feval=[True] * n_f)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[noise_constraints] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -55,7 +59,7 @@ def function_caller_new_brannin_TS(rep):
 
         max_iter = 100
         # print("Finished Initialization")
-        subfolder = "new_brannin_TS_" + str(noise)
+        subfolder = "new_brannin_TS_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path = cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'

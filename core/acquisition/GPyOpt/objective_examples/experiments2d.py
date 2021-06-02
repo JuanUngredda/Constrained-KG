@@ -9,7 +9,7 @@ except:
     pass
 import numpy as np
 from ..util.general import reshape
-# import torch
+import torch
 import math
 
 
@@ -325,7 +325,7 @@ class goldstein(function2d):
             return fval.reshape(n,1) + noise
 
 class test_function_2(function2d):
-    def __init__(self, bounds=None, sd=None):
+    def __init__(self, bounds=None, sd_obj=None, sd_c = None):
         self.input_dim = 2
         if bounds is None:
             self.bounds = [(0, 1), (0, 1)]
@@ -333,7 +333,8 @@ class test_function_2(function2d):
             self.bounds = bounds
         self.min = [(0.2018, 0.833)]
         self.fmin = 0.748
-        self.sd = sd
+        self.sd_obj = sd_obj
+        self.sd_c = sd_c
         self.name = 'test_function_2'
 
     def f(self, x, offset=-10, true_val=False):
@@ -345,10 +346,10 @@ class test_function_2(function2d):
         term2 = -(x1 - 1)**2.0
         term3 = -(x2  - 0.5 )** 2.0
         fval = term2 + term3
-        if self.sd == 0 or true_val:
+        if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
-            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+            noise = np.random.normal(0, self.sd_obj, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
         return np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1) #torch.reshape(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1), -1)
 
@@ -362,8 +363,11 @@ class test_function_2(function2d):
         term2 = (x2 + 2)**2.0
         term3 = -12
         fval = (term1 + term2)*np.exp(-x2**7)+term3
-        noise = np.random.normal(0, 1e-21, n).reshape(n, 1)
-        return np.array(fval.reshape(n,1)).reshape(-1) #+ noise.reshape(-1, 1) #torch.reshape(fval, -1)
+        if self.sd_c == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+        return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def c2(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -372,8 +376,11 @@ class test_function_2(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         fval = 10*x1 + x2 -7
-        noise = np.random.normal(0, 1e-21, n).reshape(n, 1)
-        return np.array(fval.reshape(n,1)).reshape(-1)#+ noise.reshape(-1, 1)#torch.reshape(fval, -1)
+        if self.sd_c == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+        return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def c3(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -385,16 +392,18 @@ class test_function_2(function2d):
         term2 = (x2 - 0.5)**2.0
         term3 = -0.2
         fval = term1 + term2 + term3
-        # print("fval",-fval.reshape(-1, 1))
-        noise = np.random.normal(0, 1e-21, n).reshape(n, 1)
-        return np.array(fval.reshape(n,1)).reshape(-1) #+ noise.reshape(-1, 1)#np.array(fval.reshape(n,1)).reshape(-1)
+        if self.sd_c == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+        return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x, true_val=False):
-        return [self.c1(x), self.c2(x), self.c3(x)]
+        return [self.c1(x, true_val=true_val), self.c2(x, true_val=true_val), self.c3(x, true_val=true_val)]
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)
-        C = self.c(x)
+        C = self.c(x, true_val=True)
         out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
         out = np.array(out).reshape(-1)
         return -out
@@ -483,7 +492,7 @@ class mistery(function2d):
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, bounds=None, sd=None):
+    def __init__(self, bounds=None, sd_obj=None, sd_c=None):
         self.input_dim = 2
         if bounds is None:
             self.bounds = [(0, 5), (0, 5)]
@@ -491,7 +500,8 @@ class mistery(function2d):
             self.bounds = bounds
         self.min = [(2.7450, 2.3523)]
         self.fmin = 1.1743
-        self.sd = sd
+        self.sd_obj = sd_obj
+        self.sd_c = sd_c
         self.name = 'Mistery'
 
     def f(self, x, offset=0.0, true_val=False):
@@ -507,10 +517,10 @@ class mistery(function2d):
         term4 = 2 * (2 - x2) ** 2
         term5 = 7 * np.sin(0.5 * x1) * np.sin(0.7 * x1 * x2)
         fval = term1 + term2 + term3 + term4 + term5
-        if self.sd == 0 or true_val:
+        if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
-            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+            noise = np.random.normal(0, self.sd_obj, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
 
         return np.array(-(fval.reshape(n, 1) ) + noise.reshape(-1, 1)).reshape(-1)
@@ -522,12 +532,18 @@ class mistery(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         fval = -np.sin(x1 - x2 - np.pi / 8.0)
-        # print("fval",-fval.reshape(-1, 1))
-        return np.array(fval.reshape(n, 1)).reshape(-1)
+
+        if self.sd_c == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+
+            print("signal", fval, "noise", noise)
+        return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)
-        C = self.c(x)
+        C = self.c(x, true_val=True)
         out = Y * (C < 0)
         out = np.array(out).reshape(-1)
         return -out
@@ -589,7 +605,7 @@ class new_brannin(function2d):
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, bounds=None, sd=None):
+    def __init__(self, bounds=None, sd_obj=None, sd_c = None):
         self.input_dim = 2
         if bounds is None:
             self.bounds = [(-5, 10), (0, 15)]
@@ -597,7 +613,8 @@ class new_brannin(function2d):
             self.bounds = bounds
         self.min = [(3.26, 0.05)]
         self.fmin = 268.781
-        self.sd = sd
+        self.sd_obj = sd_obj
+        self.sd_c = sd_c
         self.name = 'new_brannin'
 
     def f(self, x, offset=0,  true_val=False):
@@ -609,12 +626,13 @@ class new_brannin(function2d):
         term1 = -(x1 - 10)**2
         term2 = -(x2 - 15)**2.0
         fval = term1 + term2
-        if self.sd == 0 or true_val:
+        if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
-            noise = np.random.normal(0, self.sd, n).reshape(n, 1)
+            noise = np.random.normal(0, self.sd_obj, n).reshape(n, 1)
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
-        return np.array(-(fval.reshape(n,1) + offset)+ noise.reshape(-1, 1)).reshape(-1)
+
+        return np.array(-(fval.reshape(n, 1) ) + noise.reshape(-1, 1)).reshape(-1)
 
     def c(self, x,  true_val=False):
         if len(x.shape) == 1:
@@ -626,12 +644,15 @@ class new_brannin(function2d):
         term2 = 10 * (1 - (1.0/(8*np.pi)))*np.cos(x1)
         term3 = 5
         fval = term1 + term2 + term3
-        # print("fval",-fval.reshape(-1, 1))
-        return np.array(fval.reshape(n,1)).reshape(-1)
+        if self.sd_c == 0 or true_val:
+            noise = np.zeros(n).reshape(n, 1)
+        else:
+            noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+        return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def func_val(self, x):
         Y = self.f(x, true_val=True)
-        C = self.c(x)
+        C = self.c(x, true_val = True)
         out = Y * (C < 0)
         out = np.array(out).reshape(-1)
         return -out
@@ -725,8 +746,6 @@ class sixhumpcamel(function2d):
                 noise = np.random.normal(0,self.sd,n).reshape(n,1)
             return -fval.reshape(n,1) - noise
 
-
-
 class mccormick(function2d):
     '''
     Mccormick function
@@ -762,7 +781,6 @@ class mccormick(function2d):
             else:
                 noise = np.random.normal(0,self.sd,n).reshape(n,1)
             return fval.reshape(n,1) + noise
-
 
 class powers(function2d):
     '''

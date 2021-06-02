@@ -38,6 +38,7 @@ def function_caller_mistery_nEI(rep):
 
         torch.manual_seed(rep)
         NOISE_SE = noise
+        NOISE_SE_constraint = 0.01
         N_BATCH = 100
         initial_points = 10
         MC_SAMPLES = 250
@@ -58,7 +59,7 @@ def function_caller_mistery_nEI(rep):
             return objective_function(X) * (outcome_constraint(X) <= 0).type_as(X)
 
         #train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
-        train_cvar = torch.tensor(1e-10, device=device, dtype=dtype)
+        train_cvar = torch.tensor(NOISE_SE_constraint**2, device=device, dtype=dtype)
         train_yvar = torch.tensor(noise, device=device, dtype=dtype)
 
         def obj_callable(Z):
@@ -82,7 +83,7 @@ def function_caller_mistery_nEI(rep):
             exact_obj = objective_function(train_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(train_x).unsqueeze(-1)  # add output dimension
             train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
-            train_con = exact_con
+            train_con = exact_con + NOISE_SE_constraint * torch.randn_like(exact_con)
             best_observed_value = weighted_obj(train_x).max().item()
             return train_x, train_obj, train_con, best_observed_value
 
@@ -205,8 +206,8 @@ def function_caller_mistery_nEI(rep):
 
         verbose = True
 
-        best_observed_all_nei, best_observed_all_ei= [], []
-
+        best_observed_all_nei_GP, best_observed_all_ei= [], []
+        best_observed_all_nei_sampled, best_observed_all_ei_sampled = [], []
         # average over multiple trials
         best_observed_nei, best_observed_ei = [], []
         # print("best value")
@@ -281,19 +282,17 @@ def function_caller_mistery_nEI(rep):
             last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics = False)
 
             # update progress
-            value_recommended_design = weighted_obj(last_x_nei)
+            value_recommended_design_GP = weighted_obj(last_x_nei)
+            best_value_GP = np.array(value_recommended_design_GP).reshape(-1)
 
-            # if value_recommended_design == 0:
-            #     recommended_Y = recommended_value(train_x_nei, model_nei)
-            #     last_x_nei = train_x_nei[np.argmax(recommended_Y)]
-            #     best_value = weighted_obj(last_x_nei)
-            # else:
-            best_value = value_recommended_design
+            GP_vals_sampled = recommended_value(train_x_nei, model_nei)
+            value_recommended_design = weighted_obj(train_x_nei[np.argmax(GP_vals_sampled )])
 
+            best_value_sampled = np.array(value_recommended_design).reshape(-1)
             t1 = time.time()
 
             if verbose:
-                print("best value", best_value)
+                print("best value", best_value_GP)
                 # print(
                 #     f"\niteration {iteration:>2}: best_value (qNEI) = "
                 #     f"({best_value:>4.2f}), "
@@ -302,14 +301,16 @@ def function_caller_mistery_nEI(rep):
             else:
                 print(".", end="")
 
-            best_observed_all_nei.append(best_value)
+            best_observed_all_nei_sampled.append(best_value_sampled)
+            best_observed_all_nei_GP.append(best_value_GP)
             data = {}
-            print(" best_observed_all_nei",  best_observed_all_nei)
-            data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)
+            print(" best_observed_all_nei",  best_observed_all_nei_GP)
+            data["OC GP mean"] = np.array(best_observed_all_nei_GP).reshape(-1)
+            data["OC GP sampled"] = np.array(best_observed_all_nei_sampled).reshape(-1)
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
-            subfolder = "mistery_nEI_" + str(noise)
+            subfolder = "mistery_nEI_n_obj_" + str(NOISE_SE) + "_n_c_" + str(NOISE_SE_constraint)
             cwd = os.getcwd()
             path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
             print("directory results: ", cwd + "/" + folder + "/" + subfolder)
@@ -318,7 +319,6 @@ def function_caller_mistery_nEI(rep):
                 os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
             gen_file.to_csv(path_or_buf=path)
-
 
 
 

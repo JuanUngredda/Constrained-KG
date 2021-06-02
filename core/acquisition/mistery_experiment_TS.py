@@ -10,6 +10,7 @@ from Thompson_Sampling import TS
 from bayesian_optimisation import BO
 import pandas as pd
 import os
+from datetime import datetime
 
 #ALWAYS check cost in
 # --- Function to optimize
@@ -18,10 +19,11 @@ def function_caller_mistery_TS(rep):
     rep = rep
     np.random.seed(rep)
 
-    for noise in [1e-06]:
+    for noise in [1.0]:
         # func2 = dropwave()
-
-        mistery_f =mistery(sd=np.sqrt(noise))
+        noise_objective = noise
+        noise_constraints = (0.1)**2
+        mistery_f =mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
@@ -38,8 +40,8 @@ def function_caller_mistery_TS(rep):
         space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,5)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,5)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise]*n_f, exact_feval=[True]*n_f, normalizer=True)
-        model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-6]*n_c, exact_feval=[True]*n_c)
+        model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise_objective]*n_f, exact_feval=[True]*n_f)
+        model_c = multi_outputGP(output_dim = n_c,  noise_var=[noise_constraints]*n_c, exact_feval=[True]*n_c)
 
 
         # --- Aquisition optimizer
@@ -55,17 +57,17 @@ def function_caller_mistery_TS(rep):
         acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                tag_last_evaluation  =True,
-                deterministic=True)
+                deterministic=False)
 
-
+        stop_date = datetime(2022, 5, 10, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "mistery_TS_" + str(noise)
+        subfolder = "mistery_TS_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter, verbosity=False,
+                                                                                  stop_date=stop_date,
                                                                                   path=path, evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=False)
         print("Code Ended")
@@ -73,10 +75,7 @@ def function_caller_mistery_TS(rep):
         print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_mistery_TS(rep=21)
-# for i in range(40):
-# function_caller_mistery_TS(rep=21)
 
-
+# function_caller_mistery_TS(1)
 
 

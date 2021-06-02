@@ -3,11 +3,15 @@ import sys
 import subprocess as sp
 import os
 import argparse
+#
+# from mistery_hybrid_cKG_experiment_current_step import function_caller_mistery_v2
+# from new_branin_hybrid_cKG_experiment_current_step import function_caller_new_branin_v2
+# from test_func_2_hybrid_cKG_experiment_current_step import function_caller_test_func_2_v2
 
-from mistery_hybrid_cKG_experiment_current_step import function_caller_mistery_v2
-from new_branin_hybrid_cKG_experiment_current_step import function_caller_new_branin_v2
-from test_func_2_hybrid_cKG_experiment_current_step import function_caller_test_func_2_v2
-
+from mistery_experiment_TS import function_caller_mistery_TS as f1
+from mistery_hybrid_cKG_experiment_current_step import function_caller_mistery_current_step as f2
+from mistery_hybrid_cKG_experiment_v2 import function_caller_mistery_v2 as f3
+from mistery_nEI import function_caller_mistery_nEI as f4
 
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
@@ -49,7 +53,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [function_caller_mistery_v2,function_caller_new_branin_v2, function_caller_test_func_2_v2]
+    functions = [f1, f2, f3, f4]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)

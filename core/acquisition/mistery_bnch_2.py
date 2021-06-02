@@ -20,9 +20,11 @@ print("mistery activate")
 def function_caller_mistery_bnch_2(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [1e-06]:
+    for noise in [1.0]:
         # func2 = dropwave()
-        mistery_f =mistery(sd=np.sqrt(noise))
+        noise_objective = noise
+        noise_constraints = (0.1) ** 2
+        mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
         # repeat same objective function to solve a 1 objective problem
@@ -40,8 +42,8 @@ def function_caller_mistery_bnch_2(rep):
                                                                                               5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise] * n_f, exact_feval=[True] * n_f)#, normalizer=True)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[1e-10] * n_c, exact_feval=[True] * n_c)
+        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise_objective] * n_f, exact_feval=[True] * n_f)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[noise_constraints] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
@@ -54,17 +56,10 @@ def function_caller_mistery_bnch_2(rep):
 
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        if noise<1e-3:
-            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
-        else:
-            Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                ls_evaluator=last_step_evaluator,
-                ls_acquisition = Last_Step_acq,
-                tag_last_evaluation  =True,
-                deterministic=True)
+                deterministic=False)
 
 
         max_iter  = 100
