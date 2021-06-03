@@ -12,12 +12,12 @@ from EI import EI
 from bayesian_optimisation import BO
 import pandas as pd
 import os
-
+from datetime import datetime
 
 #ALWAYS check cost in
 # --- Function to optimize
 print("new_branin activate")
-def function_caller_new_branin_bnch_2(rep):
+def function_caller_new_branin_pKG(rep):
     rep = rep
     np.random.seed(rep)
 
@@ -57,28 +57,20 @@ def function_caller_new_branin_bnch_2(rep):
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
-        if noise<1e-3:
-            print("EI final step")
-            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
-        else:
-            print("nEI final step")
-            Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                ls_evaluator=last_step_evaluator,
-                ls_acquisition = Last_Step_acq,
-                tag_last_evaluation  =True,
-                deterministic=True)
+                deterministic=False)
 
 
         max_iter  = 100
+        stop_date = datetime(2022, 5, 9, 7)  # year month day hour
         # print("Finished Initialization")
         subfolder = "branin_penalised_KG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=True, path=path,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,
+                                                                                  stop_date=stop_date,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 

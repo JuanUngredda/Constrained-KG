@@ -58,18 +58,9 @@ def function_caller_new_branin_v2(rep):
         nz = 60 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
-        if noise<1e-3:
-            print("EI final step")
-            Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
-        else:
-            print("nEI final step")
-            Last_Step_acq = nEI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
-        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
-                ls_evaluator=last_step_evaluator,
-                ls_acquisition = Last_Step_acq,
-                tag_last_evaluation  =True,
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 9, 7)  # year month day hour
