@@ -18,7 +18,7 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery activate")
 def function_caller_new_branin_v2(rep):
-    rep = rep
+    rep = rep + 20
     np.random.seed(rep)
 
     for noise in [1.0]:
