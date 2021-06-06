@@ -35,7 +35,7 @@ dtype = torch.double
 
 def function_caller_branin_nEI(rep):
     for noise in [ 1.0]:
-        rep = rep + 20
+        rep = rep
         torch.manual_seed(rep)
         NOISE_SE = noise
         NOISE_SE_constraint = 0.01
@@ -152,18 +152,7 @@ def function_caller_branin_nEI(rep):
 
             # observe new values
             new_x = candidates.detach()
-            # if check_acqu_val_sample is None:
-            #     new_x = candidates.detach()
-            # else:
-            #     new_x = candidates.detach()
-            #     new_acq_func_val = acq_func.forward(new_x).unsqueeze(-1)
-            #     new_acq_func_val = new_acq_func_val.squeeze(-1).detach().numpy()
-            #     last_acq_func_val = acq_func.forward(check_acqu_val_sample).unsqueeze(-1)
-            #     last_acq_func_val = last_acq_func_val.squeeze(-1).detach().numpy()
-            #     if last_acq_func_val >= new_acq_func_val:
-            #         new_x = check_acqu_val_sample
-            #     else:
-            #         new_x = new_x
+
 
             if diagnostics:
 
@@ -183,20 +172,12 @@ def function_caller_branin_nEI(rep):
                 acq_func_val = acq_func_val.squeeze(-1).detach().numpy()
                 print("last_x", check_acqu_val_sample, "last_acq_func_val",acq_func_val)
 
-                # print("max val", torch.max(acq_func_val),"min", torch.min(acq_func_val))
-                # plt.scatter(rand_x[:, :, 0].squeeze(-1), rand_x[:,:, 1].squeeze(-1), c = acq_func_val)
-                # plt.scatter(rand_x[:, 0].squeeze(-1), rand_x[:, 1].squeeze(-1), c=acq_func_val)
-                # plt.scatter(train_x_nei[:,0],train_x_nei[:,1], color="red")
-                # plt.scatter(new_x[:,0], new_x[:,1], color="magenta", s=100)
-                # plt.show()
 
-                # plt.plot( best_observed_all_nei)
-                # plt.show()
 
             exact_obj = objective_function(new_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(new_x).unsqueeze(-1)  # add output dimension
             new_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
-            new_con = exact_con
+            new_con = exact_con  + NOISE_SE_constraint * torch.randn_like(exact_con)
             return new_x, new_obj, new_con
 
 
@@ -322,6 +303,6 @@ def function_caller_branin_nEI(rep):
 
 
 
-# function_caller_mistery_nEI(rep=1)
+# function_caller_branin_nEI(rep=1)
 
 

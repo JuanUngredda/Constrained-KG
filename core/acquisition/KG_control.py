@@ -13,11 +13,21 @@ import argparse
 # from mistery_hybrid_cKG_experiment_v2 import function_caller_mistery_v2 as f3
 # from mistery_nEI import function_caller_mistery_nEI as f4
 
-from branin_hybrid_cKG_experiment import function_caller_new_branin_v2 as f1
-from branin_hybrid_cKG_experiment_current_step import function_caller_new_branin_current_step as f2
-from branin_penalised_KG import function_caller_new_branin_pKG as f3
-from branin_TS import function_caller_new_brannin_TS as f4
-from branin_nEI import function_caller_branin_nEI as f5
+# from branin_hybrid_cKG_experiment import function_caller_new_branin_v2 as f1
+# from branin_hybrid_cKG_experiment_current_step import function_caller_new_branin_current_step as f2
+# from branin_penalised_KG import function_caller_new_branin_pKG as f3
+# from branin_TS import function_caller_new_brannin_TS as f4
+# from branin_nEI import function_caller_branin_nEI as f5
+
+from test_function_2_nEI import function_caller_test_fun_2_nEI as f1
+from branin_nEI import function_caller_branin_nEI as f2
+from mistery_nEI import function_caller_mistery_nEI as f3
+from test_func_2_experiment_bnch_2 import function_caller_test_func_2_penalised as f4
+from test_func_2_hybrid_cKG_experiment_current_step import function_caller_test_func_2_current_step as f5
+from test_func_2_hybrid_cKG_experiment_v2 import function_caller_test_func_2_v2 as f6
+from test_func_2_TS import function_caller_test_func_2_TS as f7
+
+
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -58,7 +68,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [ f4, f1, f2, f3, f5]
+    functions = [ f4, f1, f2, f3, f5, f6, f7]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)

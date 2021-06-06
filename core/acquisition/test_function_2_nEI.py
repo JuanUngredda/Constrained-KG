@@ -33,6 +33,7 @@ def function_caller_test_fun_2_nEI(rep):
 
         torch.manual_seed(rep)
         NOISE_SE = noise
+        NOISE_SE_constraint = 0.01
         N_BATCH = 100
         initial_points = 10
         MC_SAMPLES = 250
@@ -64,7 +65,8 @@ def function_caller_test_fun_2_nEI(rep):
             return objective_function(X) * c
 
         #train_yvar = torch.tensor(NOISE_SE ** 2, device=device, dtype=dtype)
-        train_cvar = torch.tensor(1e-10, device=device, dtype=dtype)
+        train_cvar = torch.tensor(NOISE_SE_constraint ** 2, device=device, dtype=dtype)
+        train_yvar = torch.tensor(noise, device=device, dtype=dtype)
         def obj_callable(Z):
             return Z[..., 0]
 
@@ -92,9 +94,9 @@ def function_caller_test_fun_2_nEI(rep):
             exact_con2 = outcome_constraint2(train_x).unsqueeze(-1)  # add output dimension
             exact_con3 = outcome_constraint3(train_x).unsqueeze(-1)  # add output dimension
             train_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
-            train_con1 = exact_con1
-            train_con2 = exact_con2
-            train_con3 = exact_con3
+            train_con1 = exact_con1 + NOISE_SE_constraint * torch.randn_like(exact_con1)
+            train_con2 = exact_con2 + NOISE_SE_constraint * torch.randn_like(exact_con2)
+            train_con3 = exact_con3 + NOISE_SE_constraint * torch.randn_like(exact_con3)
             best_observed_value = weighted_obj(train_x).max().item()
             return train_x, train_obj, train_con1, train_con2, train_con3, best_observed_value
 
@@ -167,9 +169,9 @@ def function_caller_test_fun_2_nEI(rep):
             exact_con2 = outcome_constraint2(new_x).unsqueeze(-1)  # add output dimension
             exact_con3 = outcome_constraint3(new_x).unsqueeze(-1)  # add output dimension
             new_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
-            new_con1 = exact_con1
-            new_con2 = exact_con2
-            new_con3 = exact_con3
+            new_con1 = exact_con1 + NOISE_SE_constraint * torch.randn_like(exact_con1)
+            new_con2 = exact_con2 + NOISE_SE_constraint * torch.randn_like(exact_con2)
+            new_con3 = exact_con3 + NOISE_SE_constraint * torch.randn_like(exact_con3)
             return new_x, new_obj, new_con1, new_con2, new_con3
 
         warnings.filterwarnings('ignore', category=BadInitialCandidatesWarning)
@@ -177,10 +179,11 @@ def function_caller_test_fun_2_nEI(rep):
 
         verbose = True
 
-        best_observed_all_nei, best_observed_all_ei= [], []
-
+        best_observed_all_nei_GP, best_observed_all_ei = [], []
+        best_observed_all_nei_sampled, best_observed_all_ei_sampled = [], []
         # average over multiple trials
         best_observed_nei, best_observed_ei = [], []
+
 
         # call helper functions to generate initial training data and initialize model
         train_x_nei, train_obj_nei, train_con1_nei,train_con2_nei,train_con3_nei, best_observed_value_nei = generate_initial_data(n=initial_points)
@@ -240,20 +243,18 @@ def function_caller_test_fun_2_nEI(rep):
 
             last_x_nei, last_obj_nei, last_con1_nei, last_con2_nei, last_con3_nei = optimize_acqf_and_get_observation(Last_Step)
 
-            value_recommended_design = weighted_obj(last_x_nei)
+            # update progress
+            value_recommended_design_GP = weighted_obj(last_x_nei)
+            best_value_GP = np.array(value_recommended_design_GP).reshape(-1)
 
-            # if value_recommended_design == 0:
-            #     recommended_Y = recommended_value(train_x_nei, model_nei)
-            #     last_x_nei = train_x_nei[np.argmax(recommended_Y)]
-            #     best_value = weighted_obj(last_x_nei)
-            # else:
-            best_value = value_recommended_design
+            GP_vals_sampled = recommended_value(train_x_nei, model_nei)
+            value_recommended_design = weighted_obj(train_x_nei[np.argmax(GP_vals_sampled )])
 
-
+            best_value_sampled = np.array(value_recommended_design).reshape(-1)
             t1 = time.time()
 
             if verbose:
-                print("best_value", best_value)
+                print("best value", best_value_GP)
                 # print(
                 #     f"\niteration {iteration:>2}: best_value (qNEI) = "
                 #     f"({best_value:>4.2f}), "
@@ -262,11 +263,12 @@ def function_caller_test_fun_2_nEI(rep):
             else:
                 print(".", end="")
 
-            best_observed_all_nei.append(best_value)
-
+            best_observed_all_nei_sampled.append(best_value_sampled)
+            best_observed_all_nei_GP.append(best_value_GP)
             data = {}
-
-            data["Opportunity_cost"] = np.array(best_observed_all_nei).reshape(-1)
+            print(" best_observed_all_nei",  best_observed_all_nei_GP)
+            data["OC GP mean"] = np.array(best_observed_all_nei_GP).reshape(-1)
+            data["OC GP sampled"] = np.array(best_observed_all_nei_sampled).reshape(-1)
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"

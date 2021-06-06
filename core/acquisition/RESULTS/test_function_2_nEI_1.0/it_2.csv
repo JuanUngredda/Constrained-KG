@@ -1,9 +1,7 @@
-,Opportunity_cost
-0,"tensor([0.2842], dtype=torch.float64)"
-1,"tensor([0.3014], dtype=torch.float64)"
-2,"tensor([0.3202], dtype=torch.float64)"
-3,"tensor([0.3454], dtype=torch.float64)"
-4,"tensor([0.3295], dtype=torch.float64)"
-5,"tensor([0.3314], dtype=torch.float64)"
-6,"tensor([0.3410], dtype=torch.float64)"
-7,"tensor([0.3693], dtype=torch.float64)"
+,OC GP mean,OC GP sampled
+0,0.2616196630189779,0.0
+1,0.20782956681871778,0.20227160709038108
+2,0.29601583728022635,0.30303533276173195
+3,0.322222029751844,0.30303533276173195
+4,0.3243971346472807,0.30303533276173195
+5,0.3268764874273582,0.30303533276173195

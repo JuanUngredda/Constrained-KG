@@ -35,7 +35,7 @@ dtype = torch.double
 
 def function_caller_mistery_nEI(rep):
     for noise in [ 1.0]:
-        rep = rep +20
+        rep = rep
         torch.manual_seed(rep)
         NOISE_SE = noise
         NOISE_SE_constraint = 0.01
@@ -196,7 +196,7 @@ def function_caller_mistery_nEI(rep):
             exact_obj = objective_function(new_x).unsqueeze(-1)  # add output dimension
             exact_con = outcome_constraint(new_x).unsqueeze(-1)  # add output dimension
             new_obj = exact_obj + NOISE_SE * torch.randn_like(exact_obj)
-            new_con = exact_con
+            new_con = exact_con  + NOISE_SE_constraint * torch.randn_like(exact_con)
             return new_x, new_obj, new_con
 
 
