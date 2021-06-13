@@ -19,10 +19,10 @@ print("test fun TS activate")
 def function_caller_test_func_2_TS(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = (0.1) ** 2
+        noise_constraints = 1e-06#(0.1) ** 2
         test_function_2_f = test_function_2(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes

@@ -16,13 +16,13 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery TS activate")
 def function_caller_mistery_TS(rep):
-    rep = rep + 20
+    rep = rep
     np.random.seed(rep)
 
-    for noise in [1.0]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = (0.1)**2
+        noise_constraints = 1e-06#(0.1)**2
         mistery_f =mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes

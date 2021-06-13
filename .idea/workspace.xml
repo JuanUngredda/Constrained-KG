@@ -24,16 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/mistery_nEI_n_obj_1.0_n_c_0.01/it_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/mistery_nEI_n_obj_1.0_n_c_0.01/it_1.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_nEI_1.0/it_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/test_function_2_nEI_1.0/it_2.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/branin_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/branin_nEI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_nEI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_TS.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_TS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment_bnch_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_experiment_bnch_2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_current_step.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_current_step.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_func_2_hybrid_cKG_experiment_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/test_function_2_nEI.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/test_function_2_nEI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -237,7 +227,7 @@
       <workItem from="1621439438777" duration="1288000" />
       <workItem from="1622454248028" duration="17559000" />
       <workItem from="1622560228710" duration="8540000" />
-      <workItem from="1622569764087" duration="18767000" />
+      <workItem from="1622569764087" duration="21071000" />
     </task>
     <servers />
   </component>
