@@ -33,7 +33,7 @@ def function_caller_test_fun_2_nEI(rep):
 
         torch.manual_seed(rep)
         NOISE_SE = noise
-        NOISE_SE_constraint = 0.01
+        NOISE_SE_constraint = 1e-06#, 0.01
         N_BATCH = 100
         initial_points = 10
         MC_SAMPLES = 250
@@ -272,7 +272,7 @@ def function_caller_test_fun_2_nEI(rep):
 
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
-            subfolder = "test_function_2_nEI_" + str(noise)
+            subfolder = "test_function_2_nEI_n_obj_" + str(NOISE_SE) + "_n_c_" + str(NOISE_SE_constraint)
             cwd = os.getcwd()
             path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
             if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:

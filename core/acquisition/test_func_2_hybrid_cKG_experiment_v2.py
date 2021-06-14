@@ -17,7 +17,7 @@ from datetime import datetime
 #ALWAYS check cost in
 # --- Function to optimize
 print("test_fun_2 activate")
-def function_caller_test_func_2_v2(rep):
+def function_caller_penalised_test_func_2(rep):
     rep = rep
     np.random.seed(rep)
     for noise in [1.0]:

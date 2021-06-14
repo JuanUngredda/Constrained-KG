@@ -20,7 +20,7 @@ print("mistery activate")
 def function_caller_mistery_current_step(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [1e-06]:
+    for noise in [1.0]:
         # func2 = dropwave()
         noise_objective = noise
         noise_constraints = 1e-06#(0.1) ** 2
