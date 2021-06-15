@@ -5,19 +5,19 @@ import os
 import argparse
 
 
-from branin_nEI import function_caller_branin_nEI as f1
-from branin_penalised_KG import function_caller_new_branin_pKG as f2
-from branin_TS import function_caller_new_brannin_TS as f3
-
-from mistery_nEI import function_caller_mistery_nEI as f4
-from mistery_penalised_experiment_v2 import function_caller_penalised_mistery as f5
-from mistery_experiment_TS import function_caller_mistery_TS as f6
+# from branin_nEI import function_caller_branin_nEI as f1
+# from branin_penalised_KG import function_caller_new_branin_pKG as f2
+# from branin_TS import function_caller_new_brannin_TS as f3
+#
+# from mistery_nEI import function_caller_mistery_nEI as f4
+# from mistery_penalised_experiment_v2 import function_caller_penalised_mistery as f5
+# from mistery_experiment_TS import function_caller_mistery_TS as f6
 
 #RERUN THESE RESULTS
-# from test_function_2_nEI import function_caller_test_fun_2_nEI as f7
-# from test_func_2_TS import function_caller_test_func_2_TS as f8
-# from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f9
 
+from test_func_2_TS import function_caller_test_func_2_TS as f1
+from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
+from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -58,7 +58,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [ f1, f2, f3 , f4 , f5, f6]
+    functions = [ f1, f2, f3 ]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)

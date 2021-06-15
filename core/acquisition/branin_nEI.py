@@ -303,6 +303,6 @@ def function_caller_branin_nEI(rep):
 
 
 
-# function_caller_branin_nEI(rep=1)
+function_caller_branin_nEI(rep=1)
 
 
