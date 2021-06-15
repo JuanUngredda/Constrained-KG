@@ -16,7 +16,7 @@ from datetime import datetime
 
 print("new branin TS activate")
 def function_caller_new_brannin_TS(rep):
-    rep = rep
+    rep = rep + 100
     np.random.seed(rep)
 
     for noise in [1.0]:

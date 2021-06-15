@@ -18,7 +18,7 @@ from datetime import datetime
 # --- Function to optimize
 print("new_branin activate")
 def function_caller_new_branin_pKG(rep):
-    rep = rep
+    rep = rep + 100
     np.random.seed(rep)
 
     for noise in [1.0]:

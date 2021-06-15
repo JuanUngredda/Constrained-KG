@@ -16,7 +16,7 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery TS activate")
 def function_caller_mistery_TS(rep):
-    rep = rep
+    rep = rep + 100
     np.random.seed(rep)
 
     for noise in [1.0]:

@@ -13,9 +13,10 @@ from mistery_nEI import function_caller_mistery_nEI as f4
 from mistery_penalised_experiment_v2 import function_caller_penalised_mistery as f5
 from mistery_experiment_TS import function_caller_mistery_TS as f6
 
-from test_function_2_nEI import function_caller_test_fun_2_nEI as f7
-from test_func_2_TS import function_caller_test_func_2_TS as f8
-from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f9
+#RERUN THESE RESULTS
+# from test_function_2_nEI import function_caller_test_fun_2_nEI as f7
+# from test_func_2_TS import function_caller_test_func_2_TS as f8
+# from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f9
 
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
