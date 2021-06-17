@@ -31,7 +31,7 @@ dtype = torch.double
 def function_caller_test_fun_2_nEI(rep):
     for noise in [ 1.0 ]:
 
-        torch.manual_seed(rep)
+        torch.manual_seed(rep+20)
         NOISE_SE = noise
         NOISE_SE_constraint = 1e-04#, 0.01
         N_BATCH = 100

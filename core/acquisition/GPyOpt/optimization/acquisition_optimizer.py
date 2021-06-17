@@ -84,7 +84,7 @@ class AcquisitionOptimizer(object):
 
         if 'dynamic_parameter_function' in self.kwargs:
             print("setting fix discretisation for anchor points")
-            discretisation = self.generate_points_pf(N=7000) #initial_design("latin",self.space, 1000)
+            discretisation = initial_design("latin",self.space, 1000)#self.generate_points_pf(N=1000) #
             self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
                                             fixed_discretisation=discretisation)
 
@@ -102,7 +102,7 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-            if ('dynamic_parameter_function' in self.kwargs): #
+            if False:#('dynamic_parameter_function' in self.kwargs): #
                 print("random sampling failed, changed to feasable sols")
 
                 feasable_samples = self.generate_points_pf(N=1000)
@@ -167,8 +167,8 @@ class AcquisitionOptimizer(object):
 
                 if 'dynamic_parameter_function' in self.kwargs:
 
-                    self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
-                                                    fixed_discretisation=None)  # discretisation)
+                    self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=False,
+                                                    fixed_discretisation= discretisation)
                 # print("optimiser type", self.optimizer_name)
 
                 optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,

@@ -13,6 +13,7 @@ from EI import EI
 import pandas as pd
 import os
 from datetime import datetime
+from EI import EI
 
 #ALWAYS check cost in
 # --- Function to optimize
@@ -20,10 +21,10 @@ print("test_fun_2 activate")
 def function_caller_penalised_test_func_2(rep):
     rep = rep
     np.random.seed(rep)
-    for noise in [1.0]:
+    for noise in [1e-06]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = (0.1) ** 2
+        noise_constraints = 1e-06#(0.1) ** 2
         test_function_2_f = test_function_2(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
@@ -57,13 +58,17 @@ def function_caller_penalised_test_func_2(rep):
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
+        Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition=Last_Step_acq,
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 11, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "test_function_2_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+        subfolder = "test_function_2_cKG-EI_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
@@ -76,6 +81,6 @@ def function_caller_penalised_test_func_2(rep):
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
 
-# function_caller_test_func_2_v2(rep=4)
+# function_caller_penalised_test_func_2(rep=4)
 
 

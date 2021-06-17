@@ -357,39 +357,22 @@ class BO(object):
 
     def optimize_final_evaluation(self, KG_dynamic_optimisation):
 
-        if self.deterministic:
-            Y = self.model.posterior_mean(self.X)
-            pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
-            func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
-            suggested_final_historical_sample = self.X[np.argmax(func_val)]
-            suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+        if KG_dynamic_optimisation:
+            # Saving original variables
+            self.original_X = self.X.copy()
+            self.original_Y = self.Y.copy()
+            self.original_C = self.C.copy()
 
-            Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
-            C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+            out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
+            self.suggested_sample = self.space.zip_inputs(out[0])
+            self.X = np.vstack((self.X, self.suggested_sample))
 
-            bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
-            func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
-
-            func_val_true = func_val_true_GP_recommended
-
-            if self.compute_OC:
-                self.true_best_value()
-                optimum = np.max(self.true_best_stats["true_best"])
-            else:
-                optimum = np.array([0]).reshape(-1)
-            self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
-            self.underlying_optimum.append(optimum.reshape(-1))
-            self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
-
-            self.recommended_value_GP_mean.append(np.max(func_val_true).reshape(-1))
-            self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true))
-            return 0
-
-        else: #KG_dynamic_optimisation:
-
+            self.evaluate_objective()
+            self._update_model()
+            #
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
-                                                      additional_anchor_points = self.X[7:, :] ,num_samples=1000)
+                                                      additional_anchor_points=self.X[7:, :], num_samples=1000)
 
             suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
             suggested_final_mean_GP_recommended = -out[1]
@@ -398,9 +381,9 @@ class BO(object):
             pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
             func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
 
-            print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
+            print("np.array(Y).reshape(-1)", np.array(Y).reshape(-1))
             print(" np.array(pf).reshape(-1)", np.array(pf).reshape(-1))
-            print("func_val",func_val)
+            print("func_val", func_val)
 
             suggested_final_historical_sample = self.X[np.argmax(func_val)]
             suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
@@ -427,26 +410,17 @@ class BO(object):
                 optimum = np.array([0]).reshape(-1)
             self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
             print("best posterior mean")
-            print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
-            print("best sample found from Posterior GP val",  -out[1], "best sample historical val",suggested_final_mean_historical_sample)
+            print("best sample found from Posterior GP sample", out[0], "best sample historical sample",
+                  suggested_final_historical_sample)
+            print("best sample found from Posterior GP val", -out[1], "best sample historical val",
+                  suggested_final_mean_historical_sample)
 
             print("OC", optimum - np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
                   np.max(func_val_true_GP_mean))
 
             self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true_GP_mean))
 
-            #Saving original variables
-            # self.original_X = self.X.copy()
-            # self.original_Y = self.Y.copy()
-            # self.original_C = self.C.copy()
-            #
-            # out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
-            # self.suggested_sample = self.space.zip_inputs(out[0])
-            # self.X = np.vstack((self.X, self.suggested_sample))
-            #
-            # self.evaluate_objective()
-            # self._update_model()
-            #
+
             Y = self.model.posterior_mean(self.X)
             pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
             func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
@@ -469,20 +443,145 @@ class BO(object):
             self.underlying_optimum.append([0])
             self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
 
-        #     print("sampled OC")
-        #     print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
-        #     print("OC", optimum - np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
-        #           np.max(func_val_true_sampled))
-        #
-        #  # Y_true * bool_C_true.reshape(-1, 1)
-        #
-        # # print("func_val_true",func_val_true)
-        # self.X = self.original_X.copy()
-        # self.Y = self.original_Y.copy()
-        # self.C = self.original_C.copy()
-        # self._update_model()
+            print("sampled OC")
+            print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
+            print("OC", optimum - np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
+                  np.max(func_val_true_sampled))
 
-        return 0
+
+            self.X = self.original_X.copy()
+            self.Y = self.original_Y.copy()
+            self.C = self.original_C.copy()
+            self._update_model()
+
+            return 0
+        else:
+            if self.deterministic:
+                Y = self.model.posterior_mean(self.X)
+                pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+                func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+                suggested_final_historical_sample = self.X[np.argmax(func_val)]
+                suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+
+                Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+                C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+
+                bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+                func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+
+                func_val_true = func_val_true_GP_recommended
+
+                if self.compute_OC:
+                    self.true_best_value()
+                    optimum = np.max(self.true_best_stats["true_best"])
+                else:
+                    optimum = np.array([0]).reshape(-1)
+                self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
+                self.underlying_optimum.append(optimum.reshape(-1))
+                self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
+
+                self.recommended_value_GP_mean.append(np.max(func_val_true).reshape(-1))
+                self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true))
+                return 0
+
+            else: #KG_dynamic_optimisation:
+
+                self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
+                out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
+                                                          additional_anchor_points = self.X[7:, :] ,num_samples=1000)
+
+                suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
+                suggested_final_mean_GP_recommended = -out[1]
+
+                Y = self.model.posterior_mean(self.X)
+                pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+                func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+
+                print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
+                print(" np.array(pf).reshape(-1)", np.array(pf).reshape(-1))
+                print("func_val",func_val)
+
+                suggested_final_historical_sample = self.X[np.argmax(func_val)]
+                suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+                suggested_final_mean_historical_sample = np.array(np.max(func_val)).reshape(-1)
+
+                if suggested_final_mean_GP_recommended.reshape(-1) < np.array(
+                        suggested_final_mean_historical_sample).reshape(-1):
+
+                    Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+                    C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+
+                else:
+                    Y_true, _ = self.objective.evaluate(suggested_final_sample_GP_recommended, true_val=True)
+                    C_true, _ = self.constraint.evaluate(suggested_final_sample_GP_recommended, true_val=True)
+
+                bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+                func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+                func_val_true_GP_mean = func_val_true_GP_recommended
+
+                if self.compute_OC:
+                    self.true_best_value()
+                    optimum = np.max(self.true_best_stats["true_best"])
+                else:
+                    optimum = np.array([0]).reshape(-1)
+                self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
+                print("best posterior mean")
+                print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
+                print("best sample found from Posterior GP val",  -out[1], "best sample historical val",suggested_final_mean_historical_sample)
+
+                print("OC", optimum - np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
+                      np.max(func_val_true_GP_mean))
+
+                self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true_GP_mean))
+
+                #Saving original variables
+                # self.original_X = self.X.copy()
+                # self.original_Y = self.Y.copy()
+                # self.original_C = self.C.copy()
+                #
+                # out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
+                # self.suggested_sample = self.space.zip_inputs(out[0])
+                # self.X = np.vstack((self.X, self.suggested_sample))
+                #
+                # self.evaluate_objective()
+                # self._update_model()
+                #
+                Y = self.model.posterior_mean(self.X)
+                pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
+                func_val = np.array(Y).reshape(-1) * np.array(pf).reshape(-1)
+                suggested_final_historical_sample = self.X[np.argmax(func_val)]
+                suggested_final_historical_sample = np.array(suggested_final_historical_sample).reshape(1, -1)
+                #
+                Y_true, _ = self.objective.evaluate(suggested_final_historical_sample, true_val=True)
+                C_true, _ = self.constraint.evaluate(suggested_final_historical_sample, true_val=True)
+                #
+                bool_C_true = np.product(np.concatenate(C_true, axis=1) < 0, axis=1)
+                func_val_true_GP_recommended = Y_true * bool_C_true.reshape(-1, 1)
+                func_val_true_sampled = func_val_true_GP_recommended
+                #
+                if self.compute_OC:
+                    self.true_best_value()
+                    optimum = np.max(self.true_best_stats["true_best"])
+                else:
+                    optimum = np.array([0]).reshape(-1)
+                self.recommended_value_sampled.append([0])
+                self.underlying_optimum.append([0])
+                self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
+
+            #     print("sampled OC")
+            #     print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
+            #     print("OC", optimum - np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
+            #           np.max(func_val_true_sampled))
+            #
+            #  # Y_true * bool_C_true.reshape(-1, 1)
+            #
+            # # print("func_val_true",func_val_true)
+            # self.X = self.original_X.copy()
+            # self.Y = self.original_Y.copy()
+            # self.C = self.original_C.copy()
+            # self._update_model()
+
+            return 0
 
     def aggregated_posterior(self, X):
         mu = self.model.posterior_mean(X)

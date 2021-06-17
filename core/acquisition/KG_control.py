@@ -15,7 +15,8 @@ import argparse
 
 #RERUN THESE RESULTS
 
-from test_func_2_TS import function_caller_test_func_2_TS as f1
+# from test_func_2_TS import function_caller_test_func_2_TS as f1
+from test_func_2_hybrid_cKG_experiment_v2 import function_caller_penalised_test_func_2 as f1
 from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
 from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
