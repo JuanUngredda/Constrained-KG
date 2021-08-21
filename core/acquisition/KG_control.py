@@ -16,9 +16,12 @@ import argparse
 #RERUN THESE RESULTS
 
 # from test_func_2_TS import function_caller_test_func_2_TS as f1
-from test_func_2_hybrid_cKG_experiment_v2 import function_caller_penalised_test_func_2 as f1
-from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
-from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
+# from test_func_2_hybrid_cKG_experiment_v2 import function_caller_penalised_test_func_2 as f1
+# from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
+# from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
+
+from LunarLander_EI import function_caller_NN_EI as f1
+
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -59,7 +62,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [ f1, f2, f3 ]
+    functions = [f1]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)

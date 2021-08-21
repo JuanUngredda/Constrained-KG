@@ -18,7 +18,6 @@ import os
 def function_caller_NN_EI(rep):
 
 
-
     np.random.seed(rep)
     m_terrains = 10
 
