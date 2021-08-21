@@ -13,10 +13,12 @@ from GPyOpt.DM.inference import inf
 from GPyOpt.experiment_design import initial_design
 from GPyOpt.util.general import best_value
 from GPyOpt.util.duplicate_manager import DuplicateManager
+import pandas as pd
 from GPyOpt.core.errors import InvalidConfigError
 from GPyOpt.core.task.cost import CostModel
 from GPyOpt.optimization.acquisition_optimizer import ContextManager
 from scipy.stats import norm
+import os
 try:
     from GPyOpt.plotting.plots_bo import plot_acquisition, plot_convergence
 except:
@@ -121,7 +123,7 @@ class BO(object):
     #     return argmax
     #
     #
-    def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, evaluations_file = None):
+    def run_optimization(self, max_iter = 1, max_time = np.inf,  eps = 1e-8, context = None, verbosity=False, evaluations_file = None,path = None, rep=None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -140,8 +142,8 @@ class BO(object):
         self.verbosity = verbosity
         self.evaluations_file = evaluations_file
         self.context = context
-    
-                
+
+        self.path = path
         # --- Setting up stop conditions
         self.eps = eps
         if  (max_iter is None) and (max_time is None):
@@ -178,7 +180,7 @@ class BO(object):
         self.Y_new = self.Y
         self.Opportunity_Cost = []
         value_so_far = []
-
+        self.n_init = self.X.shape[0]
         # --- Initialize time cost of the evaluations
         print("-----------------------MAIN LOOP STARTS----------------------")
         Opportunity_Cost = []
@@ -244,6 +246,26 @@ class BO(object):
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
 
+            C_bool = np.product(np.concatenate(self.C , axis=1) < 0, axis=1)
+            data = {}
+
+            data["Y"] = np.array(self.Y).reshape(-1)
+            data["C"] = np.array(self.C).reshape(-1)
+            data["C_bool"] = np.array(C_bool).reshape(-1)
+            data["OC"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost).reshape(-1)))
+
+
+            gen_file = pd.DataFrame.from_dict(data)
+            folder = "RESULTS"
+            subfolder = self.evaluations_file
+            cwd = os.getcwd()
+
+            path =self.path
+            if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
+                os.makedirs(cwd + "/" + folder + "/" + subfolder)
+            print("path", path)
+            gen_file.to_csv(path_or_buf=path)
+            np.savetxt(cwd + "/" + folder + "/" + subfolder+"/X_"+str(rep)+".csv", self.X, delimiter=',')
             print("X", self.X,"Y", self.Y, "C", self.C, "OC", self.Opportunity_Cost)
 
             # --- Update current evaluation time and function evaluations

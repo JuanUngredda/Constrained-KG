@@ -46,7 +46,7 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 50
+    init_num_samples = 10
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
@@ -57,30 +57,16 @@ def function_caller_NN_EI(rep):
 
     max_iter  = 1000
     # print("Finished Initialization")
-    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False)
+
+    subfolder = "LunarLander_cEI"
+    folder = "RESULTS"
+    cwd = os.getcwd()
+    path = cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
+
+    X, Y, C, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,
+                                                    evaluations_file=subfolder, rep=rep)
     print("Code Ended")
 
-    C_bool = np.product(np.concatenate(C, axis=1) < 0, axis=1)
-    data = {}
-    print("C",C)
-    print("np.array(Opportunity_cost).reshape(-1)",np.array(Opportunity_cost).reshape(-1))
-    print("np.array(Y).reshape(-1)",np.array(Y).reshape(-1))
-    print("np.array(C_bool).reshape(-1)",np.array(C_bool).reshape(-1))
-    data["Opportunity_cost"] = np.concatenate((np.zeros(init_num_samples), np.array(Opportunity_cost).reshape(-1)))
-    data["Y"] = np.array(Y).reshape(-1)
-    data["C_bool"] = np.array(C_bool).reshape(-1)
-
-    gen_file = pd.DataFrame.from_dict(data)
-    folder = "RESULTS"
-    subfolder = "LunarLander_EI"
-    cwd = os.getcwd()
-
-    path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
-
-    if os.path.isdir(cwd + "/" + folder +"/"+ subfolder) == False:
-        os.makedirs(cwd + "/" + folder +"/"+ subfolder)
-
-    gen_file.to_csv(path_or_buf=path)
 
     print("X",X,"Y",Y, "C", C)
 
