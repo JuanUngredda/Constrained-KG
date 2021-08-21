@@ -46,7 +46,7 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 10
+    init_num_samples = 50
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
