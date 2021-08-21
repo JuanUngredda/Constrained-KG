@@ -55,12 +55,17 @@ def function_caller_new_branin_v2(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz = 60 # (n_c+1)
+        nz = 20 # (n_c+1)
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
 
+        Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition=Last_Step_acq,
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 9, 7)  # year month day hour
@@ -77,6 +82,6 @@ def function_caller_new_branin_v2(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_new_branin_v2(rep=4)
+function_caller_new_branin_v2(rep=4)
 
 

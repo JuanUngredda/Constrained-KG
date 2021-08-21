@@ -75,6 +75,6 @@ def function_caller_new_branin_current_step(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_new_branin_current_step(rep=4)
+function_caller_new_branin_current_step(rep=4)
 
 

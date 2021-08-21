@@ -73,7 +73,7 @@ def function_caller_branin_cEI(rep):
 
         print("X", X, "Y", Y, "C", C)
 
-# function_caller_mistery_TS(rep=21)
+function_caller_branin_cEI(rep=21)
 # for i in range(40):
 # function_caller_branin_cEI(rep=21)
 

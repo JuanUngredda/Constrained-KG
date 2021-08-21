@@ -259,9 +259,11 @@ def function_caller_branin_nEI(rep):
                 objective=constrained_obj
                 )
 
-
+            start = time.time()
             last_x_nei, last_obj_nei, last_con_nei = optimize_acqf_and_get_observation(Last_Step, diagnostics = False)
-
+            stop =time.time()
+            print("Time: ", stop-start)
+            raise
             # update progress
             value_recommended_design_GP = weighted_obj(last_x_nei)
             best_value_GP = np.array(value_recommended_design_GP).reshape(-1)
@@ -300,8 +302,6 @@ def function_caller_branin_nEI(rep):
                 os.makedirs(cwd + "/" + folder +"/"+ subfolder)
 
             gen_file.to_csv(path_or_buf=path)
-
-
 
 function_caller_branin_nEI(rep=1)
 

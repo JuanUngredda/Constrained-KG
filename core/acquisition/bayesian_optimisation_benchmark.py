@@ -245,6 +245,7 @@ class BO(object):
             self.evaluate_objective()
 
             print("X", self.X,"Y", self.Y, "C", self.C, "OC", self.Opportunity_Cost)
+
             # --- Update current evaluation time and function evaluations
             self.cum_time = time.time() - self.time_zero
             self.num_acquisitions += 1

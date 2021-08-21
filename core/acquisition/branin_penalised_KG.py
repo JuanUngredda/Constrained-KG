@@ -58,8 +58,16 @@ def function_caller_new_branin_pKG(rep):
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
+
+        Last_Step_acq = EI(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+        last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
+
+        evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                ls_evaluator=last_step_evaluator,
+                ls_acquisition=Last_Step_acq,
                 deterministic=False)
+
 
 
         max_iter  = 100
@@ -76,6 +84,6 @@ def function_caller_new_branin_pKG(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_new_branin_pKG(rep=28)
+function_caller_new_branin_pKG(rep=28)
 
 

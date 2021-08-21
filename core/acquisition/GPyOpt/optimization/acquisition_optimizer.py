@@ -55,7 +55,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=500,optimizer_type=None, **kwargs):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=5000,optimizer_type=None, **kwargs):
         """
         Optimizes the input function.
 
@@ -102,32 +102,29 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-            if False:#('dynamic_parameter_function' in self.kwargs): #
-                print("random sampling failed, changed to feasable sols")
 
-                feasable_samples = self.generate_points_pf(N=1000)
-                # print("feasable_samples",feasable_samples.shape)
-                scores = f(feasable_samples)
-                # plt.scatter(feasable_samples.reshape(-1),-scores.reshape(-1) )
-                # plt.show()
-                # raise
-                num_anchor = 3
-                anchor_points = feasable_samples[np.argsort(scores)[:min(len(scores), num_anchor)], :]
 
-                anchor_points_ls = self.optimize_final_evaluation()
-                anchor_points = np.concatenate((anchor_points, anchor_points_ls))
+            anchor_points = anchor_points_generator.get(num_anchor=3, X_sampled_values=self.model.get_X_values(),
+                                                        duplicate_manager=duplicate_manager,
+                                                        context_manager=self.context_manager)
+            anchor_points_ls = self.optimize_final_evaluation()
+            anchor_points = np.concatenate((anchor_points, anchor_points_ls))
 
-                # anchor_points_vals = np.sort(scores)[:min(len(scores), num_anchor)]
+            sampled_X_vals = self.model.get_X_values()
+            sampled_Y_vals_pred = self.model.predict(sampled_X_vals)[0]
+            pf = self.probability_feasibility_multi_gp(sampled_X_vals, self.model_c).reshape(-1)
+            best_sampled_X_idx = np.argmax(sampled_Y_vals_pred*pf)
+            best_sampled_X = sampled_X_vals[best_sampled_X_idx]
 
-            else:
 
-                anchor_points = anchor_points_generator.get(num_anchor=3, X_sampled_values=self.model.get_X_values(),
-                                                            duplicate_manager=duplicate_manager,
-                                                            context_manager=self.context_manager)
-                anchor_points_ls = self.optimize_final_evaluation()
-                anchor_points = np.concatenate((anchor_points, anchor_points_ls))
-                # anchor_points = np.concatenate((anchor_points, np.array([[1e-3, 0.3, 0.3,0.3, 5,5,5]])))
-                print("anchor_points ",anchor_points )
+            # print("best_sampled_X",best_sampled_X, "max", np.max(sampled_Y_vals_pred*pf))
+            anchor_points = np.concatenate((np.atleast_2d(best_sampled_X) , anchor_points))
+
+            best_sampled_X_idx_unconstrained = np.argmax(sampled_Y_vals_pred)
+            best_sampled_X_unconstrained = sampled_X_vals[best_sampled_X_idx_unconstrained]
+            anchor_points = np.concatenate((np.atleast_2d(best_sampled_X_unconstrained), anchor_points))
+            print("anchor_points ",anchor_points )
+
                 # anchor_points_vals = f(anchor_points)
             # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
             if False: #True: #p.sum(anchor_points_vals)==0:
@@ -194,7 +191,7 @@ class AcquisitionOptimizer(object):
         print("optimised points", optimized_points)
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
         self.outer_anchor_points = x_min
-
+        print("acq val: ", x_min, fx_min)
         if np.sum(fx_min) == 0:
             if 'dynamic_parameter_function' in self.kwargs:
                 self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
@@ -211,6 +208,7 @@ class AcquisitionOptimizer(object):
                 x_min, fx_min = min(optimized_points, key=lambda t: t[1])
                 print(" x_min, fx_min", x_min, fx_min)
             return x_min, fx_min
+
 
         return x_min, fx_min
 

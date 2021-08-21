@@ -192,7 +192,7 @@ class BO(object):
 
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
-
+            raise
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
