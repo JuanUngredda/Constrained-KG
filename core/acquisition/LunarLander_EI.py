@@ -36,8 +36,8 @@ def function_caller_NN_EI(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var', 'type': 'continuous', 'domain': (0.0,2)}]*input_size)#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-06]*n_f, exact_feval=[True]*n_f)
-    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-06]*n_c, exact_feval=[True]*n_c)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-04]*n_f, exact_feval=[True]*n_f)
+    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-04]*n_c, exact_feval=[True]*n_c)
 
 
     # --- Aquisition optimizer
@@ -46,14 +46,27 @@ def function_caller_NN_EI(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 50
+    init_num_samples = 5
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 1
     acquisition = EI(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
-    bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design, expensive=True)
 
+    path_saved_X = os.path.dirname(os.path.abspath(__file__)) + "/checkpoint_sampled_values/lunarlander_CEI/X_"+str(rep)+".csv"
+    path_saved_Y =os.path.dirname(os.path.abspath(__file__))+ "/checkpoint_sampled_values/lunarlander_CEI/it_" + str(rep) + ".csv"
+
+    print("path_saved_X",path_saved_X)
+    print("path_saved_Y",path_saved_Y)
+    if os.path.isfile(path_saved_X) and os.path.isfile(path_saved_Y):
+        X_init = np.array(np.loadtxt(path_saved_X , delimiter=","))
+        Y_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["Y"]).T]
+        C_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["C"]).T]
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator,
+                X_init = X_init , Y_init=Y_init, C_init=C_init,  expensive=True)
+    else:
+        bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
+                expensive=True)
 
     max_iter  = 1000
     # print("Finished Initialization")
@@ -71,6 +84,6 @@ def function_caller_NN_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_NN_EI(1)
+function_caller_NN_EI(1)
 
 
