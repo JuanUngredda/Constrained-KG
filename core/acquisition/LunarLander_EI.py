@@ -59,11 +59,14 @@ def function_caller_NN_EI(rep):
     print("path_saved_X",path_saved_X)
     print("path_saved_Y",path_saved_Y)
     if os.path.isfile(path_saved_X) and os.path.isfile(path_saved_Y):
-        if rep==8:
-            raise
+
         X_init = np.array(np.loadtxt(path_saved_X , delimiter=","))
         Y_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["Y"]).T]
         C_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["C"]).T]
+
+        print("X_init",X_init.shape)
+        if X_init.shape[0]>1049:
+            raise
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator,
                 X_init = X_init , Y_init=Y_init, C_init=C_init,  expensive=True)
     else:
@@ -86,6 +89,6 @@ def function_caller_NN_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_NN_EI(1)
+function_caller_NN_EI(0)
 
 
