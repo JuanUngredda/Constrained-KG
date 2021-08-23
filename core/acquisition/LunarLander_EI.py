@@ -89,6 +89,6 @@ def function_caller_NN_EI(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_NN_EI(0)
+# function_caller_NN_EI(0)
 
 
