@@ -53,8 +53,8 @@ def function_caller_TS(rep):
     acquisition = TS(model=model_f, model_c=model_c , nz = nz,space=space, optimizer = acq_opt)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
 
-    path_saved_X = os.path.dirname(os.path.abspath(__file__)) + "/checkpoint_sampled_values/lunarlander_TS/X_"+str(rep)+".csv"
-    path_saved_Y =os.path.dirname(os.path.abspath(__file__))+ "/checkpoint_sampled_values/lunarlander_TS/it_" + str(rep) + ".csv"
+    path_saved_X = os.path.dirname(os.path.abspath(__file__)) + "/checkpoint_sampled_values/LunarLander_TS/X_"+str(rep)+".csv"
+    path_saved_Y =os.path.dirname(os.path.abspath(__file__))+ "/checkpoint_sampled_values/LunarLander_TS/it_" + str(rep) + ".csv"
 
     print("path_saved_X",path_saved_X)
     print("path_saved_Y",path_saved_Y)
@@ -68,6 +68,7 @@ def function_caller_TS(rep):
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator,
                 X_init = X_init , Y_init=Y_init, C_init=C_init,  expensive=True)
     else:
+
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
                 expensive=True)
 
