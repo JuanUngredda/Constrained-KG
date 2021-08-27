@@ -323,6 +323,53 @@ class gradients(object):
 
             return Fz
 
+    def compute_probability_feasibility_multi_gp_xopt(self, xopt, l=0, gradient_flag = False):
+
+        if gradient_flag:
+            Fz = []
+            grad_Fz = []
+            l = 0
+
+            for m in range(self.model.output_dim):
+
+                mean = self.compute_value_mu_xopt(xopt=xopt, m=m)
+                cov = self.compute_posterior_var_xopt(x=xopt, m=m)
+                Fz_aux = self.compute_probability_feasibility(xopt, self.model.output[m], mean,  cov, l)
+                grad_Fz_aux = self.compute_gradient_probability_feasibility_xopt(xopt, self.model.output[m], mean, cov, m=m)
+                grad_Fz.append(grad_Fz_aux)
+                Fz.append(Fz_aux)
+            # print("grad_Fz",grad_Fz)
+            # print("Fz", Fz)
+
+
+            if len(np.array(Fz).reshape(-1)) == 1:
+                return Fz, np.array(grad_Fz).reshape(-1)
+            else:
+                Fz_aux = np.product(Fz, axis=0)
+                Fz = np.array(Fz).reshape(-1)
+                grad_Fz = np.vstack(grad_Fz)
+
+                grad_Fz = self.product_gradient_rule(func=np.array(Fz).reshape(-1), grad=np.array(grad_Fz))
+
+                grad_Fz = np.array(grad_Fz).reshape(-1)
+
+                # print("grad_Fz",grad_Fz)
+                return Fz_aux, grad_Fz.reshape(1, -1)
+        else:
+            Fz = []
+            # print("self.model.output_dim",self.model.output_dim)
+            for m in range(self.model.output_dim):
+                mean = self.compute_value_mu_xopt(xopt=xopt, m=m)
+                cov = self.compute_posterior_var_xopt(x=xopt, m=m)
+                Fz_aux = self.compute_probability_feasibility(xopt, self.model.output[m], mean,  cov, l)
+                Fz.append(Fz_aux)
+
+            # print("Fz", Fz)
+            Fz = np.product(Fz,axis=0)
+            Fz = np.array(Fz).reshape(-1)
+
+            return Fz
+
     def compute_probability_feasibility_multi_gp(self, x, l=0, gradient_flag = False):
 
         if gradient_flag:
@@ -372,6 +419,23 @@ class gradients(object):
                     Fz = np.atleast_2d(Fz).T
                 # print("Fz", Fz.shape)
             return Fz
+
+    def compute_probability_feasibility_each_gp(self, x):
+
+        computed_mean = self.compute_value_mu_xnew(x=x)
+        computed_var = self.compute_posterior_var_x_new(x=x)
+
+        if self.model.output_dim==1:
+            if len(computed_mean.shape)==2:
+                computed_mean = computed_mean[np.newaxis,:,:]
+                computed_var = computed_var[np.newaxis,:,:]
+            elif len(computed_mean.shape)==1:
+                computed_mean = computed_mean[np.newaxis,:]
+                computed_var = computed_var[np.newaxis,:]
+
+        Fz = self.compute_probability_feasibility(mean= computed_mean, cov=computed_var)
+
+        return Fz
 
 
     def compute_gradient_probability_feasibility_xopt(self, xopt , model, mean=None, var=None, m=None):

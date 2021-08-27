@@ -82,11 +82,11 @@ class AcquisitionOptimizer(object):
         else:
             self.optimizer = choose_optimizer(self.optimizer_name, self.context_manager.noncontext_bounds)
 
-        if 'dynamic_parameter_function' in self.kwargs:
-            print("setting fix discretisation for anchor points")
-            discretisation = initial_design("latin",self.space, 1000)#self.generate_points_pf(N=1000) #
-            self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
-                                            fixed_discretisation=discretisation)
+        # if 'dynamic_parameter_function' in self.kwargs:
+        #     print("setting fix discretisation for anchor points")
+        #     discretisation = initial_design("latin",self.space, 1000)#self.generate_points_pf(N=1000) #
+        #     self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
+        #                                     fixed_discretisation=discretisation)
 
 
         ## --- Selecting the anchor points and removing duplicates

@@ -97,7 +97,7 @@ class BO(object):
         return suggested_locations
     
 
-    def run_optimization(self, max_iter = 1, max_time = np.inf, compute_OC=True,stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None):
+    def run_optimization(self, max_iter = 1, max_time = np.inf, compute_OC=True,stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None, rep=None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -208,6 +208,7 @@ class BO(object):
             data["OC sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_sampled).reshape(-1)))
             data["OC GP mean"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_GP_mean).reshape(-1)))
             data["Y"] = np.array(self.Y).reshape(-1)
+            data["C"] = np.array(self.C).reshape(-1)
             data["C_bool"] = np.array(C_bool).reshape(-1)
             data["recommended_val_sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.recommended_value_sampled).reshape(-1)))
             data["recommended_val_GP"] = np.concatenate(
@@ -226,6 +227,9 @@ class BO(object):
                 os.makedirs(cwd + "/" + folder + "/" + subfolder)
             print("path", path)
             gen_file.to_csv(path_or_buf=path)
+
+            np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_" + str(rep) + ".csv", self.X, delimiter=',')
+            raise
             print("self.X, self.Y, self.C , OC sampled, OC GP mean",self.X, self.Y, self.C )
 
             print("OC GP", self.Opportunity_Cost_GP_mean)

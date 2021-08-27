@@ -69,18 +69,68 @@ class KG(AcquisitionBase):
         :param X: set of points at which the acquisition function is evaluated. Should be a 2d array.
         """
         # print("_compute_acq")
-        self.current_max ,_= self._compute_current_max()
-
+        self.update_current_best()
         X =np.atleast_2d(X)
         marginal_acqX = self._marginal_acq(X)
         KG = np.reshape(marginal_acqX, (X.shape[0],1))
         return KG
 
-    def generate_random_vectors(self, optimize_discretization=True, optimize_random_Z=False, fixed_discretisation=None):
+    # def generate_random_vectors(self,  optimize_discretization=True, optimize_random_Z=False,
+    #                             fixed_discretisation=None):
+    #
+    #     self.base_marg_points = 40
+    #     self.n_marginalisation_points = np.array([-2.64, -0.67, 0, 0.67, 2.64])
+    #     self.c_marginalisation_points = np.array([-2.64, 0, 2.64])
+    #
+    #     self.n_base_points = len(self.n_marginalisation_points)
+    #     self.optimise_discretisation = optimize_discretization
+    #
+    #     if optimize_random_Z:
+    #
+    #         clist = []
+    #         for j in range(self.dimc):
+    #             clist.append(self.c_marginalisation_points)
+    #         res = list(itertools.product(*clist))
+    #         list(res)
+    #         self.Z_cdKG = np.array(list(res))
+    #
+    #         alllist = []
+    #         alllist.append(self.n_marginalisation_points)
+    #         for j in range(self.dimc):
+    #             alllist.append(self.c_marginalisation_points)
+    #         res = list(itertools.product(*alllist))
+    #         list(res)
+    #
+    #         if np.array(list(res)).shape[0] > self.base_points_cap_size:
+    #             subset_pick = np.random.choice(range(np.array(list(res)).shape[0]), self.base_points_cap_size,
+    #                                            replace=False)
+    #             self.Z_obj = np.array(list(res))[subset_pick, :1]  # np.atleast_2d(self.n_marginalisation_points).T #
+    #             self.Z_const = np.array(list(res))[subset_pick, 1:]  # constraint_quantiles #
+    #         else:
+    #             self.Z_obj = np.array(list(res))[:, :1]  # np.atleast_2d(self.n_marginalisation_points).T #
+    #             self.Z_const = np.array(list(res))[:, 1:]  # constraint_quantiles #
+    #
+    #     if fixed_discretisation is not None:
+    #         clist = []
+    #         for j in range(self.dimc):
+    #             clist.append(self.c_marginalisation_points)
+    #         res = list(itertools.product(*clist))
+    #         list(res)
+    #         self.Z_cdKG = np.array(
+    #             list(res))  # Pseudo-random number generation to compute expectation constrainted discrete kg
+    #         self.fixed_discretisation = True
+    #         self.fixed_discretisation_values = fixed_discretisation
+    #         self.X_Discretisation = fixed_discretisation
+    #     else:
+    #         self.fixed_discretisation = False
+    #
+    #         if optimize_discretization == True:
+    #             self.X_Discretisation = None
+    #
+    def generate_random_vectors(self, base_c_quantiles=None, optimize_discretization=True, optimize_random_Z=False, fixed_discretisation=None):
 
         self.base_marg_points = 40
         self.n_marginalisation_points = np.array([-2.64, -0.67, 0, 0.67, 2.64])
-        self.c_marginalisation_points = np.array([ -2.64,  0,  2.64])
 
 
         self.n_base_points = len(self.n_marginalisation_points)
@@ -88,25 +138,14 @@ class KG(AcquisitionBase):
 
         if optimize_random_Z:
 
-            # lhd = lhs(self.dim - 1, samples=len(self.n_marginalisation_points))  # ** dim)
-            # constraint_quantiles = norm(loc=0, scale=1).ppf(lhd)
-            # self.Z_cdKG = constraint_quantiles
-
-            clist = []
-            for j in range(self.dimc):
-                clist.append(self.c_marginalisation_points)
+            clist =  base_c_quantiles
             res = list(itertools.product(*clist))
             list(res)
             self.Z_cdKG = np.array(list(res))
 
-
-            alllist = []
-            alllist.append(self.n_marginalisation_points)
-            for j in range(self.dimc):
-                alllist.append(self.c_marginalisation_points)
+            alllist = [self.n_marginalisation_points] + base_c_quantiles
             res = list(itertools.product(*alllist))
-            list(res)
-
+            print("res", np.array(res).shape)
             if np.array(list(res)).shape[0]> self.base_points_cap_size:
                 subset_pick = np.random.choice(range(np.array(list(res)).shape[0]), self.base_points_cap_size, replace=False)
                 self.Z_obj = np.array(list(res))[subset_pick, :1] #np.atleast_2d(self.n_marginalisation_points).T #
@@ -161,10 +200,20 @@ class KG(AcquisitionBase):
             aux_obj = np.reciprocal(varX_obj[:, i])
             aux_c = np.reciprocal(varX_c[:, i])
 
+            quantiles = self.constraint_sensitivity_and_constraint_quantile_generation(aux_c=aux_c, xnew=x)
+            self.generate_random_vectors(base_c_quantiles=quantiles, optimize_discretization=True, optimize_random_Z=True,
+                                         fixed_discretisation=None)
+            raise
+
             #Create discretisation for discrete KG.
             if self.fixed_discretisation is False:
                 if self.optimise_discretisation:
                     print("optimise_discretisation", self.optimise_discretisation)
+
+                    quantiles = self.constraint_sensitivity_and_constraint_quantile_generation(X)
+
+                    raise
+                    self.generate_random_vectors( optimize_discretization=True, optimize_random_Z=True, fixed_discretisation=None)
                     self.X_Discretisation = self.Discretisation_X(index=i, X=X, aux_obj =aux_obj , aux_c =aux_c)
                     print("updated discretisation")
                     self.optimise_discretisation = False
@@ -172,6 +221,35 @@ class KG(AcquisitionBase):
             kg_val = self.discrete_KG(Xd = self.X_Discretisation , xnew = x, Zc=self.Z_cdKG, aux_obj =aux_obj , aux_c =aux_c )
             acqX[i,:] = kg_val
         return acqX.reshape(-1)
+
+    def constraint_sensitivity_and_constraint_quantile_generation(self, aux_c, xnew):
+
+        base_quantiles =  [np.array([ -2.64, 2.64])] * self.model_c.output_dim
+        base_quantiles = np.array(base_quantiles).T
+
+
+        x_inner = np.atleast_2d(self.current_max_xopt)
+        xnew = np.atleast_2d(xnew)
+        grad_c = gradients(x_new=xnew, model=self.model_c, Z=base_quantiles, aux=aux_c, X_inner=x_inner)
+
+        Fz = grad_c.compute_probability_feasibility_each_gp(x=x_inner)
+        Fz = np.squeeze(Fz)
+        if len(Fz.shape)==1:
+            Fz = np.atleast_2d(Fz).T
+
+        else:
+            Fz = Fz.T
+
+        delta = np.abs(Fz[0,:] - Fz[1,:])
+
+        quantiles = []
+        for d in delta:
+            if d<1e-3:
+                quantiles.append(np.array([0]))
+            else:
+                quantiles.append(np.array([ -2.64,  0,  2.64]))
+
+        return quantiles
 
     def Discretisation_X(self, index, X, aux_obj, aux_c):
         """
@@ -341,7 +419,6 @@ class KG(AcquisitionBase):
         # print("acqX",acqX)
 
         return acqX.reshape(-1), dacq_dX
-
 
     def discrete_KG(self, Xd, xnew, Zc, aux_obj, aux_c, grad=False, verbose=False):
         xnew = np.atleast_2d(xnew)
@@ -553,13 +630,13 @@ class KG(AcquisitionBase):
             mu = np.array(mu).reshape(-1)
             Fz = self.probability_feasibility_multi_gp(x=X_inner, model=self.model_c).reshape(-1)
             return -(mu * Fz).reshape(-1)
-        inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=current_func, f_df=None, num_samples=1000)
+        inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=current_func, f_df=None, num_samples=5000)
         inner_opt_x = np.array(inner_opt_x).reshape(-1)
         inner_opt_x = np.atleast_2d(inner_opt_x)
         return inner_opt_x,-inner_opt_val
 
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, l=0):
-        # print("model",model.output)
+
         x = np.atleast_2d(x)
 
         Fz = []
@@ -952,18 +1029,13 @@ class KG(AcquisitionBase):
     def probability_feasibility(self, x, model, l=0):
 
         model = model.model
-        # kern = model.kern
-        # X = model.X
+
         mean = model.posterior_mean(x)
         var = model.posterior_variance(x, noise=False)
-        # print("mean",mean,"var",var)
+
         std = np.sqrt(var).reshape(-1, 1)
-
         mean = mean.reshape(-1, 1)
-
         norm_dist = norm(mean, std)
-
-
         Fz = norm_dist.cdf(l)
 
         return Fz.reshape(-1, 1)

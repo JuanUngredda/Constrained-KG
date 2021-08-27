@@ -54,7 +54,7 @@ def function_caller_penalised_test_func_2(rep):
         #initial design
         initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-        nz = 60 # (n_c+1)
+        nz = 60
         acquisition = KG(model=model_f, model_c=model_c , space=space, nz=nz, optimizer = acq_opt)
 
         evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
@@ -81,6 +81,6 @@ def function_caller_penalised_test_func_2(rep):
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
 
-# function_caller_penalised_test_func_2(rep=4)
+function_caller_penalised_test_func_2(rep=4)
 
 
