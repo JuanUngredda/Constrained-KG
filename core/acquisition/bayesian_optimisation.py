@@ -192,7 +192,7 @@ class BO(object):
 
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
-            raise
+
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X, augment Y and update cost function (if needed)
             self.evaluate_objective()
@@ -229,7 +229,7 @@ class BO(object):
             gen_file.to_csv(path_or_buf=path)
 
             np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_" + str(rep) + ".csv", self.X, delimiter=',')
-            raise
+
             print("self.X, self.Y, self.C , OC sampled, OC GP mean",self.X, self.Y, self.C )
 
             print("OC GP", self.Opportunity_Cost_GP_mean)

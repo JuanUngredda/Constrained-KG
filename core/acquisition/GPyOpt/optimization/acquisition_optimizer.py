@@ -55,7 +55,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=5000,optimizer_type=None, **kwargs):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=1000,optimizer_type=None, **kwargs):
         """
         Optimizes the input function.
 
@@ -82,11 +82,12 @@ class AcquisitionOptimizer(object):
         else:
             self.optimizer = choose_optimizer(self.optimizer_name, self.context_manager.noncontext_bounds)
 
-        # if 'dynamic_parameter_function' in self.kwargs:
-        #     print("setting fix discretisation for anchor points")
-        #     discretisation = initial_design("latin",self.space, 1000)#self.generate_points_pf(N=1000) #
-        #     self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
-        #                                     fixed_discretisation=discretisation)
+        if 'dynamic_parameter_function' in self.kwargs:
+            print("setting fix discretisation for anchor points")
+
+            discretisation = initial_design("latin",self.space, num_samples)
+            self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
+                                            fixed_discretisation=discretisation)
 
 
         ## --- Selecting the anchor points and removing duplicates
@@ -102,9 +103,7 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-
-
-            anchor_points = anchor_points_generator.get(num_anchor=3, X_sampled_values=self.model.get_X_values(),
+            anchor_points = anchor_points_generator.get(num_anchor=2, X_sampled_values=self.model.get_X_values(),
                                                         duplicate_manager=duplicate_manager,
                                                         context_manager=self.context_manager)
             anchor_points_ls = self.optimize_final_evaluation()
@@ -120,34 +119,12 @@ class AcquisitionOptimizer(object):
             # print("best_sampled_X",best_sampled_X, "max", np.max(sampled_Y_vals_pred*pf))
             anchor_points = np.concatenate((np.atleast_2d(best_sampled_X) , anchor_points))
 
-            best_sampled_X_idx_unconstrained = np.argmax(sampled_Y_vals_pred)
-            best_sampled_X_unconstrained = sampled_X_vals[best_sampled_X_idx_unconstrained]
-            anchor_points = np.concatenate((np.atleast_2d(best_sampled_X_unconstrained), anchor_points))
-            print("anchor_points ",anchor_points )
-
-                # anchor_points_vals = f(anchor_points)
-            # print("anchor_points",anchor_points, "anchor_points_vals",anchor_points_vals)
-            if False: #True: #p.sum(anchor_points_vals)==0:
-                print("feasible points failed, changed to best posterior mean")
-                optimized_points = []
-                anchor_points_ls = self.optimize_final_evaluation()
-                for a in anchor_points_ls:
-                    if 'dynamic_parameter_function' in self.kwargs:
-
-                        self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
-                                                        fixed_discretisation=None)  # discretisation)
+            # best_sampled_X_idx_unconstrained = np.argmax(sampled_Y_vals_pred)
+            # best_sampled_X_unconstrained = sampled_X_vals[best_sampled_X_idx_unconstrained]
+            # anchor_points = np.concatenate((np.atleast_2d(best_sampled_X_unconstrained), anchor_points))
 
 
-                    optimised_anchor_point = apply_optimizer(self.optimizer, a.flatten(), f=f, df=None,
-                                                             f_df=f_df,
-                                                             duplicate_manager=duplicate_manager,
-                                                             context_manager=self.context_manager,
-                                                             space=self.space)
-                    optimized_points.append(optimised_anchor_point)
-                x_min, fx_min = min(optimized_points, key=lambda t: t[1])
-                print(" posterior best sample x_min, fx_min", x_min, fx_min)
 
-                # return x_min, fx_min
 
         ## --- Applying local optimizers at the anchor points and update bounds of the optimizer (according to the context)
 
@@ -164,17 +141,17 @@ class AcquisitionOptimizer(object):
 
                 if 'dynamic_parameter_function' in self.kwargs:
 
-                    self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=False,
-                                                    fixed_discretisation= discretisation)
-                # print("optimiser type", self.optimizer_name)
+                    self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
+                                                    fixed_discretisation= None)#discretisation)
 
                 optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,
                                                         duplicate_manager=duplicate_manager, context_manager=self.context_manager,
                                                      space = self.space)
 
                 optimized_points.append(optimised_anchor_point)
-            print("anchor_points",anchor_points)
-            print("optimised_anchor_point",optimized_points)
+            print("anchor_points",anchor_points,"len" ,len(anchor_points))
+            print("optimised_anchor_point",optimized_points, "len",len(optimized_points))
+
         else:
             if 'additional_anchor_points' in self.kwargs:
                 anchor_points = np.concatenate((anchor_points, kwargs["additional_anchor_points"]))

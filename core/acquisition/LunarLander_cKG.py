@@ -48,7 +48,7 @@ def function_caller_cKG(rep):
     #
     # # --- Initial design
     #initial design
-    init_num_samples = 5
+    init_num_samples = 50
     initial_design = GPyOpt.experiment_design.initial_design('latin', space, init_num_samples)
 
     nz = 60
@@ -58,8 +58,8 @@ def function_caller_cKG(rep):
     last_step_evaluator = GPyOpt.core.evaluators.Sequential(Last_Step_acq)
     evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
 
-    path_saved_X = os.path.dirname(os.path.abspath(__file__)) + "/checkpoint_sampled_values/LunarLander_TS/X_"+str(rep)+".csv"
-    path_saved_Y =os.path.dirname(os.path.abspath(__file__))+ "/checkpoint_sampled_values/LunarLander_TS/it_" + str(rep) + ".csv"
+    path_saved_X = os.path.dirname(os.path.abspath(__file__)) + "/checkpoint_sampled_values/LunarLander_cKG/X_"+str(rep)+".csv"
+    path_saved_Y =os.path.dirname(os.path.abspath(__file__))+ "/checkpoint_sampled_values/LunarLander_cKG/it_" + str(rep) + ".csv"
 
     print("path_saved_X",path_saved_X)
     print("path_saved_Y",path_saved_Y)
@@ -87,7 +87,7 @@ def function_caller_cKG(rep):
                 expensive=True)
 
     stop_date = datetime(9999, 5, 18, 7)  # year month day hour
-    max_iter = 50
+
     max_iter  = 700
     # print("Finished Initialization")
 
@@ -107,6 +107,6 @@ def function_caller_cKG(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-function_caller_cKG(0)
+# function_caller_cKG(0)
 
 
