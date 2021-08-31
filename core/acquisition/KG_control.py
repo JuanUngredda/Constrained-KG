@@ -20,8 +20,8 @@ import argparse
 # from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
 # from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
 
-from LunarLander_TS import function_caller_TS as f1
-
+# from LunarLander_TS import function_caller_TS as f1
+from LunarLander_cKG import function_caller_cKG as f1
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
