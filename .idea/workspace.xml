@@ -24,28 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/LunarLander_cKG.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/LunarLander_cKG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_0.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_0.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_1.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_2.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_3.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_3.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_4.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_4.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_5.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_6.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_6.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_7.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_7.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_8.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/X_8.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_0.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_0.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_1.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_2.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_3.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_3.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_4.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_4.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_5.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_6.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_6.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_7.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_7.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_8.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/checkpoint_sampled_values/LunarLander_TS/it_8.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -261,7 +239,7 @@
       <workItem from="1628524814476" duration="3223000" />
       <workItem from="1629495979934" duration="33000" />
       <workItem from="1629558530602" duration="29558000" />
-      <workItem from="1630421406275" duration="9339000" />
+      <workItem from="1630421406275" duration="10265000" />
     </task>
     <servers />
   </component>
