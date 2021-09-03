@@ -69,6 +69,7 @@ def function_caller_cKG(rep):
         Y_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["Y"]).T]
         C_init = [np.atleast_2d(pd.read_csv(path_saved_Y)["C"]).T]
 
+
         bo = BO(model_f, model_c, space, f, c, acquisition, evaluator,  X_init = X_init , Y_init=Y_init, C_init=C_init,
                 ls_evaluator=last_step_evaluator,
                 ls_acquisition = Last_Step_acq,
@@ -107,6 +108,6 @@ def function_caller_cKG(rep):
     print("X",X,"Y",Y, "C", C)
 
 
-# function_caller_cKG(0)
+
 
 
