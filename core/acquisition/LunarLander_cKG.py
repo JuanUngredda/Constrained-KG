@@ -19,7 +19,7 @@ import os
 
 def function_caller_cKG(rep):
 
-    rep = rep +1
+    rep = rep
     np.random.seed(rep)
     m_terrains = 10
 
