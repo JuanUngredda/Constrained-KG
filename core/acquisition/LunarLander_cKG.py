@@ -42,8 +42,8 @@ def function_caller_cKG(rep):
     space =  GPyOpt.Design_space(space =[{'name': 'var', 'type': 'continuous', 'domain': (0.0,2)}]*input_size)#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
     n_f = 1
     n_c = 1
-    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-04]*n_f, exact_feval=[True]*n_f)
-    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-04]*n_c, exact_feval=[True]*n_c)
+    model_f = multi_outputGP(output_dim = n_f,   noise_var=[1e-03]*n_f, exact_feval=[True]*n_f)
+    model_c = multi_outputGP(output_dim = n_c,  noise_var=[1e-03]*n_c, exact_feval=[True]*n_c)
 
 
     # --- Aquisition optimizer
