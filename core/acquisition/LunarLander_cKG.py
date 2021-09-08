@@ -17,9 +17,13 @@ import os
 #ALWAYS check cost in
 # --- Function to optimize
 
+dictval ={0: 1, 1: 10, 2: 2, 3: 3, 4: 5, 5: 6, 6: 8, 7: 9}
+
 def function_caller_cKG(rep):
 
-    rep = rep + 1
+
+    rep = dictval[rep]
+
     np.random.seed(rep)
     m_terrains = 10
 
@@ -107,6 +111,7 @@ def function_caller_cKG(rep):
 
     print("X",X,"Y",Y, "C", C)
 
+# function_caller_cKG(rep=1)
 
 
 
