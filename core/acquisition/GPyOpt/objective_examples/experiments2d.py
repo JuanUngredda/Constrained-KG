@@ -516,11 +516,12 @@ class mistery(function2d):
         term3 = (1 - x1) ** 2
         term4 = 2 * (2 - x2) ** 2
         term5 = 7 * np.sin(0.5 * x1) * np.sin(0.7 * x1 * x2)
-        fval = term1 + term2 + term3 + term4 + term5
+        fval = term1 + term2 + term3 + term4 + term5 - 20
         if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
             noise = np.random.normal(0, self.sd_obj, n).reshape(n, 1)
+
         # print("fval",-fval.reshape(-1, 1) + noise.reshape(-1, 1))
 
         return np.array(-(fval.reshape(n, 1) ) + noise.reshape(-1, 1)).reshape(-1)
@@ -538,7 +539,7 @@ class mistery(function2d):
         else:
             noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
 
-            print("signal", fval, "noise", noise)
+            # print("signal", fval, "noise", noise)
         return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def func_val(self, x):
@@ -641,13 +642,14 @@ class new_brannin(function2d):
         x1 = x[:, 0]
         x2 = x[:, 1]
         term1 = (x2 - (5.1/(4 * np.pi**2.0))*x1**2.0 + (5.0/np.pi)*x1 - 6)**2.0
-        term2 = 10 * (1 - (1.0/(8*np.pi)))*np.cos(x1)
+        term2 = 10 * (1 - (1.0/(8 * np.pi)))*np.cos(x1)
         term3 = 5
         fval = term1 + term2 + term3
         if self.sd_c == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
             noise = np.random.normal(0, self.sd_c, n).reshape(n, 1)
+
         return np.array(fval.reshape(n, 1) +  noise.reshape(-1, 1)).reshape(-1)
 
     def func_val(self, x):

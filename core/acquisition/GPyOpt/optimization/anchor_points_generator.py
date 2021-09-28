@@ -65,7 +65,7 @@ class AnchorPointsGenerator(object):
         # print("X", X.shape)
         scores = self.get_anchor_point_scores(X)
         # print("scores", scores.shape)
-
+        # print("num_anchor", num_anchor)
         anchor_points = X[np.argsort(scores)[:min(len(scores),num_anchor)], :]
         # print("anchor_points",anchor_points.shape)
         # raise

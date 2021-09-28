@@ -97,7 +97,17 @@ class BO(object):
         return suggested_locations
     
 
-    def run_optimization(self, max_iter = 1, max_time = np.inf, compute_OC=True,stop_date=None, eps = 1e-8, context = None, verbosity=False, path = None,KG_dynamic_optimisation=False, evaluations_file = None, rep=None):
+    def run_optimization(self, max_iter = 1,
+                         max_time = np.inf,
+                         compute_OC=True,
+                         stop_date=None,
+                         eps = 1e-8,
+                         context = None,
+                         verbosity=False,
+                         path = None,
+                         KG_dynamic_optimisation=False,
+                         evaluations_file = None,
+                         rep=None):
         """
         Runs Bayesian Optimization for a number 'max_iter' of iterations (after the initial exploration data)
 
@@ -173,6 +183,7 @@ class BO(object):
 
             self._update_model()
 
+
             self.optimize_final_evaluation(self.KG_dynamic_optimisation)
             print("maKG optimizer")
             start = time.time()
@@ -186,9 +197,23 @@ class BO(object):
 
             if verbosity:
                 print("self.suggested_sample", self.suggested_sample)
-                self.acquisition._plots(self.suggested_sample)
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 10000)
+                fvals, _ =self.objective.evaluate(initial_design)
+                cvals, _ =self.constraint.evaluate(initial_design)
+                cvalsbool = np.array(cvals).reshape(-1) < 0
+                fvals = np.array(fvals).reshape(-1)
 
+                plt.scatter(initial_design[:,0][cvalsbool], initial_design[:,1][cvalsbool], c=fvals[cvalsbool])
+                plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
+                plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
+                plt.show()
 
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)
+                acq_vals = self.acquisition._compute_acq(initial_design)
+
+                plt.title("acq")
+                plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
+                plt.show()
 
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
@@ -367,12 +392,13 @@ class BO(object):
             self.original_Y = self.Y.copy()
             self.original_C = self.C.copy()
 
-            out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
-            self.suggested_sample = self.space.zip_inputs(out[0])
-            self.X = np.vstack((self.X, self.suggested_sample))
+            if self.ls_evaluator is not None:
+                out = self.ls_evaluator.compute_batch(duplicate_manager=None, re_use=False, dynamic_optimisation=False)
+                self.suggested_sample = self.space.zip_inputs(out[0])
+                self.X = np.vstack((self.X, self.suggested_sample))
 
-            self.evaluate_objective()
-            self._update_model()
+                self.evaluate_objective()
+                self._update_model()
             #
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
             out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
@@ -411,6 +437,7 @@ class BO(object):
                 self.true_best_value()
                 optimum = np.max(self.true_best_stats["true_best"])
             else:
+
                 optimum = np.array([0]).reshape(-1)
             self.recommended_value_GP_mean.append(np.max(func_val_true_GP_mean).reshape(-1))
             print("best posterior mean")
@@ -419,10 +446,10 @@ class BO(object):
             print("best sample found from Posterior GP val", -out[1], "best sample historical val",
                   suggested_final_mean_historical_sample)
 
-            print("OC", optimum - np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
+            print("OC",  np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
                   np.max(func_val_true_GP_mean))
 
-            self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true_GP_mean))
+            self.Opportunity_Cost_GP_mean.append(np.max(func_val_true_GP_mean))
 
 
             Y = self.model.posterior_mean(self.X)
@@ -444,15 +471,15 @@ class BO(object):
             else:
                 optimum = np.array([0]).reshape(-1)
             self.recommended_value_sampled.append([0])
-            self.underlying_optimum.append([0])
-            self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
+            self.underlying_optimum.append([optimum])
+            self.Opportunity_Cost_sampled.append(np.max(func_val_true_sampled))
 
             print("sampled OC")
             print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))
-            print("OC", optimum - np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
+            print("OC", np.max(func_val_true_sampled), "optimum", optimum, "func_val recommended",
                   np.max(func_val_true_sampled))
 
-
+            # raise
             self.X = self.original_X.copy()
             self.Y = self.original_Y.copy()
             self.C = self.original_C.copy()
@@ -482,10 +509,10 @@ class BO(object):
                     optimum = np.array([0]).reshape(-1)
                 self.recommended_value_sampled.append(np.max(func_val_true).reshape(-1))
                 self.underlying_optimum.append(optimum.reshape(-1))
-                self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true))
+                self.Opportunity_Cost_sampled.append( np.max(func_val_true))
 
                 self.recommended_value_GP_mean.append(np.max(func_val_true).reshape(-1))
-                self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true))
+                self.Opportunity_Cost_GP_mean.append( np.max(func_val_true))
                 return 0
 
             else: #KG_dynamic_optimisation:
@@ -533,10 +560,10 @@ class BO(object):
                 print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",suggested_final_historical_sample)
                 print("best sample found from Posterior GP val",  -out[1], "best sample historical val",suggested_final_mean_historical_sample)
 
-                print("OC", optimum - np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
+                print("OC", np.max(func_val_true_GP_mean), "optimum", optimum, "func_val recommended",
                       np.max(func_val_true_GP_mean))
 
-                self.Opportunity_Cost_GP_mean.append(optimum - np.max(func_val_true_GP_mean))
+                self.Opportunity_Cost_GP_mean.append(np.max(func_val_true_GP_mean))
 
                 #Saving original variables
                 # self.original_X = self.X.copy()
@@ -565,12 +592,13 @@ class BO(object):
                 #
                 if self.compute_OC:
                     self.true_best_value()
+                    print(self.true_best_stats["true_best"])
                     optimum = np.max(self.true_best_stats["true_best"])
                 else:
                     optimum = np.array([0]).reshape(-1)
                 self.recommended_value_sampled.append([0])
                 self.underlying_optimum.append([0])
-                self.Opportunity_Cost_sampled.append(optimum - np.max(func_val_true_sampled))
+                self.Opportunity_Cost_sampled.append( np.max(func_val_true_sampled))
 
             #     print("sampled OC")
             #     print("best sample found from Posterior GP sample",  out[0], "best sample historical sample",np.max(func_val_true_sampled).reshape(-1))

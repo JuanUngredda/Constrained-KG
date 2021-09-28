@@ -22,7 +22,9 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="" />
+    <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -57,7 +59,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Gitlab_projects/warwick-ofsted-ey-model" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ParEGO_Last_Step" />
     <property name="settings.editor.selected.configurable" value="preferences.toDoOptions" />
   </component>
   <component name="RecentsManager">
@@ -238,6 +240,9 @@
       <workItem from="1629495979934" duration="33000" />
       <workItem from="1629558530602" duration="29558000" />
       <workItem from="1630421406275" duration="10532000" />
+      <workItem from="1631145402840" duration="4361000" />
+      <workItem from="1631527874995" duration="994000" />
+      <workItem from="1631701673228" duration="16000" />
     </task>
     <servers />
   </component>

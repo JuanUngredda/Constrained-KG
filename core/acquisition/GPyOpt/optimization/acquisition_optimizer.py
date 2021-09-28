@@ -55,7 +55,7 @@ class AcquisitionOptimizer(object):
         self.context_manager = ContextManager(space)
 
 
-    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=1000,optimizer_type=None, **kwargs):
+    def optimize(self, f=None, df=None, f_df=None, duplicate_manager=None, re_use=False ,num_samples=50,optimizer_type=None, **kwargs):
         """
         Optimizes the input function.
 
@@ -103,7 +103,7 @@ class AcquisitionOptimizer(object):
             anchor_points = self.old_anchor_points
         else:
 
-            anchor_points = anchor_points_generator.get(num_anchor=2, X_sampled_values=self.model.get_X_values(),
+            anchor_points = anchor_points_generator.get(num_anchor=1, X_sampled_values=self.model.get_X_values(),
                                                         duplicate_manager=duplicate_manager,
                                                         context_manager=self.context_manager)
             anchor_points_ls = self.optimize_final_evaluation()
