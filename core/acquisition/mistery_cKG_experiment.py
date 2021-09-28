@@ -20,11 +20,10 @@ print("mistery activate")
 def function_caller_mistery_v2(rep):
     # rep = rep + 20
     np.random.seed(rep)
-
     for noise in [1]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = (0.1) ** 2
+        noise_constraints = (np.sqrt(0.1)) ** 2
         mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
 
