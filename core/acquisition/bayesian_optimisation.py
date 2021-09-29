@@ -45,7 +45,11 @@ class BO(object):
     """
 
 
-    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator, X_init ,ls_evaluator=None, ls_acquisition=None, tag_last_evaluation  =True,expensive=False,Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1, deterministic=True,true_preference = 0.5):
+    def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator,
+                 X_init ,ls_evaluator=None, ls_acquisition=None, tag_last_evaluation  =True,expensive=False,
+                 Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1,
+                 deterministic=True,true_preference = 0.5):
+
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
