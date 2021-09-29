@@ -24,7 +24,7 @@ def function_caller_branin_v2(rep):
     for noise in [1]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = (1) ** 2
+        noise_constraints = (5) ** 2
         mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
 
@@ -78,13 +78,18 @@ def function_caller_branin_v2(rep):
 
         n_f = 1
         n_c = 1
-        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise_objective] * n_f, exact_feval=[False] * n_f)
-        model_c = multi_outputGP(output_dim=n_c, noise_var=[noise_constraints] * n_c, exact_feval=[False] * n_c)
+        model_f = multi_outputGP(output_dim=n_f, noise_var=[noise_objective] * n_f, exact_feval=[True] * n_f)
+        model_c = multi_outputGP(output_dim=n_c, noise_var=[noise_constraints] * n_c, exact_feval=[True] * n_c)
 
         # --- Aquisition optimizer
         #optimizer for inner acquisition function
         type_anchor_points_logic = "max_objective"
-        acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer="lbfgs",inner_optimizer='lbfgs',space=space, model=model_f, model_c=model_c,anchor_points_logic=type_anchor_points_logic)
+        acq_opt = GPyOpt.optimization.AcquisitionOptimizer(optimizer="lbfgs",
+                                                           inner_optimizer='lbfgs',
+                                                           space=space,
+                                                           model=model_f,
+                                                           model_c=model_c,
+                                                           anchor_points_logic=type_anchor_points_logic)
         #
         # # --- Initial design
         #initial design
@@ -106,7 +111,7 @@ def function_caller_branin_v2(rep):
         stop_date = datetime(2022, 5, 9, 7)  # year month day hour
         max_iter  = 100
         # print("Finished Initialization")
-        subfolder = "mistery_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+        subfolder = "branin_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
