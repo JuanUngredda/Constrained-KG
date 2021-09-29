@@ -24,7 +24,7 @@ def function_caller_branin_v2(it):
         for noise in [1]:
             # func2 = dropwave()
             noise_objective = noise
-            noise_constraints = (5) ** 2
+            noise_constraints = (1) ** 2
             mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
 
