@@ -26,9 +26,11 @@ import argparse
 # from mistery_cKG_experiment import function_caller_mistery_v2
 from branin_cKG_experiment import function_caller_branin_v2
 
-from branin_nEI import function_caller_branin_nEI
-from mistery_nEI import function_caller_mistery_nEI
+# from branin_nEI import function_caller_branin_nEI
+# from mistery_nEI import function_caller_mistery_nEI
 
+from branin_TS import function_caller_new_brannin_TS
+from mistery_experiment_TS import function_caller_mistery_TS
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -69,7 +71,7 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [function_caller_branin_nEI, function_caller_mistery_nEI]
+    functions = [function_caller_new_brannin_TS, function_caller_mistery_TS]
     # functions = [function_caller_NN_cKG]
     for func in functions:
         func(args.k)
