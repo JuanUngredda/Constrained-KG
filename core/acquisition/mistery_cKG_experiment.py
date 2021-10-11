@@ -106,7 +106,7 @@ def function_caller_mistery_v2(it):
             cwd = os.getcwd()
             path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
             X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,
-                                                                                      verbosity=True,
+                                                                                      verbosity=False,
                                                                                       path=path,
                                                                                       stop_date=stop_date,
                                                                                       compute_OC=True,
