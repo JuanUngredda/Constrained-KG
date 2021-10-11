@@ -494,6 +494,7 @@ class KG(AcquisitionBase):
             plt.plot(np.linspace(0,5,2), np.repeat(np.max(a), 2), color="red")
             plt.show()
             # raise
+
         if KG < -1e-5:
             print("KG cant be negative")
             print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",

@@ -437,6 +437,7 @@ class KG(AcquisitionBase):
         xnew = np.atleast_2d(xnew)
         # Xd = np.concatenate((Xd, self.fixed_discretisation_values))
         Xd = np.concatenate((Xd, xnew))
+        Xd = np.concatenate((Xd, self.current_max_xopt))
         self.grad = grad
         out = []
         grad_c = gradients(x_new=xnew, model=self.model_c, Z=Zc, aux=aux_c,
@@ -467,19 +468,26 @@ class KG(AcquisitionBase):
             VoI_current = MM_current*np.array(Fz_current[zc]).reshape(-1)
             KG = VoI_future - VoI_current
 
-            # if KG < -1e-5:
-            #     print("VoI_future",VoI_future)
-            #     print("VoI_current",VoI_current)
-            #     print("KG", KG)
-                # raise
+            try:
+                if KG < -1e-5:
+                    print("max future", np.max(MM * np.array(Fz[:, zc]).reshape(-1)))
+                    print("MM current", MM_current*np.array(Fz_current[zc]).reshape(-1))
+                    print("VoI_future", VoI_future)
+                    print("VoI_current", VoI_current)
+                    print("KG", KG)
+                    raise
+            except:
+                print("KG", KG)
+                raise
             KG = np.clip(KG, 0, np.inf)
             marginal_KG.append(KG)
 
         out.append(marginal_KG)
-        if verbose:
-            print("Zc", np.array_split(Zc, 1))
-            print("marginal_KG",out)
-            print("KG_value",np.mean(out))
+        # if verbose:
+        #     print("Zc", np.array_split(Zc, 1))
+        #     print("marginal_KG",out)
+        #     print("KG_value",np.mean(out))
+
         KG_value = np.mean(out)
         # gradKG_value = np.mean(gradout, axis=?)
         assert ~np.isnan(KG_value);
@@ -520,8 +528,9 @@ class KG(AcquisitionBase):
 
         # ensure 1D
         a = np.atleast_1d(a.squeeze())
-        b = np.atleast_1d(b.squeeze()) - np.mean(b)
+        b = np.atleast_1d(b.squeeze()) #- np.mean(b)
         max_a_index = np.argmax(a)
+        maxa = np.max(a)
         n_elems = len(a)
 
         if np.all(np.abs(b) < 0.000000001):
@@ -537,6 +546,7 @@ class KG(AcquisitionBase):
         diff_b = b[1:] - b[:-1]
         keep = diff_b > threshold
         keep = np.concatenate([[True], keep])
+        keep[np.argmax(a)] = True
         order = order[keep]
         a = a[keep]
         b = b[keep]
@@ -576,27 +586,49 @@ class KG(AcquisitionBase):
         KG = np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))
         #KG -= np.max(a)
 
-        if verbose:
-            print("a_sorted ",a_sorted )
-            print("b_sorted", b_sorted)
-
-            print("current max",np.max(a) )
-            print("idz", idz)
-            print("a", a)
-            print("b", b)
-            plt.scatter(Xd.reshape(-1), np.array(self.c_MM[:, index]).reshape(-1))
-            plt.plot(np.linspace(0,5,2), np.repeat(np.max(a), 2), color="red")
-            plt.show()
-            # raise
-        if KG < -1e-5:
-            print("KG cant be negative")
-            print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",
-                  np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
-            print("self.bases_value[index]", np.max(a))
+        if KG - maxa <- 1e-5 :
+            print("x",x)
+            print("a",a )
+            print("b",b)
+            print("maxa",maxa)
             print("KG", KG)
-            raise
+            z_all = np.linspace(x[1], x[-2], 100)
+            for j in range(len(a)):
 
-        KG = np.clip(KG, 0, np.inf)
+                print(x[1], x[-2])
+                if x[j] <-30:
+                    z = np.linspace(-3, x[j+1], 3)
+                elif x[j+1] > 30:
+                    z = np.linspace(x[j], 3, 3)
+                else:
+                    z = np.linspace(x[j], x[j+1], 3)
+                mu_star = a.reshape(-1)[j] + b.reshape(-1)[j]*z
+                mu_star_all = a.reshape(-1)[j] + b.reshape(-1)[j]*z_all
+                plt.plot(z_all , mu_star_all, color="grey")
+                plt.plot(z, mu_star)
+            plt.show()
+            raise
+        # if verbose:
+        #     print("a_sorted ",a_sorted )
+        #     print("b_sorted", b_sorted)
+        #
+        #     print("current max",np.max(a) )
+        #     print("idz", idz)
+        #     print("a", a)
+        #     print("b", b)
+        #     plt.scatter(Xd.reshape(-1), np.array(self.c_MM[:, index]).reshape(-1))
+        #     plt.plot(np.linspace(0,5,2), np.repeat(np.max(a), 2), color="red")
+        #     plt.show()
+        #     # raise
+        # if KG < -1e-5:
+        #     print("KG cant be negative")
+        #     print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",
+        #           np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
+        #     print("self.bases_value[index]", np.max(a))
+        #     print("KG", KG)
+        #     raise
+        #
+        # KG = np.clip(KG, 0, np.inf)
 
         if np.isnan(KG):
             print("KG", KG)

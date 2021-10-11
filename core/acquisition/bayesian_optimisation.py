@@ -212,13 +212,13 @@ class BO(object):
                 plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
                 plt.show()
 
-                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 5000)
                 acq_vals = self.acquisition._compute_acq(initial_design)
 
                 plt.title("acq")
                 plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
                 plt.show()
-
+                # raise
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
 
