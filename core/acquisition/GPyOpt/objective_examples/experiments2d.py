@@ -516,7 +516,7 @@ class mistery(function2d):
         term3 = (1 - x1) ** 2
         term4 = 2 * (2 - x2) ** 2
         term5 = 7 * np.sin(0.5 * x1) * np.sin(0.7 * x1 * x2)
-        fval = term1 + term2 + term3 + term4 + term5 - 20
+        fval = term1 + term2 + term3 + term4 + term5 - 5
         if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
