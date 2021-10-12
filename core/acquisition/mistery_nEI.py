@@ -33,7 +33,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 dtype = torch.double
 
-def function_caller_mistery_nEI(it, verbose=False):
+def function_caller_mistery_nEI(it):
 
     repepetitions = [it, it + 20]
     for rep in repepetitions:
