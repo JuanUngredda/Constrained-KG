@@ -49,7 +49,7 @@ def function_caller_branin_nEI(it):
 
 
             problem_class = new_brannin_torch()#Noise Included in the loop
-            bounds = torch.tensor([[-5, 10], [0, 15.0] ], device=device, dtype=dtype)
+            bounds = torch.tensor([[-5, 0], [10, 15.0] ], device=device, dtype=dtype)
             input_dim = problem_class.input_dim
 
             def objective_function(X):
@@ -238,6 +238,20 @@ def function_caller_branin_nEI(it):
                 # optimize and get new observation
                 new_x_nei, new_obj_nei, new_con_nei = optimize_acqf_and_get_observation(qNEI)
 
+                if True:
+                    ub = bounds[1, :]
+                    lb = bounds[0, :]
+                    delta = ub - lb
+                    plot_data = torch.rand(1000, input_dim, device=device, dtype=dtype) * delta + lb
+                    value_recommended_design_GP = weighted_obj(plot_data)
+
+                    plt.scatter(np.array(plot_data[:,0]).reshape(-1),
+                                np.array(plot_data[:,1]).reshape(-1),
+                                c=np.array(value_recommended_design_GP).reshape(-1))
+                    plt.scatter(train_x_nei[:,0],train_x_nei[:,1], color="black" )
+                    plt.scatter(new_x_nei[:,0], new_x_nei[:,1], color="magenta")
+                    plt.show()
+
                 # update training points
                 train_x_nei = torch.cat([train_x_nei, new_x_nei])
                 train_obj_nei = torch.cat([train_obj_nei, new_obj_nei])
@@ -307,6 +321,6 @@ def function_caller_branin_nEI(it):
 
                 gen_file.to_csv(path_or_buf=path)
 
-# function_caller_branin_nEI(1)
+function_caller_branin_nEI(1)
 
 

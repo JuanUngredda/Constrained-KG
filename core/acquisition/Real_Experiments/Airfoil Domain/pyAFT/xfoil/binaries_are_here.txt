@@ -1,0 +1,2 @@
+precompiled mac and unix (headless) binaries @
+https://drive.google.com/open?id=1eI0EObX7O90L_x9PwPydvI7Ko3O16kzN

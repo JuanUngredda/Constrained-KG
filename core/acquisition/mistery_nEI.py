@@ -33,7 +33,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 dtype = torch.double
 
-def function_caller_mistery_nEI(it):
+def function_caller_mistery_nEI(it, verbose=False):
 
     repepetitions = [it, it + 20]
     for rep in repepetitions:
@@ -256,6 +256,21 @@ def function_caller_mistery_nEI(it):
                 # optimize and get new observation
                 new_x_nei, new_obj_nei, new_con_nei = optimize_acqf_and_get_observation(qNEI)
 
+
+                # if verbose:
+                #     ub = bounds[1, :]
+                #     lb = bounds[0, :]
+                #     delta = ub - lb
+                #     plot_data = torch.rand(1000, input_dim, device=device, dtype=dtype) * delta + lb
+                #     value_recommended_design_GP = weighted_obj(plot_data)
+                #
+                #     plt.scatter(np.array(plot_data[:,0]).reshape(-1),
+                #                 np.array(plot_data[:,1]).reshape(-1),
+                #                 c=np.array(value_recommended_design_GP).reshape(-1))
+                #     plt.scatter(train_x_nei[:,0],train_x_nei[:,1], color="black" )
+                #     plt.scatter(new_x_nei[:,0], new_x_nei[:,1], color="magenta")
+                #     plt.show()
+
                 # update training points
                 train_x_nei = torch.cat([train_x_nei, new_x_nei])
                 train_obj_nei = torch.cat([train_obj_nei, new_obj_nei])
@@ -313,7 +328,7 @@ def function_caller_mistery_nEI(it):
 
                 gen_file = pd.DataFrame.from_dict(data)
                 folder = "RESULTS"
-                subfolder = "mistery_nEI_n_obj_" + str(NOISE_SE) + "_n_c_" + str(NOISE_SE_constraint)
+                subfolder = "mistery_nEI_n_obj_" + str(NOISE_SE) + "_n_c_" + str(NOISE_SE_constraint**2)
                 cwd = os.getcwd()
                 path = cwd + "/" + folder +"/"+ subfolder +'/it_' + str(rep)+ '.csv'
                 print("directory results: ", cwd + "/" + folder + "/" + subfolder)
@@ -325,6 +340,6 @@ def function_caller_mistery_nEI(it):
 
 
 
-# function_caller_mistery_nEI(1)
+# function_caller_mistery_nEI(1, verbose=True)
 
 

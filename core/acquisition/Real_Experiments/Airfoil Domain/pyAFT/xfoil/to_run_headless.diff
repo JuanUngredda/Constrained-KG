@@ -1,0 +1,28 @@
+*** RUNNING XFOIL HEADLESS ***
+
+Xfoil crashes if you are truly running headless because it looks for a window size.
+
+To fix this comment out line 34 (in Fortran, that is capital 'C') in 
+
+src/xplots.f
+
+then recompile from bin directory:
+
+make xfoil
+make pplot
+make pxplot
+
+*** --- ***
+
+In diff form:
+
+--- a/src/xplots.f
++++ b/Users/adam/a/Downloads/XfoilFixed/src/xplots.f
+@@ -34,7 +34,7 @@ C---- initialize new plot
+       LPLOT = .TRUE.
+ C
+ C---- set X-window size in inches (might have been resized by user)
+-      CALL GETWINSIZE(XWIND,YWIND)
++C----      CALL GETWINSIZE(XWIND,YWIND)
+ C
+ C---- draw plot page outline offset by margins

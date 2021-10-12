@@ -581,7 +581,7 @@ class mistery_torch(function2d):
         term3 = (1 - x1) ** 2
         term4 = 2 * (2 - x2) ** 2
         term5 = 7 * torch.sin(0.5 * x1) * torch.sin(0.7 * x1 * x2)
-        fval = term1 + term2 + term3 + term4 + term5
+        fval = term1 + term2 + term3 + term4 + term5 - 5
 
         return torch.reshape(-fval, (-1,) ) #np.array(-(fval.reshape(n, 1)) + noise.reshape(-1, 1)).reshape(-1) #torch.reshape(-fval, (-1,) )  #
 
