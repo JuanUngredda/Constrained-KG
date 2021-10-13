@@ -24,7 +24,7 @@ from Transformation_Translation import Translate
 from Last_Step import Constrained_Mean_Response
 from scipy.stats import norm
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cpu"#torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 dtype = torch.double
 
