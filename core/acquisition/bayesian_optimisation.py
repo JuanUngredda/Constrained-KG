@@ -204,7 +204,12 @@ class BO(object):
                 initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 10000)
                 fvals, _ =self.objective.evaluate(initial_design)
                 cvals, _ =self.constraint.evaluate(initial_design)
-                cvalsbool = np.array(cvals).reshape(-1) < 0
+                cvals = np.hstack(cvals).squeeze()
+
+                cvalsbool = np.array(cvals) < 0
+                cvalsbool = np.product(cvalsbool, axis=1)
+                cvalsbool = np.array(cvalsbool, dtype=bool).reshape(-1)
+
                 fvals = np.array(fvals).reshape(-1)
 
                 plt.scatter(initial_design[:,0][cvalsbool], initial_design[:,1][cvalsbool], c=fvals[cvalsbool])
@@ -237,7 +242,7 @@ class BO(object):
             data["OC sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_sampled).reshape(-1)))
             data["OC GP mean"] = np.concatenate((np.zeros(self.n_init), np.array(self.Opportunity_Cost_GP_mean).reshape(-1)))
             data["Y"] = np.array(self.Y).reshape(-1)
-            data["C"] = np.array(self.C).reshape(-1)
+            # data["C"] = np.array(self.C).reshape(-1)
             data["C_bool"] = np.array(C_bool).reshape(-1)
             data["recommended_val_sampled"] = np.concatenate((np.zeros(self.n_init), np.array(self.recommended_value_sampled).reshape(-1)))
             data["recommended_val_GP"] = np.concatenate(
@@ -246,6 +251,8 @@ class BO(object):
 
             print("1", len(data["OC sampled"]), "2", len(data["OC GP mean"]) , "3", len(data["Y"]), "4", len(data["C_bool"]) , "5",len(data["recommended_val_sampled"]),
                   "6", len(data["recommended_val_GP"]), "7", len(data["optimum"] ))
+
+            print(data)
             gen_file = pd.DataFrame.from_dict(data)
             folder = "RESULTS"
             subfolder = self.evaluations_file

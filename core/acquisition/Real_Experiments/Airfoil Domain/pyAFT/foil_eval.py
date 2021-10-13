@@ -2,8 +2,8 @@ import numpy as np
 import os         # creating xfoil directory
 import subprocess # 'tail' to read xfoil output
 import scipy
-import ctypes
-import gc
+# import ctypes
+# import gc
 
 # ---------------------------------------------------------------------------- #
 def polyArea(x,y): # Shoelace formula
@@ -19,6 +19,10 @@ def getThick(coord,pos,pt_per_size = 100):
 
 
 def evalFoil(foil):
+    """
+    ten dimensional 0-1. list or array.
+
+    """
   # Constraints
   area = polyArea(foil[0,:], foil[1,:])
   # Additional constraints if you are using the FFD not parsec
