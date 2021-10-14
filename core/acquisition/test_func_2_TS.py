@@ -15,10 +15,19 @@ from datetime import datetime
 #ALWAYS check cost in
 # --- Function to optimize
 
+seed_dict = {0:1, 1:2, 2:4, 3:7, 4:8 }
+
 print("test fun TS activate")
 def function_caller_test_func_2_TS(rep):
-    rep = rep
-    np.random.seed(rep)
+
+    try:
+        seed_rep = seed_dict[rep]
+    except:
+        seed_rep = rep
+
+    np.random.seed(seed_rep)
+    print(seed_rep)
+    raise
     for noise in [1.0]:
         # func2 = dropwave()
         noise_objective = noise
@@ -63,7 +72,7 @@ def function_caller_test_func_2_TS(rep):
         subfolder = "test_fun_TS_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
-        path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
+        path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(seed_rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter,
                                                                                   verbosity=False,
                                                                                   path=path,
@@ -75,6 +84,6 @@ def function_caller_test_func_2_TS(rep):
 
         print("X", X, "Y", Y, "C", C)
 
-# function_caller_test_func_2_TS(rep=21)
+# function_caller_test_func_2_TS(rep=1)
 
 

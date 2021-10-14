@@ -77,12 +77,15 @@ class TS(AcquisitionBase):
             np.random.seed(self.seed)
             mu_f = np.array(mu_f).reshape(-1)
 
-            Z_f = np.random.multivariate_normal(mu_f, cov_f[0] , 1)
+            cov_f_jittered = cov_f[0] + np.identity(cov_f[0].shape[0])*1e-3
+            Z_f = np.random.multivariate_normal(mu_f, cov_f_jittered , 1)
+
 
             Z_c = []
             for i in range(len(mu_c)):
                 np.random.seed(self.seed)
-                Z_c.append(np.random.multivariate_normal(mu_c[i], cov_c[i] , 1))
+                cov_c_jittered = cov_c[i] + np.identity(cov_c[i].shape[0])*1e-3
+                Z_c.append(np.random.multivariate_normal(mu_c[i], cov_c_jittered , 1))
 
 
             Z_c = np.vstack(Z_c)

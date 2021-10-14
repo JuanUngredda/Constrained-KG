@@ -423,7 +423,7 @@ class test_function_2_torch(function2d):
         self.sd = sd
         self.name = 'test_function_2'
 
-    def f(self, x, offset=0, true_val=False):
+    def f(self, x, offset=-10, true_val=False):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
         n = x.shape[0]
@@ -436,7 +436,7 @@ class test_function_2_torch(function2d):
         #     noise = np.zeros(n).reshape(n, 1)
         # else:
         #     noise = np.random.normal(0, self.sd, n).reshape(n, 1)
-        return torch.reshape(-fval, (-1,))  #torch.reshape(-(fval.reshape(n,1))+ noise.reshape(-1, 1), -1) ##
+        return torch.reshape(-(fval + offset), (-1,))  #torch.reshape(-(fval.reshape(n,1))+ noise.reshape(-1, 1), -1) ##
 
     def c1(self, x, true_val=False):
         if len(x.shape) == 1:
@@ -594,8 +594,6 @@ class mistery_torch(function2d):
         fval = -torch.sin(x1 - x2 - np.pi / 8.0)
         # print("fval",-fval.reshape(-1, 1))
         return torch.reshape(fval, (-1,)) # np.array(fval.reshape(n, 1)).reshape(-1)
-
-
 
 
 class new_brannin(function2d):
