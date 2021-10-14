@@ -26,8 +26,7 @@ def function_caller_test_func_2_TS(rep):
         seed_rep = rep
 
     np.random.seed(seed_rep)
-    print(seed_rep)
-    raise
+
     for noise in [1.0]:
         # func2 = dropwave()
         noise_objective = noise
