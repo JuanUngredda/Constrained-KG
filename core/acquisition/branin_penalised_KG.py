@@ -18,13 +18,13 @@ from datetime import datetime
 # --- Function to optimize
 print("new_branin activate")
 def function_caller_new_branin_pKG(rep):
-    rep = rep + 100
+    rep = rep #+ 100
     np.random.seed(rep)
 
     for noise in [1.0]:
         # func2 = dropwave()
         noise_objective = noise
-        noise_constraints = 1e-06#(0.1)**2
+        noise_constraints = 1.0
         mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
         # --- Attributes
@@ -39,7 +39,8 @@ def function_caller_new_branin_pKG(rep):
         #c2 = MultiObjective([test_c2])
         # --- Space
         #define space of variables
-        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},{'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])
+        space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (-5,10)},
+                                             {'name': 'var_2', 'type': 'continuous', 'domain': (0,15)}])
         n_f = 1
         n_c = 1
         model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise_objective]*n_f, exact_feval=[True]*n_f)
@@ -77,13 +78,15 @@ def function_caller_new_branin_pKG(rep):
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
-        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,verbosity=False, path=path,
+        X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,
+                                                                                  verbosity=False,
+                                                                                  path=path,
                                                                                   stop_date=stop_date,
                                                                                   evaluations_file=subfolder,
                                                                                   KG_dynamic_optimisation=True)
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-function_caller_new_branin_pKG(rep=28)
+# function_caller_new_branin_pKG(rep=28)
 
 

@@ -51,11 +51,15 @@ class multi_outputGP(object):
     #def fromConfig(config):
         #return multi_outputGP(**config)
 
+    def updateIndividualModel(self, X_all, Y_all, output_dim):
+
+        self.output[output_dim].updateModel(X_all, Y_all, None, None)
 
     def updateModel(self, X_all, Y_all):
         """
         Updates the model with new observations.
         """
+
         for j in range(0,self.output_dim):
             self.output[j].updateModel(X_all,Y_all[j],None,None)
 
