@@ -477,6 +477,10 @@ class KG(AcquisitionBase):
                     print("KG", KG)
                     raise
             except:
+                print("max future", np.max(MM * np.array(Fz[:, zc]).reshape(-1)))
+                print("MM current", MM_current * np.array(Fz_current[zc]).reshape(-1))
+                print("VoI_future", VoI_future)
+                print("VoI_current", VoI_current)
                 print("KG", KG)
                 raise
             KG = np.clip(KG, 0, np.inf)
@@ -534,7 +538,7 @@ class KG(AcquisitionBase):
         n_elems = len(a)
 
         if np.all(np.abs(b) < 0.000000001):
-            return 0, np.zeros(a.shape), np.zeros(b.shape)
+            return np.array([0])#, np.zeros(a.shape), np.zeros(b.shape)
 
         # order by ascending b and descending a
         order = np.lexsort((-a, b))
