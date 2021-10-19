@@ -120,7 +120,7 @@ ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
 #python fork0_to_csc.py /home/rawsys/matjiu/Constrained-KG/core/acquisition/KG_control.py 9 --first_fork kumeta --basedir /home/rawsys/matjiu/RESULTS_cKG/mistery --conda Constrained-KG
 
 
-U = [1,3,5,8,9,11,15,16] #[] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
+U = [1,3,5,6,7,8,9,11,15,16,17,18,19,20] #[] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
 
 
 CSC_NAMES = [ALL_CSC_NAMES[i] for i in U]

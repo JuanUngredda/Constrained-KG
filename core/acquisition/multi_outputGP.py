@@ -55,13 +55,13 @@ class multi_outputGP(object):
 
         self.output[output_dim].updateModel(X_all, Y_all, None, None)
 
-    def updateModel(self, X_all, Y_all):
+    def updateModel(self, X_all, Y_all, optimize=True):
         """
         Updates the model with new observations.
         """
 
         for j in range(0,self.output_dim):
-            self.output[j].updateModel(X_all,Y_all[j],None,None)
+            self.output[j].updateModel(X_all,Y_all[j],None,None, optimize=optimize)
 
     def trainModel(self, X_all, Y_all):
         """
@@ -150,6 +150,12 @@ class multi_outputGP(object):
     def get_X_values(self):
         self.X = self.output[0].model.X
         return self.X
+
+    def get_ALL_X_values(self):
+        X = []
+        for j in range(self.output_dim):
+            X.append(self.output[j].model.X)
+        return X
 
     def get_Y_values(self):
         Y = []

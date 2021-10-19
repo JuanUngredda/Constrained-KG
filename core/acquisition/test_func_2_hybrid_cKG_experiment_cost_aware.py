@@ -20,7 +20,7 @@ from EI import EI
 seed_dict = {}#{0:1, 1:2, 2:4, 3:7, 4:8 }
 
 print("test_fun_2 activate")
-def function_caller_test_func_2(rep):
+def function_caller_test_func_2_cost_aware(rep):
     try:
         seed_rep = seed_dict[rep]
     except:
@@ -80,7 +80,7 @@ def function_caller_test_func_2(rep):
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(seed_rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter,
-                                                                                  benefit_sample=100,
+                                                                                  benefit_sample=500,
                                                                                   cost_sample=1,
                                                                                   verbosity=False,
                                                                                   path=path,

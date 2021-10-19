@@ -17,7 +17,7 @@ from datetime import datetime
 #ALWAYS check cost in
 # --- Function to optimize
 print("mistery activate")
-def function_caller_mistery_v2(rep):
+def function_caller_mistery_cost_aware(rep):
     rep = rep #+ 20
     np.random.seed(rep)
 
@@ -71,7 +71,7 @@ def function_caller_mistery_v2(rep):
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter,
                                                                                   verbosity=False,
-                                                                                  benefit_sample=100,
+                                                                                  benefit_sample=500,
                                                                                   cost_sample=1,
                                                                                   stop_date= stop_date,
                                                                                   path=path,
@@ -80,6 +80,7 @@ def function_caller_mistery_v2(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_mistery_v2(rep=4)
+
+# function_caller_mistery_v2(rep=1)
 
 

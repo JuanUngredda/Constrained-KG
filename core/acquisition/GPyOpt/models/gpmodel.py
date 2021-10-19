@@ -114,7 +114,7 @@ class GPModel(BOModel):
         # self.hmc_samples = ss[self.n_burnin::self.subsample_interval]
             
 
-    def updateModel(self, X_all, Y_all, X_new=None, Y_new=None):
+    def updateModel(self, X_all, Y_all, X_new=None, Y_new=None, optimize=True):
         """
         Updates the model with new observations.
         """
@@ -133,8 +133,9 @@ class GPModel(BOModel):
         #     self.model.set_XY(X_all, Y_all)
 
         # update the model generating hmc samples
-        self.model.optimize_restarts(num_restarts=5, verbose=False)
-        print("self.model",self.model)
+        if optimize:
+            self.model.optimize_restarts(num_restarts=5, verbose=False)
+            print("self.model",self.model)
         # self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
         # self.hmc = GPy.inference.mcmc.HMC(self.model, stepsize=self.step_size)
         # ss = self.hmc.sample(num_samples=self.n_burnin + self.n_samples* self.subsample_interval, hmc_iters=self.leapfrog_steps)

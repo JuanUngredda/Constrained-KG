@@ -152,6 +152,10 @@ class BO(object):
             self.max_time = max_time
 
         # --- Initial function evaluation and model fitting
+        X_pretraining = GPyOpt.experiment_design.initial_design('latin', self.space, 200)
+        Y, cost_values = self.objective.evaluate( X_pretraining)
+        C, cost_values = self.constraint.evaluate( X_pretraining)
+        self._pretrain_model(X=X_pretraining, Y=Y, C=C, optimize=True)
 
         if self.X is not None and self.Y is None:
             self.Y, cost_values = self.objective.evaluate(self.X)
@@ -187,23 +191,18 @@ class BO(object):
         while (self.max_iter > self.num_acquisitions ) and (self.stop_date > today):
             today = datetime.now()
 
-            self._update_model()
+            self._update_model(optimize=False)
 
 
             self.optimize_final_evaluation(self.KG_dynamic_optimisation)
             print("maKG optimizer")
             start = time.time()
 
-            print("X", self.X)
-            print("Y", self.Y)
-            print("C", np.product(np.array(self.C)<0,axis=0))
             self.suggested_sample = self._compute_next_evaluations()
             value_of_information =self.acquisition._compute_acq(self.suggested_sample)
             economic_value_of_sample = value_of_information *benefit_sample - cost_sample
 
-            print("best value_of_information", value_of_information)
-            print("benefit_sample", benefit_sample)
-            print("cost_sample", cost_sample)
+
             if economic_value_of_sample < 0:
 
                 print("no more economic value found")
@@ -775,8 +774,21 @@ class BO(object):
 
             self.model.updateModel(X_inmodel, Y_inmodel)
             self.model_c.updateModel(X_inmodel, C_inmodel)
+    def _pretrain_model(self, X, Y,C, optimize=False):
+        """
+        Updates the model (when more than one observation is available) and saves the parameters (if available).
+        """
 
-    def _update_model(self):
+        ### --- input that goes into the model (is unziped in case there are categorical variables)
+        X_inmodel = self.space.unzip_inputs(X)
+        Y_inmodel = list(Y)
+        C_inmodel = list(C)
+
+        self.model.updateModel(X_inmodel, Y_inmodel, optimize=optimize)
+        self.model_c.updateModel(X_inmodel, C_inmodel, optimize=optimize)
+
+
+    def _update_model(self, optimize=False):
         """
         Updates the model (when more than one observation is available) and saves the parameters (if available).
         """
@@ -786,9 +798,10 @@ class BO(object):
             X_inmodel = self.space.unzip_inputs(self.X)
             Y_inmodel = list(self.Y)
             C_inmodel = list(self.C)
-            
-            self.model.updateModel(X_inmodel, Y_inmodel)
-            self.model_c.updateModel(X_inmodel, C_inmodel)
+
+            self.model.updateModel(X_inmodel, Y_inmodel, optimize=optimize)
+            self.model_c.updateModel(X_inmodel, C_inmodel, optimize=optimize)
+
         ### --- Save parameters of the model
         #self._save_model_parameter_values()
 

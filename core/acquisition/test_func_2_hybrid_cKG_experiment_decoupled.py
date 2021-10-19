@@ -20,7 +20,7 @@ from EI import EI
 seed_dict = {}#{0:1, 1:2, 2:4, 3:7, 4:8 }
 
 print("test_fun_2 activate")
-def function_caller_test_func_2(rep):
+def function_caller_test_func_2_decoupled(rep):
     try:
         seed_rep = seed_dict[rep]
     except:
@@ -73,9 +73,9 @@ def function_caller_test_func_2(rep):
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 9, 7)  # year month day hour
-        max_iter = 100
+        max_iter = 400
         # print("Finished Initialization")
-        subfolder = "test_function_2_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+        subfolder = "test_function_2_cKG_decoupled_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(seed_rep) + '.csv'
@@ -90,6 +90,6 @@ def function_caller_test_func_2(rep):
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
 
-function_caller_test_func_2(rep=4)
+# function_caller_test_func_2(rep=4)
 
 

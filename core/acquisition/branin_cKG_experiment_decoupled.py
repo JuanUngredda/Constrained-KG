@@ -6,10 +6,8 @@ from multi_objective import MultiObjective
 from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
-from Hybrid_continuous_KG_v2 import KG
-from nEI import nEI
-from EI import EI
-from bayesian_optimisation_cost_aware import BO
+from Hybrid_continuous_KG_decoupled import KG
+from bayesian_optimisation_decoupled import BO
 import pandas as pd
 import os
 from datetime import datetime
@@ -17,14 +15,14 @@ from datetime import datetime
 #ALWAYS check cost in
 # --- Function to optimize
 print("mistery activate")
-def function_caller_branin_cost_aware(it):
-    repepetitions = [it]#, it + 20]
+def function_caller_branin_decoupled(it):
+    repepetitions = [it]
     for rep in repepetitions:
         np.random.seed(rep)
         for noise in [1e-04]:
             # func2 = dropwave()
             noise_objective = noise
-            noise_constraints = (1e-4) ** 2
+            noise_constraints = (1e-04) ** 2
             mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
 
@@ -109,16 +107,14 @@ def function_caller_branin_cost_aware(it):
                     deterministic=False)
 
             stop_date = datetime(2022, 5, 9, 7)  # year month day hour
-            max_iter  = 100
+            max_iter  = 200
             # print("Finished Initialization")
-            subfolder = "branin_cKG_cost_aware_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+            subfolder = "branin_cKG_decoupled_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
             folder = "RESULTS"
             cwd = os.getcwd()
             path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
             X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter = max_iter,
                                                                                       verbosity=False,
-                                                                                      benefit_sample=50,
-                                                                                      cost_sample=1,
                                                                                       path=path,
                                                                                       stop_date=stop_date,
                                                                                       compute_OC=True,
@@ -127,6 +123,6 @@ def function_caller_branin_cost_aware(it):
 
             print("Code Ended")
             print("X",X,"Y",Y, "C", C)
-# function_caller_branin_v2(1)
+# function_caller_branin_v2(4)
 
 

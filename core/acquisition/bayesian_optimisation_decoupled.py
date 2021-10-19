@@ -313,6 +313,15 @@ class BO(object):
                                               Y=self.C[np.argmax(suggested_samples_value) - 1],
                                               output_dim=np.argmax(suggested_samples_value) - 1)
 
+
+            print("#############CHECK###################")
+            print("dim updated", np.argmax(suggested_samples_value))
+            print("objective X", self.model.get_X_values().shape)
+            print("objective Y", self.model.get_Y_values()[0].shape)
+
+            print("constraints X", [len(i) for i in self.model_c.get_ALL_X_values() ])
+            print("constraints Y", [len(i) for i in self.model_c.get_Y_values() ])
+
         return self.X, self.Y, self.C , self.recommended_value_sampled, self.underlying_optimum, self.Opportunity_Cost_sampled
         # --- Print the desired result in files
         #if self.evaluations_file is not None:
