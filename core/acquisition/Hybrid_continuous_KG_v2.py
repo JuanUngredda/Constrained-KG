@@ -475,14 +475,14 @@ class KG(AcquisitionBase):
                     print("VoI_future", VoI_future)
                     print("VoI_current", VoI_current)
                     print("KG", KG)
-                    raise
+
             except:
                 print("max future", np.max(MM * np.array(Fz[:, zc]).reshape(-1)))
                 print("MM current", MM_current * np.array(Fz_current[zc]).reshape(-1))
                 print("VoI_future", VoI_future)
                 print("VoI_current", VoI_current)
                 print("KG", KG)
-                raise
+
             KG = np.clip(KG, 0, np.inf)
             marginal_KG.append(KG)
 
