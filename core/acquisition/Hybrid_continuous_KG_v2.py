@@ -258,7 +258,7 @@ class KG(AcquisitionBase):
         quantiles = []
         self._test_Fz_values.append(delta)
         for d in delta:
-            if d<1e-4:
+            if  d<1e-4:
                 quantiles.append(np.array([0]))
                 self._test_important_values_for_estimated_optimum.append(0)
             else:

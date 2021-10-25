@@ -71,6 +71,7 @@ class BO(object):
         self.model_parameters_iterations = None
         self.expensive = expensive
         self.tag_last_evaluation = tag_last_evaluation
+
         try:
             if acquisition.name == "Constrained_Thompson_Sampling":
                 self.sample_from_acq = True
@@ -196,7 +197,7 @@ class BO(object):
 
 
 
-            self.optimize_final_evaluation(self.KG_dynamic_optimisation)
+            self.optimize_final_evaluation()
             print("maKG optimizer")
             start = time.time()
 
@@ -217,8 +218,8 @@ class BO(object):
                 suggested_samples.append(suggested_sample)
                 suggested_samples_value.append(value_of_information)
                 print("dim", dim)
-                print("suggested_sample", suggested_samples)
-                print("value of information", value_of_information)
+            print("suggested_source ", np.argmax(suggested_samples_value))
+            print("value of information", suggested_samples_value)
             self.sampling_decision.append(np.argmax(suggested_samples_value))
             self.suggested_sample = suggested_samples[np.argmax(suggested_samples_value)]
 
@@ -232,23 +233,39 @@ class BO(object):
                 cvals = np.hstack(cvals).squeeze()
 
                 cvalsbool = np.array(cvals) < 0
-                cvalsbool = np.product(cvalsbool, axis=1)
+
+                if len(cvalsbool.shape)>1:
+                    cvalsbool = np.product(cvalsbool, axis=1)
+
                 cvalsbool = np.array(cvalsbool, dtype=bool).reshape(-1)
 
                 fvals = np.array(fvals).reshape(-1)
 
+                recommended_design_GP =  self.recommended_final_design()
+
                 plt.scatter(initial_design[:,0][cvalsbool], initial_design[:,1][cvalsbool], c=fvals[cvalsbool])
                 plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
                 plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
+                plt.scatter(recommended_design_GP[:, 0], recommended_design_GP[:, 1], color="black",
+                            label="recom design")
+                plt.legend()
                 plt.show()
 
-                # initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 5000)
-                # acq_vals = self.acquisition._compute_acq(initial_design)
-                #
-                # plt.title("acq")
-                # plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
-                # plt.show()
-                # raise
+
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 500)
+
+                for dim in range(objective_dim + constraint_dim):
+                    self.acquisition.set_active_dimension(active_dimension=dim)
+
+                    acq_vals = self.acquisition._compute_acq(initial_design)
+
+                    plt.title("acq_active dim: " + str(dim))
+                    plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
+                    plt.scatter(recommended_design_GP[:,0], recommended_design_GP[:,1], color="black", label="recom design")
+                    plt.legend()
+                    plt.show()
+
+
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
 
@@ -445,7 +462,14 @@ class BO(object):
         plt.yscale("log")
         plt.show()
 
-    def optimize_final_evaluation(self, KG_dynamic_optimisation):
+    def recommended_final_design(self):
+        self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
+        out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
+                                                  additional_anchor_points = self.X[7:, :] ,num_samples=1000)
+
+        suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
+        return suggested_final_sample_GP_recommended
+    def optimize_final_evaluation(self):
 
 
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
@@ -478,8 +502,7 @@ class BO(object):
 
         self.underlying_optimum.append(optimum.reshape(-1))
 
-
-        return 0
+        return suggested_final_sample_GP_recommended
 
     def aggregated_posterior(self, X):
         mu = self.model.posterior_mean(X)

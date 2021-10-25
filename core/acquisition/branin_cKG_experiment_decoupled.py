@@ -123,6 +123,7 @@ def function_caller_branin_decoupled(it):
 
             print("Code Ended")
             print("X",X,"Y",Y, "C", C)
-# function_caller_branin_v2(4)
+
+# function_caller_branin_decoupled(4)
 
 

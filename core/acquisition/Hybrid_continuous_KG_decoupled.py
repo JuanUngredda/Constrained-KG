@@ -47,6 +47,8 @@ class KG(AcquisitionBase):
         self.saved_Nx = -10
         self.base_discretisation = None
         self.optimise_discretisation=True
+        self.counter_z = 0
+
         # self.n_base_points = nz
         self.name = "Constrained_KG"
         self.fixed_discretisation = None
@@ -77,47 +79,12 @@ class KG(AcquisitionBase):
         self.update_current_best()
         X =np.atleast_2d(X)
 
-        # plt.title("optimal")
-        # mupf = self.current_func(X)
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =mupf.reshape(-1))
-        # plt.scatter(self.current_max_xopt[:, 0],
-        #             self.current_max_xopt[:, 1],
-        #             color="red")
-        # plt.show()
 
         marginal_acqX = self._marginal_acq(X)
         KG = np.reshape(marginal_acqX, (X.shape[0],1))
-        # print("sum", np.sum(self._test_important_values_for_estimated_optimum))
 
-        # print("delta", np.max(self._test_Fz_values), "min", np.min(self._test_Fz_values))
-
-
-        # plt.title("importance")
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =self._test_important_values_for_estimated_optimum)
-        #
-        # plt.scatter(self.current_max_xopt[:,0],
-        #             self.current_max_xopt[:,1],
-        #             color="red")
-        #
-        # X_vals = self.model.get_X_values()
-        # plt.scatter(X_vals[:,0],X_vals[:,1], color="magenta" )
-        # plt.show()
-        #
-        # plt.title("delta")
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =self._test_Fz_values)
-        #
-        #
-        # plt.scatter(self.current_max_xopt[:,0], self.current_max_xopt[:,1], color="red")
-        # plt.show()
-
-        # print("KG reshape", KG.reshape(-1))
         return KG
+
 
     def generate_random_vectors(self, base_c_quantiles=None,
                                 optimize_discretization=True,
@@ -148,16 +115,33 @@ class KG(AcquisitionBase):
         else:
             self.base_discretisation = None
             self.fixed_discretisation = False
-            if optimize_discretization==True:
-                self.X_Discretisation =None
+            if optimize_discretization == True:
+                self.X_Discretisation = None
+
+        if base_c_quantiles is not None:
+
+            clist = base_c_quantiles
+            res = list(itertools.product(*clist))
+            list(res)
+            self.Z_cdKG = np.array(list(res))
+
+            alllist = [self.n_marginalisation_points] + base_c_quantiles
+            res = list(itertools.product(*alllist))
+
+            if np.array(list(res)).shape[0] > self.base_points_cap_size:
+                subset_pick = np.random.choice(range(np.array(list(res)).shape[0]), self.base_points_cap_size,
+                                               replace=False)
+                self.Z_obj = np.array(list(res))[subset_pick,
+                             :1]  # np.atleast_2d(self.n_marginalisation_points).T #
+                self.Z_const = np.array(list(res))[subset_pick, 1:]  # constraint_quantiles #
+            else:
+                self.Z_obj = np.array(list(res))[:, :1]  # np.atleast_2d(self.n_marginalisation_points).T #
+                self.Z_const = np.array(list(res))[:, 1:]  # constraint_quantiles #
 
         Quantile_matrix = np.zeros((len(self.n_marginalisation_points), self.dim))
         Quantile_matrix[:,self.active_dimension] = self.n_marginalisation_points
 
         self.Z_cdKG = Quantile_matrix[:, 1:]
-
-        self.Z_obj = Quantile_matrix[:, :1] #np.atleast_2d(self.n_marginalisation_points).T #
-        self.Z_const = Quantile_matrix[:, 1:] #constraint_quantiles #
 
 
     def _marginal_acq(self, X):
@@ -188,6 +172,7 @@ class KG(AcquisitionBase):
             aux_obj = np.reciprocal(varX_obj[:, i])
             aux_c = np.reciprocal(varX_c[:, i])
 
+
             quantiles = self.constraint_sensitivity_and_constraint_quantile_generation(aux_c=aux_c,
                                                                                        xnew=x)
 
@@ -215,7 +200,6 @@ class KG(AcquisitionBase):
                     # print("updated discretisation")
                     # print("quantiles", quantiles)
                     self.optimise_discretisation = False
-            # print("X discretisation", self.X_Discretisation)
 
             kg_val = self.discrete_KG(Xd = self.X_Discretisation ,
                                       xnew = x,
@@ -253,7 +237,7 @@ class KG(AcquisitionBase):
                 quantiles.append(np.array([0]))
                 self._test_important_values_for_estimated_optimum.append(0)
             else:
-                quantiles.append(np.array([ -2.64,  0,  2.64]))
+                quantiles.append(np.array([-2.64, -0.67, 0, 0.67, 2.64]))
                 self._test_important_values_for_estimated_optimum.append(1)
         return quantiles
 
@@ -261,6 +245,7 @@ class KG(AcquisitionBase):
         """
 
              """
+
         i = index
         x = np.atleast_2d(X[i])
 
@@ -329,10 +314,27 @@ class KG(AcquisitionBase):
             inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=inner_func,
                                                                             f_df=None)
 
+
             statistics_precision.append(inner_opt_val)
             X_discretisation[z] = inner_opt_x.reshape(-1)
 
         self.new_anchors_flag = False
+
+        # import GPyOpt
+        # import matplotlib.pyplot as plt
+        #
+        # initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 10000)
+        # vals = inner_func(initial_design)
+        # plt.scatter(initial_design[:, 0], initial_design[:, 1], c=vals)
+        # plt.scatter(X_discretisation[:, 0], X_discretisation[:, 1], color="magenta")
+        # plt.show()
+        # print("Z_obj", self.Z_obj)
+        # print("self.Z_const",self.Z_const)
+        # print("X_discretisation",X_discretisation)
+        # self.counter_z += 1
+        # print("self.counter", self.counter)
+
+
         return X_discretisation
 
     def probability_feasibility_multi_gp(self, x, model, l=0):
@@ -425,6 +427,9 @@ class KG(AcquisitionBase):
         return acqX.reshape(-1), dacq_dX
 
     def discrete_KG(self, Xd, xnew, Zc, aux_obj, aux_c, grad=False, verbose=False):
+
+        unique_Zc = np.unique(Zc)
+        unique_Zc = np.atleast_2d(unique_Zc)
         xnew = np.atleast_2d(xnew)
         # Xd = np.concatenate((Xd, self.fixed_discretisation_values))
         Xd = np.concatenate((Xd, xnew))
@@ -454,7 +459,7 @@ class KG(AcquisitionBase):
         marginal_KG = []
 
 
-        for zc in range(Zc.shape[0]):
+        for zc in range(unique_Zc.shape[0]):
             VoI_future = self.parallel_KG(MM=MM*np.array(Fz[:,zc]).reshape(-1),SS=SS*np.array(Fz[:,zc]).reshape(-1),verbose=verbose)
             VoI_current = MM_current*np.array(Fz_current[zc]).reshape(-1)
             KG = VoI_future - VoI_current
@@ -525,7 +530,7 @@ class KG(AcquisitionBase):
         n_elems = len(a)
 
         if np.all(np.abs(b) < 0.000000001):
-            return 0, np.zeros(a.shape), np.zeros(b.shape)
+            return 0#, np.zeros(a.shape), np.zeros(b.shape)
 
         # order by ascending b and descending a
         order = np.lexsort((-a, b))

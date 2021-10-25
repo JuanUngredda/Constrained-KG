@@ -85,7 +85,7 @@ class AcquisitionOptimizer(object):
         if 'dynamic_parameter_function' in self.kwargs:
             print("setting fix discretisation for anchor points")
 
-            discretisation = initial_design("latin",self.space, num_samples)
+            discretisation = initial_design("latin",self.space, 500)
             self.dynamic_parameter_function(optimize_discretization=False, optimize_random_Z=True,
                                             fixed_discretisation=discretisation)
 
@@ -142,7 +142,7 @@ class AcquisitionOptimizer(object):
                 if 'dynamic_parameter_function' in self.kwargs:
 
                     self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
-                                                    fixed_discretisation= None)#discretisation)
+                                                    fixed_discretisation= discretisation)
 
                 optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,
                                                         duplicate_manager=duplicate_manager, context_manager=self.context_manager,
