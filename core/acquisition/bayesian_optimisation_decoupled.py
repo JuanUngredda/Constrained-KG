@@ -306,9 +306,12 @@ class BO(object):
                 os.makedirs(cwd + "/" + folder + "/" + subfolder)
             print("path", path)
             gen_file.to_csv(path_or_buf=path)
-            #
-            # np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_" + str(rep) + ".csv", self.X, delimiter=',')
-            #
+
+            for i in self.model_c.get_ALL_X_values():
+                np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_constraint_" + str(rep) + ".csv", i, delimiter=',')
+
+            np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_objective_" + str(rep) + ".csv", self.model.get_X_values(), delimiter=',')
+
             # print("self.X, self.Y, self.C , OC sampled, OC GP mean",self.X, self.Y, self.C )
 
             print("OC GP", self.Opportunity_Cost_GP_mean)

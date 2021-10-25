@@ -119,11 +119,12 @@ def function_caller_branin_decoupled(it):
                                                                                       stop_date=stop_date,
                                                                                       compute_OC=True,
                                                                                       evaluations_file=subfolder,
-                                                                                      KG_dynamic_optimisation=True)
+                                                                                      KG_dynamic_optimisation=True,
+                                                                                      rep=rep)
 
             print("Code Ended")
             print("X",X,"Y",Y, "C", C)
 
-# function_caller_branin_decoupled(4)
+function_caller_branin_decoupled(4)
 
 
