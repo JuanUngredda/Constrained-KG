@@ -142,7 +142,7 @@ class AcquisitionOptimizer(object):
                 if 'dynamic_parameter_function' in self.kwargs:
 
                     self.dynamic_parameter_function(optimize_discretization=True, optimize_random_Z=False,
-                                                    fixed_discretisation= discretisation)
+                                                    fixed_discretisation= None)#discretisation)
 
                 optimised_anchor_point = apply_optimizer(self.optimizer, optimised_anchor_point_x.flatten(), f=f, df=None, f_df=f_df,
                                                         duplicate_manager=duplicate_manager, context_manager=self.context_manager,

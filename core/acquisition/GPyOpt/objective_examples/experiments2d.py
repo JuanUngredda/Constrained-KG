@@ -492,7 +492,7 @@ class mistery(function2d):
     :param sd: standard deviation, to generate noisy evaluations of the function.
     '''
 
-    def __init__(self, bounds=None, sd_obj=None, sd_c=None):
+    def __init__(self, bounds=None, sd_obj=None, sd_c=None, offset=None):
         self.input_dim = 2
         if bounds is None:
             self.bounds = [(0, 5), (0, 5)]
@@ -503,8 +503,12 @@ class mistery(function2d):
         self.sd_obj = sd_obj
         self.sd_c = sd_c
         self.name = 'Mistery'
+        if offset is None:
+            self.offset = 5.0
+        else:
+            self.offset = offset
 
-    def f(self, x, offset=0.0, true_val=False):
+    def f(self, x, true_val=False):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
 
@@ -516,7 +520,7 @@ class mistery(function2d):
         term3 = (1 - x1) ** 2
         term4 = 2 * (2 - x2) ** 2
         term5 = 7 * np.sin(0.5 * x1) * np.sin(0.7 * x1 * x2)
-        fval = term1 + term2 + term3 + term4 + term5 - 5
+        fval = term1 + term2 + term3 + term4 + term5 - self.offset
         if self.sd_obj == 0 or true_val:
             noise = np.zeros(n).reshape(n, 1)
         else:
@@ -548,7 +552,6 @@ class mistery(function2d):
         out = Y * (C < 0)
         out = np.array(out).reshape(-1)
         return -out
-
 
 class mistery_torch(function2d):
     '''

@@ -207,22 +207,42 @@ class BO(object):
                 cvals = np.hstack(cvals).squeeze()
 
                 cvalsbool = np.array(cvals) < 0
-                cvalsbool = np.product(cvalsbool, axis=1)
+
+                if len(cvalsbool.shape) > 1:
+                    cvalsbool = np.product(cvalsbool, axis=1)
+
                 cvalsbool = np.array(cvalsbool, dtype=bool).reshape(-1)
 
                 fvals = np.array(fvals).reshape(-1)
 
+                plt.title("real surface")
                 plt.scatter(initial_design[:,0][cvalsbool], initial_design[:,1][cvalsbool], c=fvals[cvalsbool])
                 plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
                 plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
                 plt.show()
 
-                # initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 5000)
-                # acq_vals = self.acquisition._compute_acq(initial_design)
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)
+                acq_vals = self.acquisition._compute_acq(initial_design)
+
+                agregated_posterior = self.aggregated_posterior(initial_design)
+                plt.title("estimated surface")
+                plt.scatter(initial_design[:, 0], initial_design[:, 1], c=-agregated_posterior)
+                plt.show()
+
+                _, penalty = self.update_penalty()
+                print("penalty", penalty)
+                agregated_penalised_posterior = self.agreagated_penalised_posterior(initial_design,
+                                                                                    penalisation=penalty)
+                plt.title("estimated penalised surface")
+                plt.scatter(initial_design[:, 0], initial_design[:, 1], c=-agregated_penalised_posterior)
+                plt.show()
                 #
+                # print("max val", np.max(acq_vals), "min val", np.min(acq_vals))
                 # plt.title("acq")
                 # plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
                 # plt.show()
+
+
                 # raise
             print("self.suggested_sample",self.suggested_sample)
             print("time optimisation point X", finish - start)
@@ -633,6 +653,16 @@ class BO(object):
         mu = np.array(mu).reshape(-1)
         return -(mu * pf).reshape(-1)
 
+    def agreagated_penalised_posterior(self, X, penalisation):
+        mu = self.model.posterior_mean(X)
+        pf = self.probability_feasibility_multi_gp(X, self.model_c)
+        pf = np.array(pf).reshape(-1)
+        mu = np.array(mu).reshape(-1)
+        feasable_term = (mu * pf).reshape(-1)
+        infeasible_term  = penalisation.squeeze() * (1 - pf.reshape(-1))
+        overall_term = feasable_term + infeasible_term
+        return -(overall_term).reshape(-1)
+
     def expected_improvement(self, X):
         '''
         Computes the EI at points X based on existing samples X_sample
@@ -853,3 +883,18 @@ class BO(object):
         out = Y.reshape(-1)* np.product(np.concatenate(C, axis=1) < 0, axis=1).reshape(-1)
         out = np.array(out).reshape(-1)
         return -out
+
+    def current_func_no_constraint(self,X_inner):
+        X_inner = np.atleast_2d(X_inner)
+        mu = self.model.posterior_mean(X_inner)[0]
+        mu = np.array(mu).reshape(-1)
+        return mu
+
+    def update_penalty(self):
+        inner_opt_x, inner_opt_val = self.acquisition.optimizer.optimize_inner_func(f=self.current_func_no_constraint,
+                                                                        f_df=None,
+                                                                        num_samples=500)
+        inner_opt_x = np.array(inner_opt_x).reshape(-1)
+        inner_opt_x = np.atleast_2d(inner_opt_x)
+
+        return inner_opt_x, inner_opt_val

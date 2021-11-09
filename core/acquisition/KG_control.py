@@ -15,38 +15,10 @@ import argparse
 
 #RERUN THESE RESULTS
 
-# from test_func_2_TS import function_caller_test_func_2_TS as f1
-# from test_func_2_hybrid_cKG_experiment_v2 import function_caller_penalised_test_func_2 as f1
-# from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2 as f2
-# from test_function_2_nEI import function_caller_test_fun_2_nEI as f3
-
-# from LunarLander_TS import function_caller_TS as f1
-# from LunarLander_cKG import function_caller_cKG as f1
-
-# from mistery_cKG_experiment import function_caller_mistery_v2
-# from branin_cKG_experiment import function_caller_branin_v2
-from branin_cKG_experiment_decoupled import function_caller_branin_decoupled
-from branin_nEI import function_caller_branin_nEI
-from mistery_nEI import function_caller_mistery_nEI
-
-# from test_function_2_nEI import function_caller_test_fun_2_nEI
-# from test_func_2_TS import function_caller_test_func_2_TS
-# from test_func_2_hybrid_cKG_experiment_v2 import function_caller_penalised_test_func_2
-
-from test_func_2_hybrid_cKG_experiment_cost_aware import function_caller_test_func_2_cost_aware
-from mistery_hybrid_cKG_experiment_cost_aware import function_caller_mistery_cost_aware
-from branin_cKG_experiment_cost_aware import function_caller_branin_cost_aware
-
-from branin_penalised_KG import function_caller_new_branin_pKG
-from mistery_penalised_experiment_v2 import function_caller_penalised_mistery
-from test_func_2_penalised_hybrid_cKG_experiment import function_caller_penalised_test_func_2
 
 
-from branin_cKG_experiment_decoupled import function_caller_branin_decoupled
-# from mistery_hybrid_cKG_experiment_decoupled import function_caller_mistery_decoupled
-# from test_func_2_hybrid_cKG_experiment_decoupled import function_caller_test_func_2_decoupled
-# from branin_TS import function_caller_new_brannin_TS
-# from mistery_experiment_TS import function_caller_mistery_TS
+from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
+from mistery_hybrid_cKG_experiment_penalty_unadjusted import function_caller_mistery_penalty_unadjusted
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
@@ -87,7 +59,8 @@ def run(args):
     # IMPORT AND RUN MODULES
     #functions = [function_caller_new_brannin_TS, function_caller_test_func_2_TS, function_caller_mistery_TS, function_caller_RMITD_TS, function_caller_RMITD_EI, function_caller_RMITD]
     #functions = [function_caller_RMITD ]
-    functions = [function_caller_branin_decoupled
+    functions = [function_caller_mistery_penalty_adjusted,
+                 function_caller_mistery_penalty_unadjusted
                  ]
 
     # functions = [function_caller_NN_cKG]
