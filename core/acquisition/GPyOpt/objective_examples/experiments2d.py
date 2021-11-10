@@ -549,6 +549,7 @@ class mistery(function2d):
     def func_val(self, x):
         Y = self.f(x, true_val=True)
         C = self.c(x, true_val=True)
+
         out = Y * (C < 0)
         out = np.array(out).reshape(-1)
         return -out

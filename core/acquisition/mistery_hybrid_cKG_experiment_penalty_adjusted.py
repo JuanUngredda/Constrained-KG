@@ -7,7 +7,7 @@ from multi_outputGP import multi_outputGP
 import matplotlib.pyplot as plt
 import scipy
 from Hybrid_continuous_KG_penalty_adjusted import KG
-from bayesian_optimisation import BO
+from bayesian_optimisation_penalised_adjusted import BO
 from nEI import nEI
 from EI import EI
 import pandas as pd
@@ -63,7 +63,7 @@ def function_caller_mistery_penalty_adjusted(rep):
                 deterministic=False)
 
         stop_date = datetime(2022, 5, 10, 7) # year month day hour
-        max_iter  = 200
+        max_iter  = 100
         # print("Finished Initialization")
         subfolder = "mistery_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
         folder = "RESULTS"
@@ -78,6 +78,6 @@ def function_caller_mistery_penalty_adjusted(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_mistery_decoupled(rep=4)
+# function_caller_mistery_penalty_adjusted(rep=4)
 
 

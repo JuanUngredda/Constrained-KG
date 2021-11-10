@@ -23,17 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70763321-5c0b-47e5-8355-9730f446ef6a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/core/acquisition/Hybrid_continuous_KG_penalty_adjusted.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/acquisition/branin_cKG_experiment_penalty_adjusted.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_adjusted.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_unadjusted.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation_penalised_adjusted.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/objective_examples/experiments2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/objective_examples/experiments2d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/GPyOpt/optimization/acquisition_optimizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/KG_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/KG_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/RESULTS/mistery_cKG_decoupled_n_obj_0.0001_n_c_1e-08/it_4.csv" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/RESULTS/mistery_cKG_decoupled_n_obj_0.0001_n_c_1e-08/it_4.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/bayesian_optimisation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/forking_CSC/fork0_to_csc.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/forking_CSC/fork0_to_csc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_adjusted.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_adjusted.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_unadjusted.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/acquisition/mistery_hybrid_cKG_experiment_penalty_unadjusted.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +72,7 @@
       <recent name="$PROJECT_DIR$/../../Competitions/GECCO/resourcepackage2021/ResourcePackage/ExampleScripts" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.KG_control">
+  <component name="RunManager" selected="Python.mistery_hybrid_cKG_experiment_penalty_adjusted">
     <configuration name="KG_control" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Constrained-KG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -191,8 +185,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.KG_control" />
         <item itemvalue="Python.mistery_hybrid_cKG_experiment_penalty_adjusted" />
+        <item itemvalue="Python.KG_control" />
         <item itemvalue="Python.branin_cKG_experiment_penalty_adjusted" />
         <item itemvalue="Python.branin_cKG_experiment_decoupled" />
         <item itemvalue="Python.mistery_cKG_experiment" />
@@ -255,7 +249,7 @@
       <workItem from="1631701673228" duration="16000" />
       <workItem from="1633342852705" duration="20052000" />
       <workItem from="1635162194030" duration="10786000" />
-      <workItem from="1636377679644" duration="15561000" />
+      <workItem from="1636377679644" duration="19246000" />
     </task>
     <servers />
   </component>
@@ -277,7 +271,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Constrained_KG$new_branin_TS.coverage" NAME="new_branin_TS Coverage Results" MODIFIED="1621441468650" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$NN_EI.coverage" NAME="NN_EI Coverage Results" MODIFIED="1600366941814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
-    <SUITE FILE_PATH="coverage/Constrained_KG$mistery_hybrid_cKG_experiment_penalty_adjusted.coverage" NAME="mistery_hybrid_cKG_experiment_penalty_adjusted Coverage Results" MODIFIED="1636464559220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
+    <SUITE FILE_PATH="coverage/Constrained_KG$mistery_hybrid_cKG_experiment_penalty_adjusted.coverage" NAME="mistery_hybrid_cKG_experiment_penalty_adjusted Coverage Results" MODIFIED="1636565780940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_hybrid_cKG_experiment.coverage" NAME="mistery_hybrid_cKG_experiment Coverage Results" MODIFIED="1620148295741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$KG_control.coverage" NAME="KG_control Coverage Results" MODIFIED="1636465789837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
     <SUITE FILE_PATH="coverage/Constrained_KG$mistery_hybrid_cKG_experiment_v2.coverage" NAME="mistery_hybrid_cKG_experiment_v2 Coverage Results" MODIFIED="1622664467652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core/acquisition" />
