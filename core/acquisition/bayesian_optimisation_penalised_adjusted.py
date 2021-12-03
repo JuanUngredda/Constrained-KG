@@ -201,7 +201,7 @@ class BO(object):
 
             if verbosity:
                 print("self.suggested_sample", self.suggested_sample)
-                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 10000)
+                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 100000)
                 fvals, _ =self.objective.evaluate(initial_design)
                 cvals, _ =self.constraint.evaluate(initial_design)
                 cvals = np.hstack(cvals).squeeze()
@@ -215,12 +215,18 @@ class BO(object):
 
                 fvals = np.array(fvals).reshape(-1)
 
-                plt.title("real surface")
-                plt.scatter(initial_design[:,0][cvalsbool], initial_design[:,1][cvalsbool], c=fvals[cvalsbool])
-                plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
-                plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
+                plt.title("Mistery")
+                plt.scatter(initial_design[:,0], initial_design[:,1], c=fvals*cvalsbool, s=5)
+                # plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
+                # plt.scatter(self.suggested_sample[:,0], self.suggested_sample[:,1], color="red", s=30)
+                plt.xlim((0,5))
+                plt.ylim((0,5))
+                plt.xticks(fontsize=12)
+                plt.yticks(fontsize=12)
+                plt.colorbar()
+                plt.savefig("/home/juan/Documents/repos_data/Constrained-KG/RESULTS_adjusted_penalisation/plots/mistery_penalisation_surface.jpg",bbox_inches='tight', dpi=150)
                 plt.show()
-
+                raise
                 initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)
                 acq_vals = self.acquisition._compute_acq(initial_design)
 

@@ -25,7 +25,7 @@ def function_caller_mistery_penalty_adjusted(rep):
         # func2 = dropwave()
         noise_objective = noise
         noise_constraints = (1e-04) ** 2
-        mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints), offset=-5)
+        mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints), offset=-10)
 
         # --- Attributes
         # repeat same objective function to solve a 1 objective problem
@@ -70,7 +70,7 @@ def function_caller_mistery_penalty_adjusted(rep):
         cwd = os.getcwd()
         path =cwd + "/" + folder + "/" + subfolder + '/it_' + str(rep) + '.csv'
         X, Y, C, recommended_val, optimum, Opportunity_cost = bo.run_optimization(max_iter=max_iter,
-                                                                                  verbosity=False,
+                                                                                  verbosity=True,
                                                                                   stop_date= stop_date,
                                                                                   path=path,
                                                                                   evaluations_file=subfolder,
@@ -78,6 +78,7 @@ def function_caller_mistery_penalty_adjusted(rep):
 
         print("Code Ended")
         print("X",X,"Y",Y, "C", C)
-# function_caller_mistery_penalty_adjusted(rep=4)
+
+function_caller_mistery_penalty_adjusted(rep=4)
 
 

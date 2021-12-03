@@ -213,19 +213,6 @@ def function_caller_test_fun_2_nEI(rep):
             # optimize and get new observation
             new_x_nei, new_obj_nei, new_con1_nei, new_con2_nei, new_con3_nei = optimize_acqf_and_get_observation(qNEI)
 
-            # if verbose:
-            #     ub = bounds[1, :]
-            #     lb = bounds[0, :]
-            #     delta = ub - lb
-            #     plot_data = torch.rand(1000, input_dim, device=device, dtype=dtype) * delta + lb
-            #     value_recommended_design_GP = weighted_obj(plot_data)
-            #
-            #     plt.scatter(np.array(plot_data[:,0]).reshape(-1),
-            #                 np.array(plot_data[:,1]).reshape(-1),
-            #                 c=np.array(value_recommended_design_GP).reshape(-1))
-            #     plt.scatter(train_x_nei[:,0],train_x_nei[:,1], color="red" )
-            #     plt.scatter(new_x_nei[:,0], new_x_nei[:,1], color="magenta")
-            #     plt.show()
 
             # update training points
             train_x_nei = torch.cat([train_x_nei, new_x_nei])

@@ -28,6 +28,62 @@ def function_caller_test_func_2_cEI(rep):
         f = MultiObjective([test_function_2_f.f])
         c = MultiObjective([test_function_2_f.c1, test_function_2_f.c2, test_function_2_f.c3])
 
+        space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 1)},
+                                           {'name': 'var_2', 'type': 'continuous', 'domain': (0, 1)}])
+        plot_design = GPyOpt.experiment_design.initial_design('latin', space, 100000)
+
+        step_function_c1 = np.zeros(len(plot_design))
+        step_function_c2 = np.zeros(len(plot_design))
+        step_function_c3 = np.zeros(len(plot_design))
+
+        c1 = test_function_2_f.c1(plot_design)
+        step_function_c1[c1<0] = 1
+        c2 = test_function_2_f.c2(plot_design)
+        step_function_c2[c2 < 0] = 1
+        c3 = test_function_2_f.c3(plot_design)
+        step_function_c3[c3 < 0] = 1
+
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+
+        fig.suptitle("constraint 1: $((x1 - 3)^2 + (x2 + 2)^2)*np.exp(-x2^7)-12$")
+        ax1.set_title("continuous response")
+        ax1.scatter(plot_design[:,0], plot_design[:,1], c=c1)
+        ax1.scatter(0.5,0.85, color="red", marker="x")
+
+        ax2.set_title("binary response")
+        ax2.scatter(plot_design[:, 0], plot_design[:, 1], c=step_function_c1)
+        ax2.scatter(0.5, 0.85, color="red", marker="x")
+        plt.show()
+
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.suptitle("constraint 2: $10*x1 + x2 -7$")
+        ax1.set_title("continuous response")
+        ax1.scatter(plot_design[:, 0], plot_design[:, 1], c=c2)
+        ax1.scatter(0.5, 0.85, color="red", marker="x")
+
+        ax2.set_title("binary response")
+        ax2.scatter(plot_design[:, 0], plot_design[:, 1], c=step_function_c2)
+        ax2.scatter(0.5, 0.85, color="red", marker="x")
+        plt.show()
+
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.suptitle("constraint 3: $(x1 - 0.5)^2    + (x2 - 0.5)^2 -0.2$")
+        ax1.set_title("continuous response")
+        ax1.scatter(plot_design[:, 0], plot_design[:, 1], c=c3)
+        ax1.scatter(0.5, 0.85, color="red", marker="x")
+
+        ax2.set_title("binary response")
+        ax2.scatter(plot_design[:, 0], plot_design[:, 1], c=step_function_c3)
+        ax2.scatter(0.5, 0.85, color="red", marker="x")
+        plt.show()
+
+
+        overall_step_function = step_function_c1 * step_function_c2 * step_function_c3
+        plt.title("overall step surface")
+        plt.scatter(plot_design[:, 0], plot_design[:, 1], c=overall_step_function)
+        plt.scatter(0.5, 0.85, color="red", marker="x")
+        plt.show()
+        raise
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
 
@@ -71,6 +127,6 @@ def function_caller_test_func_2_cEI(rep):
 
         print("X",X,"Y",Y, "C", C)
 
-# function_caller_test_func_2_cEI(rep=21)
+function_caller_test_func_2_cEI(rep=21)
 
 
