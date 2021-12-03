@@ -18,8 +18,8 @@ from test_function_2_nEI import function_caller_test_fun_2_nEI
 
 
 
-from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
-from mistery_hybrid_cKG_experiment_penalty_unadjusted import function_caller_mistery_penalty_unadjusted
+# from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
+# from mistery_hybrid_cKG_experiment_penalty_unadjusted import function_caller_mistery_penalty_unadjusted
 # This is a bare script that receives args, prints something, wastes some time,function_caller_test_func_2_TS
 # and saves something. Use this as a blank template to run experiments.
 # The sys.argv = [demo_infra_usage.py (time_stamped_folder) (integer)]
