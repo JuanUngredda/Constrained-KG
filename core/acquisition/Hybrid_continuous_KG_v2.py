@@ -10,7 +10,6 @@ from scipy.stats import norm
 import scipy
 import time
 import matplotlib.pyplot as plt
-from pyDOE import *
 # from pathos.multiprocessing import ProcessingPool as Pool
 # from multiprocessing import Pool
 from itertools import permutations, product
@@ -52,7 +51,9 @@ class KG(AcquisitionBase):
         self.fixed_discretisation = None
         self._test_important_values_for_estimated_optimum = []
         self._test_Fz_values = []
-        super(KG, self).__init__(model, space, optimizer, model_c, cost_withGradients=cost_withGradients)
+
+
+        super(KG, self).__init__(model=model, space=space, optimizer=optimizer, model_c=model_c, cost_withGradients=cost_withGradients)
         if cost_withGradients == None:
             self.cost_withGradients = constant_cost_withGradients
         else:
@@ -60,9 +61,12 @@ class KG(AcquisitionBase):
             self.cost_withGradients = constant_cost_withGradients
 
         dimy = 1
-        dimc =  self.model_c.output_dim
-        self.dimc = dimc
-        self.dim = dimy + dimc
+        if model_c is None:
+            self.dim = dimy
+        else:
+            dimc =  self.model_c.output_dim
+            self.dimc = dimc
+            self.dim = dimy + dimc
 
     def _compute_acq(self, X ):
         """
@@ -71,49 +75,15 @@ class KG(AcquisitionBase):
         :param X: set of points at which the acquisition function is evaluated. Should be a 2d array.
         """
         # print("_compute_acq")
-        self.update_current_best()
+
         X =np.atleast_2d(X)
 
-        # plt.title("optimal")
-        # mupf = self.current_func(X)
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =mupf.reshape(-1))
-        # plt.scatter(self.current_max_xopt[:, 0],
-        #             self.current_max_xopt[:, 1],
-        #             color="red")
-        # plt.show()
-
-        marginal_acqX = self._marginal_acq(X)
+        if self.model_c is None:
+            marginal_acqX = self._unconstrained_marginal_acq(X)
+        else:
+            marginal_acqX = self._marginal_acq(X)
         KG = np.reshape(marginal_acqX, (X.shape[0],1))
-        # print("sum", np.sum(self._test_important_values_for_estimated_optimum))
 
-        # print("delta", np.max(self._test_Fz_values), "min", np.min(self._test_Fz_values))
-
-
-        # plt.title("importance")
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =self._test_important_values_for_estimated_optimum)
-        #
-        # plt.scatter(self.current_max_xopt[:,0],
-        #             self.current_max_xopt[:,1],
-        #             color="red")
-        #
-        # X_vals = self.model.get_X_values()
-        # plt.scatter(X_vals[:,0],X_vals[:,1], color="magenta" )
-        # plt.show()
-        #
-        # plt.title("delta")
-        # plt.scatter(X[:,0],
-        #             X[:,1],
-        #             c =self._test_Fz_values)
-        #
-        #
-        # plt.scatter(self.current_max_xopt[:,0], self.current_max_xopt[:,1], color="red")
-        # plt.show()
-
-        # print("KG reshape", KG.reshape(-1))
         return KG
 
     def generate_random_vectors(self, base_c_quantiles=None,
@@ -167,15 +137,295 @@ class KG(AcquisitionBase):
                 self.Z_const = np.array(list(res))[:, 1:] #constraint_quantiles #
 
 
+    def _unconstrained_marginal_acq(self, X):
 
+        varX_obj = self.model.posterior_variance(X, noise=True)
+
+        acqX = np.zeros((X.shape[0], 1))
+
+        for i in range(0, len(X)):
+            x = np.atleast_2d(X[i])
+
+            #For each x new precompute covariance matrices for
+            self.model.partial_precomputation_for_covariance(x)
+            self.model.partial_precomputation_for_covariance_gradient(x)
+
+            aux_obj = np.reciprocal(varX_obj[:, i])
+            #Create discretisation for discrete KG.
+            # if self.fixed_discretisation is False:
+
+            self.X_Discretisation = self._unconstrained_discretisation_X(index=i, X=X, aux_obj =aux_obj )
+
+            # print("X discretisation", self.X_Discretisation)
+
+            kg_val = self.unconstrained_discrete_KG(Xd = self.X_Discretisation ,
+                                      xnew = x,
+                                      Zc=self.Z_cdKG,
+                                      aux_obj =aux_obj)
+            acqX[i,:] = kg_val
+
+        return acqX.reshape(-1)
+
+    def unconstrained_discrete_KG(self, Xd, xnew, Zc, aux_obj, grad=False, verbose=False):
+        xnew = np.atleast_2d(xnew)
+        # Xd = np.concatenate((Xd, self.fixed_discretisation_values))
+        Xd = np.concatenate((Xd, xnew))
+        # Xd = np.concatenate((Xd, self.current_max_xopt))
+        self.grad = grad
+        out = []
+
+        MM = self.model.predict(Xd)[0].reshape(-1)  # move up
+        SS_Xd = np.array(self.model.posterior_covariance_between_points_partially_precomputed(Xd, xnew)[:, :, :]).reshape(-1)
+        inv_sd = np.asarray(np.sqrt(aux_obj)).reshape(())
+
+        SS = SS_Xd * inv_sd
+        MM = MM.reshape(-1)
+        SS = SS.reshape(-1)
+
+        marginal_KG = []
+
+
+        KG = self._unconstrained_parallel_KG(MM=MM,SS=SS,verbose=verbose)
+
+        KG = np.clip(KG, 0, np.inf)
+        marginal_KG.append(KG)
+        out.append(marginal_KG)
+
+        KG_value = np.mean(out)
+        # gradKG_value = np.mean(gradout, axis=?)
+        assert ~np.isnan(KG_value);
+        "KG cant be nan"
+        return KG_value#, gradKG_value
+
+
+    def _unconstrained_parallel_KG(self, MM, SS, Xd=None,verbose=False):
+        """
+        Calculates the linear epigraph, i.e. the boundary of the set of points
+        in 2D lying above a collection of straight lines y=a+bx.
+        Parameters
+        ----------
+        a
+            Vector of intercepts describing a set of straight lines
+        b
+            Vector of slopes describing a set of straight lines
+        tol
+            Minimum slope (in absolute value) different from zero
+        Returns
+        -------
+        KGCB
+            average hieght of the epigraph
+        grad_a
+            dKGCB/db, vector
+        grad_b
+            dKGCB/db, vector
+        """
+        a = MM #np.array(self.c_MM[:, index]).reshape(-1)
+        b = SS #np.array(self.c_SS[:, index]).reshape(-1)
+
+        assert len(b) > 0, "must provide slopes"
+        assert len(a) == len(b), f"#intercepts != #slopes, {len(a)}, {len(b)}"
+        # ensure 1D
+        a = np.array(a).reshape(-1)
+        b = np.array(b).reshape(-1)
+        assert len(a) > 0, "must provide slopes"
+        assert len(a) == len(b), f"#intercepts != #slopes, {len(a)}, {len(b)}"
+
+        # ensure 1D
+        a = np.atleast_1d(a.squeeze())
+        b = np.atleast_1d(b.squeeze()) #- np.mean(b)
+        max_a_index = np.argmax(a)
+        maxa = np.max(a)
+        n_elems = len(a)
+
+        if np.all(np.abs(b) < 0.000000001):
+            return np.array([0])#, np.zeros(a.shape), np.zeros(b.shape)
+
+        # order by ascending b and descending a
+        order = np.lexsort((-a, b))
+        a = a[order]
+        b = b[order]
+
+        # exclude duplicated b (or super duper similar b)
+        threshold = (b[-1] - b[0]) * 0.00001
+        diff_b = b[1:] - b[:-1]
+        keep = diff_b > threshold
+        keep = np.concatenate([[True], keep])
+        keep[np.argmax(a)] = True
+        order = order[keep]
+        a = a[keep]
+        b = b[keep]
+
+        # initialize
+        idz = [0]
+        i_last = 0
+        x = [-np.inf]
+
+        n_lines = len(a)
+        # main loop TODO describe logic
+        # TODO not pruning properly, e.g. a=[0,1,2], b=[-1,0,1]
+        # returns x=[-inf, -1, -1, inf], shouldn't affect kgcb
+        while i_last < n_lines - 1:
+            i_mask = np.arange(i_last + 1, n_lines)
+            x_mask = -(a[i_last] - a[i_mask]) / (b[i_last] - b[i_mask])
+
+            best_pos = np.argmin(x_mask)
+            idz.append(i_mask[best_pos])
+            x.append(x_mask[best_pos])
+
+            i_last = idz[-1]
+
+        x.append(np.inf)
+
+        x = np.array(x)
+        idz = np.array(idz)
+
+        # found the epigraph, now compute the expectation
+        a = a[idz]
+        b = b[idz]
+        order = order[idz]
+
+        pdf = norm.pdf(x)
+        cdf = norm.cdf(x)
+
+        KG = np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))
+        KG -= np.max(a)
+
+
+
+        z_all = np.linspace(x[1], x[-2], 100)
+        for j in range(len(a)):
+
+            print(x[1], x[-2])
+            if x[j] <-30:
+                z = np.linspace(-3, x[j+1], 3)
+            elif x[j+1] > 30:
+                z = np.linspace(x[j], 3, 3)
+            else:
+                z = np.linspace(x[j], x[j+1], 3)
+            mu_star = a.reshape(-1)[j] + b.reshape(-1)[j]*z
+            mu_star_all = a.reshape(-1)[j] + b.reshape(-1)[j]*z_all
+            plt.plot(z_all , mu_star_all,
+                     color="grey",
+                     linewidth=3,
+                     alpha=0.3, zorder=0)
+            plt.plot(z, mu_star,
+                     color="red",
+                     linewidth=3,
+                     zorder=-1)
+
+        plt.plot(z_all, mu_star_all,
+                 color="grey",
+                 linewidth=3,
+                 alpha=0.3, zorder=0, label=" $\mu_{i}^{n+1}(x)$")
+        plt.plot(z, mu_star,
+                 color="red",
+                 linewidth=3,
+                 zorder=-1, label="$\max_{x}$  $\mu_{i}^{n+1}(x)$")
+        plt.xlabel("$Z_{y}$", size=14)
+        plt.xticks(fontsize=13)
+        plt.yticks(fontsize=13)
+        plt.legend(loc="upper left", fontsize=15)
+        plt.xlim(-2.4,2.4)
+        plt.savefig("/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/Zy_epigraph.jpg")
+        plt.show()
+        raise
+        # if verbose:
+        #     print("a_sorted ",a_sorted )
+        #     print("b_sorted", b_sorted)
+        #
+        #     print("current max",np.max(a) )
+        #     print("idz", idz)
+        #     print("a", a)
+        #     print("b", b)
+        #     plt.scatter(Xd.reshape(-1), np.array(self.c_MM[:, index]).reshape(-1))
+        #     plt.plot(np.linspace(0,5,2), np.repeat(np.max(a), 2), color="red")
+        #     plt.show()
+        #     # raise
+        # if KG < -1e-5:
+        #     print("KG cant be negative")
+        #     print("np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:]))",
+        #           np.sum(a * (cdf[1:] - cdf[:-1]) + b * (pdf[:-1] - pdf[1:])))
+        #     print("self.bases_value[index]", np.max(a))
+        #     print("KG", KG)
+        #     raise
+        #
+        # KG = np.clip(KG, 0, np.inf)
+
+        if np.isnan(KG):
+            print("KG", KG)
+            print("self.bases_value[index]", max_a_index)
+            print("a", a)
+            print("b", b)
+            raise
+
+        return KG
+
+    def _unconstrained_discretisation_X(self, index, X, aux_obj):
+        """
+
+             """
+        i = index
+        x = np.atleast_2d(X[i])
+
+        statistics_precision = []
+        self.Z_obj = np.array([-2.64,-1.96, -0.67, 0, 0.67,1.96, 2.64])
+        X_discretisation = np.zeros((len(self.Z_obj),X.shape[1]))
+
+        # efficiency = 0
+        self.new_anchors_flag = True
+        complete_function = []
+        xnew_vals=[]
+        for z in range(len(self.Z_obj)):
+
+            Z_obj  = self.Z_obj[z]
+            # inner function of maKG acquisition function.
+            # current_xval, current_max = self._compute_current_max(x, Z_const, aux_c)
+
+            def inner_func(X_inner):
+                X_inner = np.atleast_2d(X_inner)
+                # X_inner = X_inner.astype("int")
+                grad_obj = gradients(x_new=x, model=self.model, Z=Z_obj, aux=aux_obj,
+                                     X_inner=X_inner)  # , test_samples = self.test_samples)
+                mu_xnew = grad_obj.compute_value_mu_xnew(x=X_inner)
+
+                func_val = mu_xnew
+                return -func_val.reshape(-1)  # mu_xnew , Fz
+
+            # inner function of maKG acquisition function with its gradient.
+            plot_samples = np.linspace(4.0, 7, 60)[:, np.newaxis]
+            complete_function.append(inner_func(plot_samples))
+            xnew_vals.append(-inner_func(x))
+            inner_opt_x, inner_opt_val = self.optimizer.optimize_inner_func(f=inner_func,
+                                                                            f_df=None)
+
+            statistics_precision.append(inner_opt_val)
+            X_discretisation[z] = inner_opt_x.reshape(-1)
+
+        plot_samples = np.linspace(4.0,7,60)[:, np.newaxis]
+        mu = self.model.posterior_mean(plot_samples).reshape(-1)
+        var = self.model.posterior_variance(plot_samples, noise=False).reshape(-1)
+
+        print(X_discretisation, -np.array(statistics_precision).reshape(-1))
+        plt.plot(plot_samples.reshape(-1), mu, color="grey", linestyle='dashed')
+        plt.fill_between(plot_samples.reshape(-1),
+                         mu-3.1*np.sqrt(var),
+                         mu+3.1*np.sqrt(var), color="lightcoral", alpha=0.3)
+        plt.scatter(X_discretisation, -np.array(statistics_precision).reshape(-1), label="$\max_{x}$  $\mu_{i}^{n+1}(x)$",
+        color="red", s=60,edgecolors='black', zorder=1)
+        plt.plot(plot_samples.reshape(-1), -np.array(complete_function).T, color="grey", alpha=0.5)
+        plt.scatter(np.repeat(x, len(xnew_vals)), np.array(xnew_vals).reshape(-1), s=60, color="white", edgecolors="black", zorder=1)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.legend(loc="upper left", fontsize=15)
+        plt.xlim(4,7)
+        plt.savefig("/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/max_u.jpg")
+        plt.show()
+
+        self.new_anchors_flag = False
+        return X_discretisation
 
     def _marginal_acq(self, X):
-        # print("_marginal_acq")
-        """
-
-        """
-        #Initialise marginal acquisition variables
-        #Precompute posterior pariance at vector points X. These are the same through every cKG loop.
+        self.update_current_best()
 
         varX_obj = self.model.posterior_variance(X, noise=True)
         varX_c = self.model_c.posterior_variance(X, noise=True)

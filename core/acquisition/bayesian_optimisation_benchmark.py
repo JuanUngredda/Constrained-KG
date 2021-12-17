@@ -6,7 +6,6 @@ import numpy as np
 import time
 import csv
 import matplotlib.pyplot as plt
-from pyDOE import lhs
 import time
 from GPyOpt.DM.Decision_Maker import DM
 from GPyOpt.DM.inference import inf

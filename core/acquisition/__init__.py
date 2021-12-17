@@ -6,5 +6,4 @@ from . import bayesian_optimisation_benchmark
 from . import multi_objective
 from . import general
 from . import continuous_KG
-from .mistery_experiment import function_caller
 from . import Real_Experiments

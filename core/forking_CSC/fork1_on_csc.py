@@ -105,6 +105,8 @@ def run(args):
     N_MACHINES = len(CSC_NAMES)
 
     # make a new unique dir within the base dir
+    print("args.exp_script",args.exp_script)
+    print("args.basedir",args.basedir)
     dirname = create_exp_dir(args.exp_script, args.basedir)
 
     # list of jobs and shuffle them

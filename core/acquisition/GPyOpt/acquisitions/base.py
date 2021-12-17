@@ -27,6 +27,8 @@ class AcquisitionBase(object):
 
         if model_c != None:
             self.model_c = model_c
+        else:
+            self.model_c = None
 
         if cost_withGradients is  None:
             self.cost_withGradients = constant_cost_withGradients
