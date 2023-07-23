@@ -370,6 +370,7 @@ class gradients(object):
 
             return Fz
 
+
     def compute_probability_feasibility_multi_gp(self, x, l=0, gradient_flag = False):
 
         if gradient_flag:
@@ -477,7 +478,8 @@ class gradients(object):
         grad_Fz = -fz * aux_var * (grad_mean * std - mean * grad_std)
         return grad_Fz
 
-    def compute_probability_feasibility(self,  mean=None, cov=None, l=0):
+    @staticmethod
+    def compute_probability_feasibility( mean=None, cov=None, l=0):
 
         std = np.sqrt(cov)#.reshape(-1, 1)
         mean = mean#.reshape(-1, 1)

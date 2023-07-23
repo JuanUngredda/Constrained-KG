@@ -32,34 +32,53 @@ def function_caller_1DGP(rep):
         x = np.linspace(4,7,100).reshape(-1,1)
         y = GP_test_f(x, true_val=True)
         c = GP_test_c(x)
-        fval = y.reshape(-1) * np.array(c<0).reshape(-1)
+        fval = y.reshape(-1) #* np.array(c<0).reshape(-1)
         x = x.reshape(-1)
         print("x.reshape(-1)[np.logical_or(x<4.5 , x>6)]",x.reshape(-1)[np.logical_or(x<4.5 , x>6)])
         print("fval.reshape(-1)[np.logical_or(x<4.5 , x>6)]",fval.reshape(-1)[np.logical_or(x<4.5 , x>6)])
-        plt.plot(x.reshape(-1)[x>5.8], fval.reshape(-1)[x>5.8], label="feasible",color="green", linewidth=3)
+        plt.plot(x.reshape(-1)[x > 5.8], fval.reshape(-1)[x>5.8], label="feasible",color="green", linewidth=3)
         plt.plot(x.reshape(-1)[x < 4.6], fval.reshape(-1)[x < 4.6], color="green", linewidth=3)
-        plt.plot(x[np.array(c > 0).reshape(-1)], fval[np.array(c > 0).reshape(-1)], label="infeasible",color="green", linestyle="--",linewidth=3)
+        plt.plot(x.reshape(-1)[(4.6 < x) &(x < 5.8)], fval.reshape(-1)[ (4.6 < x) & (x < 5.8)]*0, color="red", linestyle="--", linewidth=3, label="infeasible")
+        # plt.plot(x[np.array(c > 0).reshape(-1)], fval[np.array(c > 0).reshape(-1)], label="infeasible",color="green", linestyle="--",linewidth=3)
         plt.xlim(4, 7)
-        plt.xlabel("X", fontsize=15)
+        plt.ylim(-3, 3)
+        plt.xlabel("$\mathbb{X}$", fontsize=20)
+        plt.ylabel("$\mathbb{Y}$", fontsize=20)
         plt.legend(fontsize=15)
-        plt.title("$f * \mathbb{I}_{c<0}$ vs $X$", fontsize=15)
-        # plt.savefig(
-        #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/composing_functions",
-        #     bbox_inches="tight")
+        plt.savefig(
+            "/home/juan/Documents/repos_data/PhD_Thesis/pictures_revised/composing_functions.pdf",
+            bbox_inches="tight")
         plt.show()
+        # raise
+        # raise
+        # plt.show()
 
-
-        plt.plot(x,y, color="blue", linewidth=3, label = "$f$")
-        plt.plot(x, c, color="darkorchid", linewidth=3, label="$c$")
+        plt.plot(x,y, color="green", linewidth=3, label = "objective function")
         plt.ylim(-3,3)
         plt.xlim(4, 7)
-        plt.xlabel("X", fontsize=15)
+        plt.xlabel("$\mathbb{X}$", fontsize=15)
+        plt.ylabel("$f(x)$", fontsize=20)
         plt.legend(fontsize=15)
+        plt.savefig(
+            "/home/juan/Documents/repos_data/PhD_Thesis/pictures_revised/objective_function.pdf",
+            bbox_inches="tight")
+        plt.show()
+
+        plt.plot(x, c, color="red", linewidth=3, label="$constraint$")
+        plt.hlines(y=0, xmin=4, xmax=7, linewidth=2, color='grey', linestyles="--", label="Threshold")
+        plt.ylim(-3,3)
+        plt.xlim(4, 7)
+        plt.xlabel("$\mathbb{X}$", fontsize=20)
+        plt.ylabel("$c(x)$", fontsize=20)
+        plt.legend(fontsize=15)
+        plt.savefig(
+            "/home/juan/Documents/repos_data/PhD_Thesis/pictures_revised/constraint.pdf",
+            bbox_inches="tight")
         # plt.savefig(
         #     "/home/juan/Documents/repos_data/Constrained-KG/RESULTS/plot_saved_data/plots/performance.jpg",
         #     bbox_inches="tight")
         plt.show()
-
+        raise
         # --- Attributes
         #repeat same objective function to solve a 1 objective problem
         f = MultiObjective([GP_test_f ])
@@ -98,7 +117,7 @@ def function_caller_1DGP(rep):
                 tag_last_evaluation=True,
                 deterministic=False)
 
-        stop_date = datetime(2022, 5, 17, 7)  # year month day hour
+        stop_date = datetime(2025, 5, 17, 7)  # year month day hour
         max_iter = 100
         # print("Finished Initialization")
         subfolder = "mistery_hybrid_KG_" + str(noise)
