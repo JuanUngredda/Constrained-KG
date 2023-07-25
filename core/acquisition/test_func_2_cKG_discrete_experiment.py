@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import GPyOpt
-from GPyOpt.objective_examples.experiments2d import mistery
+from GPyOpt.objective_examples.experiments2d import mistery,  test_function_2, new_brannin
 from Hybrid_discrete_KG_v2 import KG
 from bayesian_optimisation import BO
 from multi_objective import MultiObjective
@@ -16,7 +16,7 @@ from multi_outputGP import multi_outputGP
 print("mistery activate")
 
 
-def function_caller_mistery_v2(it):
+def function_caller_test_func_2(it):
     np.random.seed(it)
     for noise in [1e-06]:
         for num_samples in [50, 500]:
@@ -24,56 +24,18 @@ def function_caller_mistery_v2(it):
             num_underlying_samples = num_samples
             noise_objective = noise
             noise_constraints = 1e-06
-            mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
+            test_function_2_f = test_function_2(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
-            # --- Attributes
-            # repeat same objective function to solve a 1 objective problem
-            f = MultiObjective([mistery_f.f])
-            c = MultiObjective([mistery_f.c])
+            #repeat same objective function to solve a 1 objective problem
+            f = MultiObjective([test_function_2_f.f])
+            c = MultiObjective([test_function_2_f.c1, test_function_2_f.c2, test_function_2_f.c3])
 
-            # --- Attributes
-            # repeat same objective function to solve a 1 objective problem
-
-            # c2 = MultiObjective([test_c2])
-            # --- Space
-            # define space of variables
-            space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 5)},
-                                               {'name': 'var_2', 'type': 'continuous', 'domain': (0,
-                                                                                                  5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
-
-            verbose = False
-            if verbose:
-                mistery_f_denoised = mistery(sd_obj=0, sd_c=0)
-                plot_design = GPyOpt.experiment_design.initial_design('latin', space, 100000)
-
-                fvals = mistery_f_denoised.f(plot_design)  # f.evaluate(plot_design)
-                cvals = mistery_f_denoised.c(plot_design)  # c.evaluate(plot_design)
-                cvalsbool = np.array(cvals).reshape(-1) < 0
-                fvals = np.array(fvals).reshape(-1)
-                X_argmax = np.atleast_2d(plot_design[np.argmax(fvals[cvalsbool])])
-
-                max_fvals = []
-                for _ in range(100):
-                    fvals_noised = mistery_f.f(X_argmax)  # f.evaluate(plot_design)
-                    # cvals = mistery_f.c(X_argmax) #c.evaluate(plot_design)
-                    # cvalsbool = np.array(cvals).reshape(-1) < 0
-                    fvals_noised = np.array(fvals_noised).reshape(-1)
-                    max_fvals.append(fvals_noised)
-
-                signal_to_noise_ratio = np.abs(np.mean(max_fvals)) / np.std(max_fvals)
-                print("signal_to_noise_ratio", signal_to_noise_ratio)
-                # print("max constrained value", np.max(fvals[cvalsbool]))
-                # print("max", np.max(fvals), "min", np.min(fvals))
-                # print("max", np.max(cvals), "min", np.min(cvals))
-
-                plt.scatter(plot_design[:, 0][cvalsbool], plot_design[:, 1][cvalsbool], c=fvals[cvalsbool])
-                plt.show()
-                raise
-
+            space =  GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,1)},
+                                                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,1)}])#GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
             n_f = 1
-            n_c = 1
-            model_f = multi_outputGP(output_dim=n_f, noise_var=[noise_objective] * n_f, exact_feval=[True] * n_f)
-            model_c = multi_outputGP(output_dim=n_c, noise_var=[noise_constraints] * n_c, exact_feval=[True] * n_c)
+            n_c = 3
+            model_f = multi_outputGP(output_dim = n_f,   noise_var=[noise_objective]*n_f, exact_feval=[True]*n_f)#, normalizer=True)
+            model_c = multi_outputGP(output_dim = n_c,  noise_var=[noise_constraints]*n_c, exact_feval=[True]*n_c)
 
             # --- Aquisition optimizer
             # optimizer for inner acquisition function
@@ -102,7 +64,7 @@ def function_caller_mistery_v2(it):
             stop_date = datetime(2030, 5, 9, 7)  # year month day hour
             max_iter = 100
             # print("Finished Initialization")
-            subfolder = "discrete_mistery_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+            subfolder = "discrete_test_func_2_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
             folder = "RESULTS"
             cwd = os.getcwd()
             path = cwd + "/" + folder + "/" + subfolder + '/' + str(num_underlying_samples)
@@ -123,4 +85,4 @@ def function_caller_mistery_v2(it):
 
 
 for i in range(30):
-    function_caller_mistery_v2(it=i)
+    function_caller_test_func_2(it=i)

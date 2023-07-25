@@ -79,7 +79,6 @@ dependencies:
   - zlib=1.2.11=h516909a_1010
   - zstd=1.4.5=h6597ccf_2
   - pip:
-    - atari-py==0.2.6
     - botorch==0.3.2
     - box2d-py==2.3.8
     - cffi==1.14.6
