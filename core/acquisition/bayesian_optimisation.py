@@ -254,33 +254,6 @@ class BO(object):
                     np.isclose(np.mean(self.Opportunity_Cost_GP_mean[-10:]), self.Opportunity_Cost_GP_mean[-1],
                                rtol=1e-4) & len(self.Opportunity_Cost_GP_mean) > 30):
                 print("Code stopped early")
-
-                data["OC sampled"] = np.concatenate(
-                    (np.zeros(self.n_init), np.array(self.Opportunity_Cost_sampled).reshape(-1)))
-                data["OC GP mean"] = np.concatenate(
-                    (np.zeros(self.n_init), np.array(discretisation_optimum_val).reshape(-1)))
-                data["Y"] = np.array(self.Y).reshape(-1)
-                # data["C"] = np.array(self.C).reshape(-1)
-                data["C_bool"] = np.array(C_bool).reshape(-1)
-                data["recommended_val_sampled"] = np.concatenate(
-                    (np.zeros(self.n_init), np.array(self.recommended_value_sampled).reshape(-1)))
-                data["recommended_val_GP"] = np.concatenate(
-                    (np.zeros(self.n_init), np.array(self.recommended_value_GP_mean).reshape(-1)))
-                data["optimum"] = np.concatenate((np.zeros(self.n_init), np.array(self.underlying_optimum).reshape(-1)))
-
-                print(data)
-                gen_file = pd.DataFrame.from_dict(data)
-                folder = "RESULTS"
-                subfolder = self.evaluations_file
-                cwd = os.getcwd()
-
-                path = self.path
-                if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
-                    os.makedirs(cwd + "/" + folder + "/" + subfolder, exist_ok=True)
-                print("path", path)
-                gen_file.to_csv(path_or_buf=path)
-
-                np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_" + str(rep) + ".csv", self.X, delimiter=',')
                 break
             overall_time_stop = time.time()
 
