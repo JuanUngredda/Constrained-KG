@@ -122,5 +122,5 @@ def function_caller_mistery_v2(it):
             print("Code Ended")
 
 
-for i in range(30):
-    function_caller_mistery_v2(it=i)
+# for i in range(30):
+#     function_caller_mistery_v2(it=i)
