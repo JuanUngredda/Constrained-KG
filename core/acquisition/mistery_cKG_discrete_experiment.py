@@ -19,7 +19,7 @@ print("mistery activate")
 def function_caller_mistery_v2(it):
     np.random.seed(it)
     for noise in [1e-06]:
-        for num_samples in [50, 500]:
+        for num_samples in [50000, 500000]:
             # func2 = dropwave()
             num_underlying_samples = num_samples
             noise_objective = noise

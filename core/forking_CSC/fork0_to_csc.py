@@ -108,10 +108,9 @@ N_PROCESSES = 8
 ############################### DEFINE COMPUTER ARRAY #######################################
 
 # set the computers you want to use here, tmux will load to show if they are active.
-ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
-                 "embutido", "jamon", "caldereta", "dinuguan", "lechon",
-                 "niliga", "inihaw", "halabos", "sinuglaw", "keiko", 
-                 "kumeta", "het1","het2","het3","het4"]
+ALL_CSC_NAMES = [ "jamon", 
+                 "niliga",  "keiko", 
+                 "kumeta"]
 
 # default list uses all computers, but some may need to be removed.
 # working with names is a bitch, instead use numbers (tmux panes).
@@ -120,7 +119,7 @@ ALL_CSC_NAMES = ["rilyeno", "torta", "adobo", "bulalo", "kinilaw", "okoy",
 #python fork0_to_csc.py /home/rawsys/matjiu/Constrained-KG/core/acquisition/KG_control.py 9 --first_fork kumeta --basedir /home/rawsys/matjiu/RESULTS_cKG/mistery --conda Constrained-KG
 
 
-U = [1, 5, 6, 7,  11,15,16] #[] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
+U = [i for i in range(len(ALL_CSC_NAMES))] #[] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
 
 
 CSC_NAMES = [ALL_CSC_NAMES[i] for i in U]

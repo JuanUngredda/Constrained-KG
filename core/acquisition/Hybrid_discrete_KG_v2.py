@@ -109,7 +109,6 @@ class KG(AcquisitionBase):
 
             self.base_discretisation = fixed_discretisation
             extended_fixed_discretisation = np.concatenate((fixed_discretisation, sampled_X))
-            extended_fixed_discretisation = np.concatenate((extended_fixed_discretisation, self.current_max_xopt))
 
             self.fixed_discretisation_values = extended_fixed_discretisation
             self.X_Discretisation = extended_fixed_discretisation
@@ -556,7 +555,8 @@ class KG(AcquisitionBase):
                 return -func_val.reshape(-1)  # mu_xnew , Fz
 
             # inner function of maKG acquisition function with its gradient.
-            fX_values = inner_func(self.underlying_discretisation)
+            random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=500, replace=False)
+            fX_values = inner_func(self.underlying_discretisation[random_indexes])
             inner_opt_x = self.underlying_discretisation[np.argmin(fX_values)]
 
             statistics_precision.append(np.max(fX_values))
@@ -891,8 +891,8 @@ class KG(AcquisitionBase):
         return -(mu * Fz).reshape(-1)
 
     def _compute_current_max(self):
-
-        fX_vals = self.current_func(self.underlying_discretisation)
+        random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=5000, replace=False)
+        fX_vals = self.current_func(self.underlying_discretisation[random_indexes])
         inner_opt_x = self.underlying_discretisation[np.argmax(-fX_vals)][None, :]
         inner_opt_val = np.min(fX_vals)
 

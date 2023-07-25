@@ -194,50 +194,7 @@ class BO(object):
                 print("self.suggested_sample", self.suggested_sample)
                 self.acquisition._plots(self.suggested_sample)
 
-            if False:  # verbosity:
-                print("self.suggested_sample", self.suggested_sample)
-                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 10000)
-                fvals, _ = self.objective.evaluate(initial_design)
-                cvals, _ = self.constraint.evaluate(initial_design)
-                cvals = np.hstack(cvals).squeeze()
 
-                cvalsbool = np.array(cvals) < 0
-
-                if len(cvalsbool.shape) > 1:
-                    cvalsbool = np.product(cvalsbool, axis=1)
-
-                cvalsbool = np.array(cvalsbool, dtype=bool).reshape(-1)
-
-                fvals = np.array(fvals).reshape(-1)
-
-                plt.title("real surface")
-                plt.scatter(initial_design[:, 0][cvalsbool], initial_design[:, 1][cvalsbool], c=fvals[cvalsbool])
-                plt.scatter(self.X[:, 0], self.X[:, 1], color="magenta")
-                plt.scatter(self.suggested_sample[:, 0], self.suggested_sample[:, 1], color="red", s=30)
-                plt.show()
-
-                initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)
-                acq_vals = self.acquisition._compute_acq(initial_design)
-
-                agregated_posterior = self.aggregated_posterior(initial_design)
-                plt.title("estimated surface")
-                plt.scatter(initial_design[:, 0], initial_design[:, 1], c=-agregated_posterior)
-                plt.show()
-
-                _, penalty = self.update_penalty()
-                print("penalty", penalty)
-                agregated_penalised_posterior = self.agreagated_penalised_posterior(initial_design,
-                                                                                    penalisation=penalty)
-                plt.title("estimated penalised surface")
-                plt.scatter(initial_design[:, 0], initial_design[:, 1], c=-agregated_penalised_posterior)
-                plt.show()
-                #
-                # print("max val", np.max(acq_vals), "min val", np.min(acq_vals))
-                # plt.title("acq")
-                # plt.scatter(initial_design[:, 0], initial_design[:, 1], c=acq_vals.reshape(-1))
-                # plt.show()
-
-                # raise
             print("self.suggested_sample", self.suggested_sample)
             print("time optimisation point X", finish - start)
 
@@ -291,9 +248,39 @@ class BO(object):
 
             discretisation_optimum_val = -np.min(self.func_val(self.underlying_discretisation))
             print("best achievable discretisation value", discretisation_optimum_val)
-            if np.isclose(discretisation_optimum_val, np.mean(self.Opportunity_Cost_GP_mean[-3:]), rtol=1e-4, atol=1e-4) & (len(
-                    self.Opportunity_Cost_GP_mean) > 3):
+            if (np.isclose(discretisation_optimum_val, np.mean(self.Opportunity_Cost_GP_mean[-3:]), rtol=1e-4,
+                           atol=1e-4) & (len(
+                self.Opportunity_Cost_GP_mean) > 3)) or (
+                    np.isclose(np.mean(self.Opportunity_Cost_GP_mean[-10:]), self.Opportunity_Cost_GP_mean[-1],
+                               rtol=1e-4) & len(self.Opportunity_Cost_GP_mean) > 30):
                 print("Code stopped early")
+
+                data["OC sampled"] = np.concatenate(
+                    (np.zeros(self.n_init), np.array(discretisation_optimum_val).reshape(-1)))
+                data["OC GP mean"] = np.concatenate(
+                    (np.zeros(self.n_init), np.array(discretisation_optimum_val).reshape(-1)))
+                data["Y"] = np.array(self.Y).reshape(-1)
+                # data["C"] = np.array(self.C).reshape(-1)
+                data["C_bool"] = np.array(C_bool).reshape(-1)
+                data["recommended_val_sampled"] = np.concatenate(
+                    (np.zeros(self.n_init), np.array(discretisation_optimum_val).reshape(-1)))
+                data["recommended_val_GP"] = np.concatenate(
+                    (np.zeros(self.n_init), np.array(discretisation_optimum_val).reshape(-1)))
+                data["optimum"] = np.concatenate((np.zeros(self.n_init), np.array(self.underlying_optimum).reshape(-1)))
+
+                print(data)
+                gen_file = pd.DataFrame.from_dict(data)
+                folder = "RESULTS"
+                subfolder = self.evaluations_file
+                cwd = os.getcwd()
+
+                path = self.path
+                if os.path.isdir(cwd + "/" + folder + "/" + subfolder) == False:
+                    os.makedirs(cwd + "/" + folder + "/" + subfolder)
+                print("path", path)
+                gen_file.to_csv(path_or_buf=path)
+
+                np.savetxt(cwd + "/" + folder + "/" + subfolder + "/X_" + str(rep) + ".csv", self.X, delimiter=',')
                 break
             overall_time_stop = time.time()
 
@@ -435,12 +422,17 @@ class BO(object):
                 self._update_model()
             #
             self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
-            if self.underlying_discretisation is None:
-                out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
-                                                          additional_anchor_points=self.X[7:, :], num_samples=1000)
-            else:
-                fX_vals = self.aggregated_posterior(self.underlying_discretisation)
-                out = (self.underlying_discretisation[np.argmax(-fX_vals)][None, :], np.min(fX_vals))
+
+            out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
+                                                      additional_anchor_points=self.X[7:, :], num_samples=1000)
+            if self.underlying_discretisation is not None:
+                distance = np.sum(np.sqrt((out[0] - self.underlying_discretisation) ** 2), axis=1)
+                min_distance_idx = np.argmin(distance)
+                aux_var = self.underlying_discretisation[min_distance_idx][None, :]
+
+                fX_vals = self.aggregated_posterior(aux_var)
+                out = (aux_var, fX_vals)
+
 
             suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
             suggested_final_mean_GP_recommended = -out[1]
@@ -557,12 +549,15 @@ class BO(object):
 
                 self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
 
-                if self.underlying_discretisation is None:
-                    out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
-                                                              additional_anchor_points=self.X[7:, :], num_samples=1000)
-                else:
-                    fX_vals = self.aggregated_posterior(self.underlying_discretisation)
-                    out = (self.underlying_discretisation[np.argmax(-fX_vals)][None, :], np.min(fX_vals))
+                out = self.acquisition.optimizer.optimize(f=self.aggregated_posterior, duplicate_manager=None,
+                                                          additional_anchor_points=self.X[7:, :], num_samples=1000)
+                if self.underlying_discretisation is not None:
+                    distance = np.sum(np.sqrt((out[0] - self.underlying_discretisation) ** 2), axis=1)
+                    min_distance_idx = np.argmin(distance)
+                    aux_var = self.underlying_discretisation[min_distance_idx][None, :]
+
+                    fX_vals = self.aggregated_posterior(aux_var)
+                    out = (aux_var, fX_vals)
 
                 suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
                 suggested_final_mean_GP_recommended = -out[1]
@@ -660,12 +655,14 @@ class BO(object):
 
             return 0
 
+
     def aggregated_posterior(self, X):
         mu = self.model.posterior_mean(X)
         pf = self.probability_feasibility_multi_gp(X, self.model_c)
         pf = np.array(pf).reshape(-1)
         mu = np.array(mu).reshape(-1)
         return -(mu * pf).reshape(-1)
+
 
     def agreagated_penalised_posterior(self, X, penalisation):
         mu = self.model.posterior_mean(X)
@@ -676,6 +673,7 @@ class BO(object):
         infeasible_term = penalisation.squeeze() * (1 - pf.reshape(-1))
         overall_term = feasable_term + infeasible_term
         return -(overall_term).reshape(-1)
+
 
     def expected_improvement(self, X):
         '''
@@ -713,6 +711,7 @@ class BO(object):
         ei = np.array(ei).reshape(-1)
         return -(ei * pf).reshape(-1)
 
+
     def probability_feasibility_multi_gp(self, x, model, mean=None, cov=None, l=0):
         # print("model",model.output)
         x = np.atleast_2d(x)
@@ -723,8 +722,8 @@ class BO(object):
         Fz = np.product(Fz, axis=0)
         return Fz
 
-    def probability_feasibility(self, x, model, l=0):
 
+    def probability_feasibility(self, x, model, l=0):
         model = model.model
         # kern = model.kern
         # X = model.X
@@ -740,6 +739,7 @@ class BO(object):
         Fz = norm_dist.cdf(l)
 
         return Fz.reshape(-1, 1)
+
 
     def evaluate_objective(self):
         """
@@ -758,9 +758,11 @@ class BO(object):
             print(self.C_new[k])
             self.C[k] = np.vstack((self.C[k], self.C_new[k]))
 
+
     def compute_current_best(self):
         current_acqX = self.acquisition.current_compute_acq()
         return current_acqX
+
 
     def _distance_last_evaluations(self):
         """
@@ -768,8 +770,8 @@ class BO(object):
         """
         return np.sqrt(sum((self.X[self.X.shape[0] - 1, :] - self.X[self.X.shape[0] - 2, :]) ** 2))
 
-    def _compute_next_evaluations(self, pending_zipped_X=None, ignored_zipped_X=None, re_use=False):
 
+    def _compute_next_evaluations(self, pending_zipped_X=None, ignored_zipped_X=None, re_use=False):
         """
         Computes the location of the new evaluation (optimizes the acquisition in the standard case).
         :param pending_zipped_X: matrix of input configurations that are in a pending state (i.e., do not have an evaluation yet).
@@ -777,30 +779,26 @@ class BO(object):
         :return:
         """
         ## --- Update the context if any
+        aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use,
+                                               dynamic_optimisation=self.KG_dynamic_optimisation)
 
         self.acquisition.optimizer.context_manager = ContextManager(self.space, self.context)
         if self.underlying_discretisation is not None:
-            fX_values = self.acquisition._compute_acq(self.underlying_discretisation)
-            aux_var = self.underlying_discretisation[np.argmax(fX_values)][None, :]
+            distance = np.sum(np.sqrt((aux_var[0] - self.underlying_discretisation) ** 2), axis=1)
+            min_distance_idx = np.argmin(distance)
+            aux_var = self.underlying_discretisation[min_distance_idx][None, :]
             return self.space.zip_inputs(aux_var)
         else:
             if self.sample_from_acq:
                 print("suggest next location given THOMPSON SAMPLING")
                 candidate_points = initial_design('latin', self.space, 2000)
                 aux_var = self.acquisition._compute_acq(candidate_points)
-            else:
-                # try:
-                # self.acquisition.generate_random_vectors(optimize_discretization=True, optimize_random_Z=True)
-                aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use,
-                                                       dynamic_optimisation=self.KG_dynamic_optimisation)
-                # except:
-                #     aux_var = self.evaluator.compute_batch(duplicate_manager=None, re_use=re_use)
 
         return self.space.zip_inputs(aux_var[0])
         # return initial_design('random', self.space, 1)
 
-    def _update_fantasised_model(self, X, Y, C):
 
+    def _update_fantasised_model(self, X, Y, C):
         if (self.num_acquisitions % self.model_update_interval) == 0:
             ### --- input that goes into the model (is unziped in case there are categorical variables)
             X_inmodel = self.space.unzip_inputs(X)
@@ -809,6 +807,7 @@ class BO(object):
 
             self.model.updateModel(X_inmodel, Y_inmodel)
             self.model_c.updateModel(X_inmodel, C_inmodel)
+
 
     def _update_model(self):
         """
@@ -825,8 +824,10 @@ class BO(object):
         ### --- Save parameters of the model
         # self._save_model_parameter_values()
 
+
     def get_evaluations(self):
         return self.X.copy(), self.Y.copy()
+
 
     def true_best_value(self):
         from scipy.optimize import minimize
@@ -890,6 +891,7 @@ class BO(object):
 
             plt.show()
 
+
     def func_val(self, x):
         if len(x.shape) == 1:
             x = x.reshape(1, -1)
@@ -900,11 +902,13 @@ class BO(object):
         out = np.array(out).reshape(-1)
         return -out
 
+
     def current_func_no_constraint(self, X_inner):
         X_inner = np.atleast_2d(X_inner)
         mu = self.model.posterior_mean(X_inner)[0]
         mu = np.array(mu).reshape(-1)
         return mu
+
 
     def update_penalty(self):
         inner_opt_x, inner_opt_val = self.acquisition.optimizer.optimize_inner_func(f=self.current_func_no_constraint,
