@@ -116,7 +116,7 @@ def function_caller_mistery_v2(it):
                 path = cwd + "/" + folder + "/" + subfolder + '/' + str(num_underlying_samples)
                 file_name = 'it_' + str(rep) + '.csv'
                 if not os.path.isdir(path):
-                    os.makedirs(path)
+                    os.makedirs(path, exist_ok=True)
 
                 if not os.path.isfile(path + "/" + file_name):
                     bo.run_optimization(max_iter=max_iter,
@@ -130,4 +130,4 @@ def function_caller_mistery_v2(it):
                 print("Code Ended")
 
 # for i in range(30):
-#     function_caller_mistery_v2(it=i)
+# function_caller_mistery_v2(it=1)
