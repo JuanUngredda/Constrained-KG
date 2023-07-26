@@ -891,11 +891,11 @@ class KG(AcquisitionBase):
         return -(mu * Fz).reshape(-1)
 
     def _compute_current_max(self):
-        random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=np.min(5000, len(self.underlying_discretisation)), replace=False)
+        random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=np.min([5000, len(self.underlying_discretisation)-1]), replace=False)
         fX_vals = self.current_func(self.underlying_discretisation[random_indexes])
         inner_opt_x = self.underlying_discretisation[np.argmax(-fX_vals)][None, :]
         inner_opt_val = np.min(fX_vals)
-
+        raise
         inner_opt_x = np.array(inner_opt_x).reshape(-1)
         inner_opt_x = np.atleast_2d(inner_opt_x)
         return inner_opt_x, -inner_opt_val
