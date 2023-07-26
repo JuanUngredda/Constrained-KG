@@ -555,7 +555,7 @@ class KG(AcquisitionBase):
                 return -func_val.reshape(-1)  # mu_xnew , Fz
 
             # inner function of maKG acquisition function with its gradient.
-            random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=500, replace=False)
+            random_indexes = np.random.choice(range(len(self.underlying_discretisation)), size=np.min([5000, len(self.underlying_discretisation)-1]), replace=False)
             fX_values = inner_func(self.underlying_discretisation[random_indexes])
             inner_opt_x = self.underlying_discretisation[np.argmin(fX_values)]
 
@@ -895,7 +895,7 @@ class KG(AcquisitionBase):
         fX_vals = self.current_func(self.underlying_discretisation[random_indexes])
         inner_opt_x = self.underlying_discretisation[np.argmax(-fX_vals)][None, :]
         inner_opt_val = np.min(fX_vals)
-        raise
+        # raise
         inner_opt_x = np.array(inner_opt_x).reshape(-1)
         inner_opt_x = np.atleast_2d(inner_opt_x)
         return inner_opt_x, -inner_opt_val
