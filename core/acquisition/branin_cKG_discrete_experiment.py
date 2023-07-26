@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import GPyOpt
-from GPyOpt.objective_examples.experiments2d import mistery
+from GPyOpt.objective_examples.experiments2d import mistery, new_brannin
 from Hybrid_discrete_KG_v2 import KG
 from bayesian_optimisation import BO
 from multi_objective import MultiObjective
@@ -21,16 +21,16 @@ expdict = {0: [0, 1, 2, 3, 4, 17, 21, 25],
            3: [13, 14, 15, 16, 20, 24, 28, 30], }
 
 
-def function_caller_mistery_v2(it):
+def function_caller_branin_v2(it):
     for rep in expdict[it]:
         np.random.seed(rep)
         for noise in [1e-06]:
-            for num_samples in [50, 500]:
+            for num_samples in [500, 50000, 500000]:
                 # func2 = dropwave()
                 num_underlying_samples = num_samples
                 noise_objective = noise
                 noise_constraints = 1e-06
-                mistery_f = mistery(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
+                mistery_f = new_brannin(sd_obj=np.sqrt(noise_objective), sd_c=np.sqrt(noise_constraints))
 
                 # --- Attributes
                 # repeat same objective function to solve a 1 objective problem
@@ -43,9 +43,9 @@ def function_caller_mistery_v2(it):
                 # c2 = MultiObjective([test_c2])
                 # --- Space
                 # define space of variables
-                space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (0, 5)},
+                space = GPyOpt.Design_space(space=[{'name': 'var_1', 'type': 'continuous', 'domain': (-5, 10)},
                                                    {'name': 'var_2', 'type': 'continuous', 'domain': (0,
-                                                                                                      5)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
+                                                                                                      15)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
 
                 verbose = False
                 if verbose:
@@ -110,7 +110,7 @@ def function_caller_mistery_v2(it):
                 stop_date = datetime(2030, 5, 9, 7)  # year month day hour
                 max_iter = 100
                 # print("Finished Initialization")
-                subfolder = "discrete_mistery_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
+                subfolder = "discrete_branin_cKG_n_obj_" + str(noise_objective) + "_n_c_" + str(noise_constraints)
                 folder = "RESULTS"
                 cwd = os.getcwd()
                 path = cwd + "/" + folder + "/" + subfolder + '/' + str(num_underlying_samples)
@@ -130,4 +130,4 @@ def function_caller_mistery_v2(it):
                 print("Code Ended")
 
 # for i in range(30):
-# function_caller_mistery_v2(it=1)
+# function_caller_branin_v2(it=1)
