@@ -21,6 +21,7 @@ from scipy.stats import norm
 import pandas as pd
 import os
 from datetime import datetime
+import pickle as pkl
 
 try:
     from GPyOpt.plotting.plots_bo import plot_acquisition, plot_convergence
@@ -48,8 +49,9 @@ class BO(object):
     def __init__(self, model, model_c,space, objective, constraint, acquisition, evaluator,
                  X_init ,ls_evaluator=None, ls_acquisition=None, tag_last_evaluation  =True,expensive=False,
                  Y_init=None, C_init=None, cost = None, normalize_Y = False, model_update_interval = 1,
-                 deterministic=True,true_preference = 0.5):
+                 deterministic=True,true_preference = 0.5, predefined_penalty=None):
 
+        self.predefined_penalty = predefined_penalty
         self.true_preference = true_preference
         self.model_c = model_c
         self.model = model
@@ -127,6 +129,7 @@ class BO(object):
             raise InvalidConfigError("Cannot run the optimization loop without the objective function")
 
         # --- Save the options to print and save the results
+        self.iter = rep
         self.compute_OC = compute_OC
         self.KG_dynamic_optimisation = KG_dynamic_optimisation
         self.verbosity = verbosity
@@ -165,6 +168,8 @@ class BO(object):
         self.num_acquisitions = 0
         self.suggested_sample = self.X
         self.Y_new = self.Y
+        self.recommended_x_list= []
+        self.recommended_xval_list = []
         self.Opportunity_Cost_sampled = []
         self.Opportunity_Cost_GP_mean = []
 
@@ -215,6 +220,7 @@ class BO(object):
 
                 fvals = np.array(fvals).reshape(-1)
 
+
                 plt.title("Mistery")
                 plt.scatter(initial_design[:,0], initial_design[:,1], c=fvals*cvalsbool, s=5)
                 # plt.scatter(self.X[:,0], self.X[:,1], color="magenta")
@@ -235,7 +241,10 @@ class BO(object):
                 plt.scatter(initial_design[:, 0], initial_design[:, 1], c=-agregated_posterior)
                 plt.show()
 
-                _, penalty = self.update_penalty()
+                if self.predefined_penalty is None:
+                    _, penalty = self.update_penalty()
+                else:
+                    penalty = self.predefined_penalty
                 print("penalty", penalty)
                 agregated_penalised_posterior = self.agreagated_penalised_posterior(initial_design,
                                                                                     penalisation=penalty)
@@ -437,6 +446,23 @@ class BO(object):
         suggested_final_sample_GP_recommended = self.space.zip_inputs(out[0])
         suggested_final_mean_GP_recommended = -out[1]
 
+        self.recommended_x_list.append(out[0].reshape(-1))
+        self.recommended_xval_list.append(suggested_final_mean_GP_recommended.reshape(-1))
+        output_recommended_data = {"recommended_x": self.recommended_x_list,
+                                   "recommended_x_value": self.recommended_xval_list}
+
+        folder = "RESULTS"
+        subfolder = self.evaluations_file
+        cwd = os.getcwd()
+        if self.predefined_penalty is None:
+            path = cwd + "/" + folder + "/" + subfolder + "/continuous"
+        else:
+            path = cwd + "/" + folder + "/" + subfolder + "/"+ str(self.predefined_penalty.reshape(-1)[0])
+        if os.path.isdir(path) == False:
+            os.makedirs(path , exist_ok=True)
+
+        with open(path + "/recommended_data_" + str(self.iter) + ".pkl", "wb") as f:
+            pkl.dump(output_recommended_data, f)
 
         Y = self.model.posterior_mean(self.X)
         pf = self.probability_feasibility_multi_gp(self.X, model=self.model_c)
@@ -486,8 +512,10 @@ class BO(object):
         return -(mu * pf).reshape(-1)
 
     def wrapped_agreagated_penalised_posterior(self, f):
-        _, M = self.update_penalty()
-
+        if self.predefined_penalty is None:
+            _, M = self.update_penalty()
+        else:
+            M = self.predefined_penalty
         def base_function(X):
             return f(X, M)
 

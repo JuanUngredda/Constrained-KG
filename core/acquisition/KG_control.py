@@ -16,7 +16,7 @@ import argparse
 # from test_function_2_nEI import function_caller_test_fun_2_nEI
 from mistery_cKG_discrete_experiment import function_caller_mistery_v2
 from test_func_2_cKG_discrete_experiment import function_caller_test_func_2
-from branin_cKG_discrete_experiment import function_caller_branin_v2
+from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
 #RERUN THESE RESULTS
 
 
@@ -61,7 +61,7 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    functions = [function_caller_branin_v2]
+    functions = [function_caller_mistery_penalty_adjusted]
 
     # functions = [function_caller_NN_cKG]
     for func in functions:
