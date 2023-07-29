@@ -77,7 +77,7 @@ def function_caller_mistery_penalty_adjusted(it):
                         deterministic=False, predefined_penalty=M_value)
 
                 stop_date = datetime(2030, 5, 10, 7)  # year month day hour
-                max_iter = 100
+                max_iter = 20
                 # print("Finished Initialization")
                 subfolder = "mistery_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(
                     noise_constraints)
