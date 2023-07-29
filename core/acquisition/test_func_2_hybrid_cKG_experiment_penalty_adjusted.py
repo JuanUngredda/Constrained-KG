@@ -89,18 +89,20 @@ def function_caller_test_func_2_penalty_adjusted(it):
                 else:
                     path = cwd + "/" + folder + "/" + subfolder + '/' + str(M_value[0]) + '/it_' + str(rep) + '.csv'
                 file_name = 'it_' + str(rep) + '.csv'
-                if not os.path.isdir(path):
-                    os.makedirs(path, exist_ok=True)
+                try:
+                    if not os.path.isdir(path):
+                        os.makedirs(path, exist_ok=True)
 
-                if not os.path.isfile(path + "/" + file_name):
-                    bo.run_optimization(max_iter=max_iter,
-                                        verbosity=False,
-                                        path=path + "/" + file_name,
-                                        stop_date=stop_date,
-                                        rep=rep,
-                                        evaluations_file=subfolder,
-                                        KG_dynamic_optimisation=True)
-
+                    if not os.path.isfile(path + "/" + file_name):
+                        bo.run_optimization(max_iter=max_iter,
+                                            verbosity=False,
+                                            path=path + "/" + file_name,
+                                            stop_date=stop_date,
+                                            rep=rep,
+                                            evaluations_file=subfolder,
+                                            KG_dynamic_optimisation=True)
+                except:
+                    pass
                 print("Code Ended")
 
 # function_caller_test_func_2_penalty_adjusted(it=0)
