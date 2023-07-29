@@ -208,6 +208,7 @@ class BO(object):
                 print("self.suggested_sample", self.suggested_sample)
                 initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 100000)
                 fvals, _ =self.objective.evaluate(initial_design)
+                print("stats",np.max(fvals), np.mean(fvals), np.min(fvals))
                 cvals, _ =self.constraint.evaluate(initial_design)
                 cvals = np.hstack(cvals).squeeze()
 
@@ -230,7 +231,7 @@ class BO(object):
                 plt.xticks(fontsize=12)
                 plt.yticks(fontsize=12)
                 plt.colorbar()
-                plt.savefig("/home/juan/Documents/repos_data/Constrained-KG/RESULTS_adjusted_penalisation/plots/mistery_penalisation_surface.jpg",bbox_inches='tight', dpi=150)
+                # plt.savefig("/home/juan/Documents/repos_data/Constrained-KG/RESULTS_adjusted_penalisation/plots/mistery_penalisation_surface.jpg",bbox_inches='tight', dpi=150)
                 plt.show()
                 raise
                 initial_design = GPyOpt.experiment_design.initial_design('latin', self.space, 1000)

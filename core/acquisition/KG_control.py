@@ -4,7 +4,6 @@ import subprocess as sp
 import os
 import argparse
 
-
 # from branin_nEI import function_caller_branin_nEI as f1
 # from branin_penalised_KG import function_caller_new_branin_pKG as f2
 # from branin_TS import function_caller_new_brannin_TS as f3
@@ -17,8 +16,11 @@ import argparse
 from mistery_cKG_discrete_experiment import function_caller_mistery_v2
 from test_func_2_cKG_discrete_experiment import function_caller_test_func_2
 from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
-#RERUN THESE RESULTS
+from branin_hybrid_cKG_experiment_penalty_adjusted import function_caller_branin_penalty_adjusted
+from test_func_2_hybrid_cKG_experiment_penalty_adjusted import function_caller_test_func_2_penalty_adjusted
 
+
+# RERUN THESE RESULTS
 
 
 # from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_mistery_penalty_adjusted
@@ -35,7 +37,6 @@ from mistery_hybrid_cKG_experiment_penalty_adjusted import function_caller_miste
 # see fork0_to_csc.py for further help.
 
 
-
 def run(args):
     """
     This is a stupid function just for demonstration purposes.
@@ -50,7 +51,7 @@ def run(args):
 
     # use the args.k as a lookup into all_job_settings
     this_job_setting = all_job_settings[args.k]
-    this_job_savefile = args.dirname+"/res/"+str(args.k)
+    this_job_savefile = args.dirname + "/res/" + str(args.k)
 
     # Now to run some code!
     # Let's print something, say the conda env, args, computer and job setting?
@@ -61,7 +62,8 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    functions = [function_caller_mistery_penalty_adjusted]
+    functions = [function_caller_mistery_penalty_adjusted, function_caller_branin_penalty_adjusted,
+                 function_caller_test_func_2_penalty_adjusted]
 
     # functions = [function_caller_NN_cKG]
     for func in functions:
@@ -75,7 +77,7 @@ def run(args):
     print("\nOutput saved to file: ", this_job_savefile, "\n\n\n\n")
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     ####################################### WARNING ####################################
     # ALL EXPERIMENT RUNNERS MUST HAVE THE FOLLOWING ARGS!!!! DO NOT CHANGE THIS!!!!
     ####################################### WARNING ####################################
