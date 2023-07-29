@@ -28,7 +28,7 @@ def function_caller_mistery_penalty_adjusted(it):
     for rep in expdict[it]:
         np.random.seed(rep)
         for noise in [1e-04]:
-            for m in [-1000, -37.08, -12.65, 1.46, None]:
+            for m in [-1000000]:
                 # func2 = dropwave()
                 noise_objective = noise
                 noise_constraints = (1e-04) ** 2
