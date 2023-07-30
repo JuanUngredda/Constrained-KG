@@ -18,10 +18,12 @@ from datetime import datetime
 # --- Function to optimize
 print("mistery activate")
 
-expdict = {0: [0, 1, 2, 3, 4, 17, 21, 25],
-           1: [5, 6, 7, 8, 18, 22, 26],
-           2: [9, 10, 11, 12, 19, 23, 27, 29],
-           3: [13, 14, 15, 16, 20, 24, 28, 30], }
+expdict = {0: [0, 1, 2, 3, 4],
+           1: [5, 6, 7, 8, 9],
+           2: [10, 11, 12, 13, 14],
+           3: [15, 16, 17, 18, 19],
+           4: [20, 21, 22, 23, 24],
+           5: [25, 26, 27, 28, 29]}
 
 
 def function_caller_test_func_2_penalty_adjusted(it):
@@ -81,7 +83,7 @@ def function_caller_test_func_2_penalty_adjusted(it):
                 stop_date = datetime(2030, 5, 10, 7)  # year month day hour
                 max_iter = 20
                 # print("Finished Initialization")
-                subfolder = "test_func_2_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(
+                subfolder = "v2_test_func_2_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(
                     noise_constraints)
                 folder = "RESULTS"
                 cwd = os.getcwd()
