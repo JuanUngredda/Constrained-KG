@@ -30,7 +30,7 @@ def function_caller_branin_penalty_adjusted(it):
     for rep in expdict[it]:
         np.random.seed(rep)
         for noise in [1e-04]:
-            for m in [-1000000, 448.23, 150.00, -0.0023, None]:
+            for m in [-1000000, 448.23, 150.00, -0.0023]:
                 # func2 = dropwave()
                 noise_objective = noise
                 noise_constraints = (1e-04) ** 2
