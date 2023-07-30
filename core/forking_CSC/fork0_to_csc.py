@@ -3,17 +3,22 @@ import os
 import subprocess as sp
 from time import sleep
 
+
 def get_hostname():
     return sp.check_output(['hostname'], shell=True).decode()[:-1]
 
+
 cpu = get_hostname()
+
 
 def host_print(*args):
     """ performs standard print but puts the hostname infront """
     print(cpu + ": ", *args)
 
+
 def get_home():
     return sp.check_output(['echo $HOME'], shell=True).decode()[:-1]
+
 
 N_PROCESSES = 8
 
@@ -104,23 +109,25 @@ N_PROCESSES = 8
 ##########################################################################################
 
 
-
 ############################### DEFINE COMPUTER ARRAY #######################################
 
 # set the computers you want to use here, tmux will load to show if they are active.
-ALL_CSC_NAMES = [ "jamon", 
-                 "niliga",  "keiko", 
+ALL_CSC_NAMES = ["jamon",
+                 "niliga",
+                 "caldereta",
+                 "keiko",
+                 "kaluga",
                  "kumeta"]
 
 # default list uses all computers, but some may need to be removed.
 # working with names is a bitch, instead use numbers (tmux panes).
-#U = [0]
-#U = [0,2,3,4,5,6,7,8]
-#python fork0_to_csc.py /home/rawsys/matjiu/Constrained-KG/core/acquisition/KG_control.py 9 --first_fork kumeta --basedir /home/rawsys/matjiu/RESULTS_cKG/mistery --conda Constrained-KG
+# U = [0]
+# U = [0,2,3,4,5,6,7,8]
+# python fork0_to_csc.py /home/rawsys/matjiu/Constrained-KG/core/acquisition/KG_control.py 9 --first_fork kumeta --basedir /home/rawsys/matjiu/RESULTS_cKG/mistery --conda Constrained-KG
 
 
-U = [i for i in range(len(ALL_CSC_NAMES))] #[] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
-
+U = [i for i in range(
+    len(ALL_CSC_NAMES))]  # [] #[0,1, 5, 6, 7, 8, 9,11,14,15] ## #[18,19,20]#[0,1, 5, 6, 7, 8, 9,11,14,15,16]# #15,16#[0,1, 5, 6, 7, 8, 9,11,14] #
 
 CSC_NAMES = [ALL_CSC_NAMES[i] for i in U]
 
@@ -143,11 +150,11 @@ def Nhtop(names=CSC_NAMES):
             sp.call(["/bin/bash", "-c", "tmux select-layout -t Nhtop tiled"])
 
         sp.call(["/bin/bash", "-c", "tmux send-keys -t Nhtop 'ssh " + i + "' 'C-m'"])
-        #sp.call(["/bin/bash", "-c", "tmux send-keys -t Nhtop 'ssh " + i + "' 'C-m'"])
+        # sp.call(["/bin/bash", "-c", "tmux send-keys -t Nhtop 'ssh " + i + "' 'C-m'"])
         # sp.call(["/bin/bash", "-c", "tmux send-keys -t Nhtop 'yes' 'C-m'"])
         sp.call(["/bin/bash", "-c", "tmux send-keys -t Nhtop 'htop' 'C-m'"])
 
-        sleep(0.15) 
+        sleep(0.15)
 
 
 def callbash(cmd, silent=False):
@@ -155,7 +162,6 @@ def callbash(cmd, silent=False):
         _ = sp.check_output(["/bin/bash", "-c", cmd])
     else:
         _ = sp.call(["/bin/bash", "-c", cmd], stderr=sp.STDOUT)
-
 
 
 ################################ THE MAIN EVENT ##########################################
@@ -177,12 +183,12 @@ if __name__ == '__main__':
     callbash("ssh godzilla 'touch forkinghellpython/python_savefiles'")
     print("Copied")
 
-
     # command line arguments
     parser = argparse.ArgumentParser(description='Run experiments on CSC desktops')
     parser.add_argument('exp_script', type=str, help='absolute path on CSC storage to experiment script')
     parser.add_argument('exp_num', type=int, help='Number of experiments to run')
-    parser.add_argument('--basedir', type=str, default='NONAME', help='Dest. folder on CSC to backup source code, also passed to exp_script')
+    parser.add_argument('--basedir', type=str, default='NONAME',
+                        help='Dest. folder on CSC to backup source code, also passed to exp_script')
     parser.add_argument('--first_fork', type=str, default='jamon', help='which CSC desktop to start from')
     parser.add_argument('--conda', type=str, default='base', help='the conda environment on CSC for exp_script')
     parser.add_argument('--branch', type=str, default=None, help='the git branch to use')
@@ -192,27 +198,28 @@ if __name__ == '__main__':
     # This will crash if there are no arguments
     args = parser.parse_args()
     git_dir = os.path.dirname(args.exp_script)
-    
+
     # make sure the exp_script is a git repo (fork1 will break otherwise)
     try:
-        cmd = "ssh godzilla 'cd "+ git_dir+ "; git rev-parse --git-dir'"
+        cmd = "ssh godzilla 'cd " + git_dir + "; git rev-parse --git-dir'"
         AA = sp.check_output(cmd, shell=True)
     except:
         print("The given script file is not in a git repo!")
-        import sys; sys.exit()
-    
+        import sys;
+
+        sys.exit()
 
     # log into godzilla and set the branch, it is persistent after logout/login
     if args.branch is not None:
-        cmd = "ssh godzilla 'cd "+ git_dir+ "; git checkout " + args.branch + "'"
+        cmd = "ssh godzilla 'cd " + git_dir + "; git checkout " + args.branch + "'"
         callbash(cmd)
-        print("On CSC, set branch to "+args.branch)
-    
+        print("On CSC, set branch to " + args.branch)
+
     # login to godzilla and pull repo unless user says no
     if not args.nopull:
         print("Doing git pull on CSC: " + git_dir)
-        callbash("ssh godzilla 'cd "+ git_dir+ "; git pull'")
-    
+        callbash("ssh godzilla 'cd " + git_dir + "; git pull'")
+
     # define verbose flag
     if args.v:
         vflag = " -v"
@@ -220,7 +227,7 @@ if __name__ == '__main__':
         vflag = ""
 
     # This will not run if there are no arguments
-    print("Calling all CSC machines! Your country needs you!   Over to ..... "+ args.first_fork,"\n\n")
+    print("Calling all CSC machines! Your country needs you!   Over to ..... " + args.first_fork, "\n\n")
     callbash(
         f"ssh {args.first_fork} 'source ~/.bashrc; conda activate {args.conda}; cd ~/forkinghellpython/; python fork1_on_csc.py " + \
         args.exp_script + " " + str(args.exp_num) + " --basedir " + args.basedir + vflag + "'&")
