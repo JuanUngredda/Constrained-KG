@@ -47,6 +47,7 @@ def function_caller_branin_v2(it):
                                                    {'name': 'var_2', 'type': 'continuous', 'domain': (0,
                                                                                                       15)}])  # GPyOpt.Design_space(space =[{'name': 'var_1', 'type': 'continuous', 'domain': (0,100)}])#
 
+
                 verbose = False
                 if verbose:
                     mistery_f_denoised = mistery(sd_obj=0, sd_c=0)

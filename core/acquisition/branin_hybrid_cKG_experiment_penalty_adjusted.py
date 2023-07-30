@@ -72,8 +72,9 @@ def function_caller_branin_penalty_adjusted(it):
                 # initial design
                 initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
-                nz = 50  # (n_c+1)
-                acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+                nz = 60  # (n_c+1)
+                acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt,
+                                 predefined_penalty=M_value)
 
                 evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
                 bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
@@ -82,7 +83,7 @@ def function_caller_branin_penalty_adjusted(it):
                 stop_date = datetime(2030, 5, 10, 7)  # year month day hour
                 max_iter = 20
                 # print("Finished Initialization")
-                subfolder = "branin_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(
+                subfolder = "v2_branin_cKG_penalty_adjusted_n_obj_" + str(noise_objective) + "_n_c_" + str(
                     noise_constraints)
                 folder = "RESULTS"
                 cwd = os.getcwd()

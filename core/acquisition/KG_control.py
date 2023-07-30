@@ -62,8 +62,7 @@ def run(args):
     hostname = sp.check_output(['hostname'], shell=True).decode()[:-1]
 
     # IMPORT AND RUN MODULES
-    functions = [function_caller_mistery_penalty_adjusted, function_caller_branin_penalty_adjusted,
-                 function_caller_test_func_2_penalty_adjusted]
+    functions = [function_caller_mistery_penalty_adjusted, function_caller_branin_penalty_adjusted]
 
     # functions = [function_caller_NN_cKG]
     for func in functions:

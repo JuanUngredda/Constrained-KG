@@ -28,7 +28,7 @@ def function_caller_test_func_2_penalty_adjusted(it):
     for rep in expdict[it]:
         np.random.seed(rep)
         for noise in [1e-04]:
-            for m in [-1000000, 11.26, 10.42, 9.97, None]:
+            for m in [-1000000, 11.26, 10.42, 9.97]:
                 # func2 = dropwave()
                 noise_objective = noise
                 noise_constraints = (1e-04) ** 2
@@ -71,7 +71,8 @@ def function_caller_test_func_2_penalty_adjusted(it):
                 initial_design = GPyOpt.experiment_design.initial_design('latin', space, 10)
 
                 nz = 30  # (n_c+1)
-                acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt)
+                acquisition = KG(model=model_f, model_c=model_c, space=space, nz=nz, optimizer=acq_opt,
+                                 predefined_penalty=M_value)
 
                 evaluator = GPyOpt.core.evaluators.Sequential(acquisition)
                 bo = BO(model_f, model_c, space, f, c, acquisition, evaluator, initial_design,
